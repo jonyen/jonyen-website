@@ -19,7 +19,8 @@ import LinearProgress from '@mui/material/LinearProgress';
 import Chip from '@mui/material/Chip';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import { styled, useColorScheme } from '@mui/material/styles';
+import { styled, useColorScheme, useTheme } from '@mui/material/styles';
+import { useMediaQuery } from '@mui/material';
 import { InlineWidget } from 'react-calendly';
 import ColorModeIconDropdown from '../../shared-theme/ColorModeIconDropdown';
 
@@ -166,8 +167,8 @@ const technologiesData = [
   {
     technology: 'React',
     proficiency: 90,
-    level: 'Expert',
-    experience: '8+ years',
+    level: 'Advanced',
+    experience: '7+ years',
     companies: ['Atlassian', 'Medallia', 'Cvent']
   },
   {
@@ -327,6 +328,8 @@ function CompanyIcon({ company }) {
 export default function MainContent() {
   const [focusedCardIndex, setFocusedCardIndex] = React.useState(null);
   const [selectedCompany, setSelectedCompany] = React.useState('');
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleFocus = (index) => {
     setFocusedCardIndex(index);
@@ -394,26 +397,28 @@ export default function MainContent() {
             </StyledCardContent>
           </StyledCard>
         </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <StyledCard
-            variant="outlined"
-            onFocus={() => handleFocus(1)}
-            onBlur={handleBlur}
-            tabIndex={0}
-            className={focusedCardIndex === 1 ? 'Mui-focused' : ''}
-          >
-            {/* Image attribution: https://unsplash.com/photos/black-flat-screen-computer-monitor-mZnx9429i94 */}
-            <CardMedia
-              component="img"
-              alt="Black computer monitor displaying code on screen in a dark workspace"
-              image={cardData[1].img}
-              sx={{
-                height: '100%',
-                objectFit: 'cover',
-              }}
-            />
-          </StyledCard>
-        </Grid>
+        {!isMobile && (
+          <Grid size={{ xs: 12, md: 6 }}>
+            <StyledCard
+              variant="outlined"
+              onFocus={() => handleFocus(1)}
+              onBlur={handleBlur}
+              tabIndex={0}
+              className={focusedCardIndex === 1 ? 'Mui-focused' : ''}
+            >
+              {/* Image attribution: https://unsplash.com/photos/black-flat-screen-computer-monitor-mZnx9429i94 */}
+              <CardMedia
+                component="img"
+                alt="Black computer monitor displaying code on screen in a dark workspace"
+                image={cardData[1].img}
+                sx={{
+                  height: '100%',
+                  objectFit: 'cover',
+                }}
+              />
+            </StyledCard>
+          </Grid>
+        )}
       </Grid>
 
       <StyledCard variant="outlined" sx={{ mt: 2 }}>
@@ -520,7 +525,7 @@ export default function MainContent() {
                 </StyledCardContent>
               </StyledCard>
         </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
+        {/* <Grid size={{ xs: 12, md: 6 }}>
           <StyledCard
             variant="outlined"
             sx={{ height: '100%' }}
@@ -540,7 +545,7 @@ export default function MainContent() {
               </Box>
             </StyledCardContent>
           </StyledCard>
-        </Grid>
+        </Grid> */}
       </Grid>
 
     </Box>

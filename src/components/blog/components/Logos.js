@@ -2,6 +2,7 @@ import * as React from 'react';
 import Grid from '@mui/material/Grid';
 import Item from '@mui/material/Grid';
 import { useColorScheme } from '@mui/material/styles';
+import { useMediaQuery, useTheme } from '@mui/material';
 
 import asperaLogo from '../../../assets/aspera-seeklogo.png';
 import cventLogo from '../../../assets/cvent-logo.png';
@@ -11,20 +12,41 @@ import atlassianLogo from '../../../assets/atlassian-logo.svg';
 
 function LogoImage({ src, alt, href }) {
   const { mode } = useColorScheme();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const canvasRef = React.useRef(null);
+
+  
+  const getImageStyle = () => {
+    if (isMobile) {
+      return {
+        width: 'auto', 
+        height: '20px', 
+        objectFit: 'contain',
+        filter: mode === 'dark' ? 'grayscale(100%) invert(1)' : 'grayscale(100%)'
+      };
+    }
+    
+    return {
+      width: 'auto', 
+      height: '20px', 
+      objectFit: 'contain',
+      filter: mode === 'dark' 
+        ? 'grayscale(100%) invert(1) brightness(1)'
+        : 'grayscale(100%)',
+      WebkitFilter: mode === 'dark' 
+        ? 'grayscale(100%) invert(1) brightness(1)'
+        : 'grayscale(100%)'
+    };
+  };
   
   return (
     <a href={href}>
       <img 
-        src={src} 
+        ref={canvasRef}
+        src={src}
         alt={alt} 
-        style={{ 
-          width: 'auto', 
-          height: '20px', 
-          objectFit: 'contain',
-          filter: mode === 'dark' 
-            ? 'grayscale(100%) invert(1)'
-            : 'grayscale(100%)'
-        }} 
+        style={getImageStyle()}
       />
     </a>
   );
