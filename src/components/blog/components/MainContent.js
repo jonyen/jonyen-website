@@ -19,7 +19,9 @@ import LinearProgress from '@mui/material/LinearProgress';
 import Chip from '@mui/material/Chip';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import { styled } from '@mui/material/styles';
+import { styled, useColorScheme } from '@mui/material/styles';
+import { InlineWidget } from 'react-calendly';
+import ColorModeIconDropdown from '../../shared-theme/ColorModeIconDropdown';
 
 import programmingImage from '../../../assets/programming.jpg';
 import atlassianFavicon from '../../../assets/atlassian-favicon.png';
@@ -292,6 +294,7 @@ const companyFavicons = {
 };
 
 function CompanyIcon({ company }) {
+  const { mode } = useColorScheme();
   const faviconUrl = companyFavicons[company];
   
   if (!faviconUrl) {
@@ -313,7 +316,9 @@ function CompanyIcon({ company }) {
         width: '20px', 
         height: '20px',
         objectFit: 'contain',
-        filter: 'grayscale(100%)'
+        filter: mode === 'dark' 
+          ? 'grayscale(100%) invert(1)' 
+          : 'grayscale(100%)'
       }}
     />
   );
@@ -347,12 +352,15 @@ export default function MainContent() {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <div>
-        <Typography variant="h1">
-          Jonathan Yen
-        </Typography>
-        <Typography>Experienced Full Stack Software Engineer based in Washington DC Metro region</Typography>
-      </div>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <Typography variant="h1">
+            Jonathan Yen
+          </Typography>
+          <Typography>Experienced Full Stack Software Engineer based in Washington DC Metro region</Typography>
+        </div>
+        <ColorModeIconDropdown />
+      </Box>
       <Logos />
      <Box
         sx={{
@@ -484,33 +492,56 @@ export default function MainContent() {
       </TableContainer>
         </StyledCardContent>
       </StyledCard>
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-        <StyledCard
-              variant="outlined"
-              onFocus={() => handleFocus(0)}
-              onBlur={handleBlur}
-              tabIndex={0}
-              className={focusedCardIndex === 0 ? 'Mui-focused' : ''}
-              sx={{ maxWidth: '500px', width: '100%' }}
-            >
-              <StyledCardContent>
-                <Typography gutterBottom variant="h6" component="div">
-                  {cardData[2].title}
-                </Typography>
-                <Box component="ul" sx={{ m: 0, pl: 2 }}>
-                  <Typography component="li" variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                    I have run 4 marathons and countless half-marathons
+      <Grid container spacing={2} sx={{ mt: 2 }}>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <StyledCard
+                variant="outlined"
+                onFocus={() => handleFocus(0)}
+                onBlur={handleBlur}
+                tabIndex={0}
+                className={focusedCardIndex === 0 ? 'Mui-focused' : ''}
+                sx={{ height: '100%' }}
+              >
+                <StyledCardContent>
+                  <Typography gutterBottom variant="h6" component="div">
+                    {cardData[2].title}
                   </Typography>
-                  <Typography component="li" variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                    I have visited over 20 countries across 4 continents
-                  </Typography>
-                  <Typography component="li" variant="body2" color="text.secondary">
-                    Never had a cup of coffee in my life
-                  </Typography>
-                </Box>
-              </StyledCardContent>
-            </StyledCard>
-      </Box>
+                  <Box component="ul" sx={{ m: 0, pl: 2 }}>
+                    <Typography component="li" variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                      I have run 4 marathons and countless half-marathons
+                    </Typography>
+                    <Typography component="li" variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                      I have visited over 20 countries across 4 continents
+                    </Typography>
+                    <Typography component="li" variant="body2" color="text.secondary">
+                      Never had a cup of coffee in my life
+                    </Typography>
+                  </Box>
+                </StyledCardContent>
+              </StyledCard>
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <StyledCard
+            variant="outlined"
+            sx={{ height: '100%' }}
+          >
+            <StyledCardContent>
+              <Typography gutterBottom variant="h6" component="div">
+                Schedule a Meeting with Me
+              </Typography>
+              <Box sx={{ height: 300 }}>
+                <InlineWidget 
+                  url="https://calendly.com/jonyen" 
+                  styles={{
+                    height: '100%',
+                    width: '100%'
+                  }}
+                />
+              </Box>
+            </StyledCardContent>
+          </StyledCard>
+        </Grid>
+      </Grid>
 
     </Box>
   );
