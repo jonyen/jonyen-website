@@ -21,7 +21,7 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { styled, useColorScheme, useTheme } from '@mui/material/styles';
 import { useMediaQuery } from '@mui/material';
-import { InlineWidget } from 'react-calendly';
+// import { InlineWidget } from 'react-calendly';
 import ColorModeIconDropdown from '../../shared-theme/ColorModeIconDropdown';
 
 import programmingImage from '../../../assets/programming.jpg';
