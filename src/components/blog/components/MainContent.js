@@ -23,6 +23,7 @@ import { styled, useColorScheme, useTheme } from '@mui/material/styles';
 import { useMediaQuery } from '@mui/material';
 // import { InlineWidget } from 'react-calendly';
 import ColorModeIconDropdown from '../../shared-theme/ColorModeIconDropdown';
+import { trackCardInteraction } from '../../../utils/analytics';
 
 import programmingImage from '../../../assets/programming.jpg';
 import atlassianFavicon from '../../../assets/atlassian-favicon.png';
@@ -333,6 +334,11 @@ export default function MainContent() {
 
   const handleFocus = (index) => {
     setFocusedCardIndex(index);
+    // Track engagement with different sections of portfolio
+    const cardTitles = ['About Me', 'Programming Image', 'Fun Facts'];
+    if (cardTitles[index]) {
+      trackCardInteraction(cardTitles[index], 'focus');
+    }
   };
 
   const handleBlur = () => {
@@ -341,6 +347,8 @@ export default function MainContent() {
 
   const handleCompanyChange = (event, newValue) => {
     setSelectedCompany(newValue);
+    // Track skills filter usage
+    trackCardInteraction(`Skills Filter: ${newValue || 'All'}`, 'click');
   };
 
   const allCompanies = [...new Set(technologiesData.flatMap(tech => tech.companies))].sort();
