@@ -21,7 +21,6 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { styled, useColorScheme, useTheme } from '@mui/material/styles';
 import { useMediaQuery } from '@mui/material';
-// import { InlineWidget } from 'react-calendly';
 import ColorModeIconDropdown from '../../shared-theme/ColorModeIconDropdown';
 import { trackCardInteraction } from '../../../utils/analytics';
 
@@ -533,27 +532,6 @@ export default function MainContent() {
                 </StyledCardContent>
               </StyledCard>
         </Grid>
-        {/* <Grid size={{ xs: 12, md: 6 }}>
-          <StyledCard
-            variant="outlined"
-            sx={{ height: '100%' }}
-          >
-            <StyledCardContent>
-              <Typography gutterBottom variant="h6" component="div">
-                Schedule a Meeting with Me
-              </Typography>
-              <Box sx={{ height: 300 }}>
-                <InlineWidget 
-                  url="https://calendly.com/jonyen" 
-                  styles={{
-                    height: '100%',
-                    width: '100%'
-                  }}
-                />
-              </Box>
-            </StyledCardContent>
-          </StyledCard>
-        </Grid> */}
       </Grid>
 
     </Box>
