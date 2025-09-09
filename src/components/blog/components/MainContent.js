@@ -518,16 +518,12 @@ export default function MainContent() {
                   <Typography gutterBottom variant="h6" component="div">
                     {cardData[2].title}
                   </Typography>
-                  <Box component="ul" sx={{ m: 0, pl: 2 }}>
-                    <Typography component="li" variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                      I have run 4 marathons and countless half-marathons
-                    </Typography>
-                    <Typography component="li" variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                      I have visited over 20 countries across 4 continents
-                    </Typography>
-                    <Typography component="li" variant="body2" color="text.secondary">
-                      Never had a cup of coffee in my life
-                    </Typography>
+                  <Box component="ul" sx={{ pl: 2, m: 0 }}>
+                    {cardData[2].description.split('\n').filter(line => line.trim().startsWith('*')).map((line, index) => (
+                      <Typography component="li" variant="body2" color="text.secondary" key={index} sx={{ mb: 0.5 }}>
+                        {line.trim().substring(1).trim()}
+                      </Typography>
+                    ))}
                   </Box>
                 </StyledCardContent>
               </StyledCard>
