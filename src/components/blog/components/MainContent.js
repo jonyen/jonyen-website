@@ -234,7 +234,13 @@ const technologiesData = [
     experience: '2 years',
     companies: ['Atlassian']
   },
-
+  {
+    technology: 'Postgres',
+    proficiency: 60,
+    level: 'Intermediate',
+    experience: '3 years',
+    companies: ['Medallia']
+  },
   {
     technology: 'Shell Scripting',
     proficiency: 75,
