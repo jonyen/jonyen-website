@@ -122,7 +122,7 @@ const cardData = [
     description:
       `I’m a software engineer with 15+ years of experience building full-stack web applications, leading frontend teams, and scaling infrastructure. I’ve worked at industry-leading companies including Atlassian, Medallia, and IBM.
 
-My expertise lies in JavaScript/TypeScript, React, GraphQL, Node.js, and DevOps tooling in Docker and Kubernetes. Whether it’s building internal tools or customer-facing apps, I focus on elegant solutions that balance performance and maintainability.
+My expertise lies in JavaScript/TypeScript, React, GraphQL, Node.js, and DevOps tooling in Docker, Github, Jenkins, and Bitbucket. Whether it’s building internal tools or customer-facing apps, I focus on elegant solutions that balance performance and maintainability.
 
 I completed both my master’s in Information Management & Systems and my undergraduate degree in Computer Science and Cognitive Science at the University of California, Berkeley.`,
     authors: [
@@ -186,10 +186,17 @@ const technologiesData = [
     companies: ['Atlassian', 'Medallia']
   },
   {
-    technology: 'Docker/Kubernetes',
+    technology: 'Docker',
     proficiency: 75,
     level: 'Advanced',
     experience: '6+ years',
+    companies: ['Medallia']
+  },
+  { 
+    technology: 'Kubernetes',
+    proficiency: 50,
+    level: 'Intermediate',
+    experience: '3 years',
     companies: ['Medallia']
   },
   {
