@@ -1,5 +1,5 @@
 {
-  "name": "jonyen-react-portfolio",
+  "name": "jonyen-website",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -49,8 +49,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
-      "git add"
+      "eslint --fix"
     ]
   }
 }
