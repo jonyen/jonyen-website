@@ -8,27 +8,16 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import LinearProgress from '@mui/material/LinearProgress';
-import Chip from '@mui/material/Chip';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import { styled, useColorScheme, useTheme } from '@mui/material/styles';
+import { styled, useTheme } from '@mui/material/styles';
 import { useMediaQuery } from '@mui/material';
 import ColorModeIconDropdown from '../../shared-theme/ColorModeIconDropdown';
 import { trackCardInteraction } from '../../../utils/analytics';
 
 import programmingImage from '../../../assets/programming.jpg';
-import atlassianFavicon from '../../../assets/atlassian-favicon.png';
-import medalliaFavicon from '../../../assets/medallia-favicon.png';
-import cventFavicon from '../../../assets/cvent-favicon.png';
-import ibmLogo from '../../../assets/IBM-8-bar-logo.svg';
 import Logos from './Logos';
 
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -292,45 +281,6 @@ const technologiesData = [
   }
 ];
 
-const companyFavicons = {
-  'Atlassian': atlassianFavicon,
-  'Medallia': medalliaFavicon,
-  'Cvent': cventFavicon,
-  'IBM / Aspera': ibmLogo,
-  'Early Career': null // No favicon for this
-};
-
-function CompanyIcon({ company }) {
-  const { mode } = useColorScheme();
-  const faviconUrl = companyFavicons[company];
-  
-  if (!faviconUrl) {
-    return (
-      <Chip 
-        label={company} 
-        size="small" 
-        sx={{ fontSize: '0.6rem', height: '18px' }}
-      />
-    );
-  }
-  
-  return (
-    <img 
-      src={faviconUrl} 
-      alt={company}
-      title={company}
-      style={{ 
-        width: '20px', 
-        height: '20px',
-        objectFit: 'contain',
-        filter: mode === 'dark' 
-          ? 'grayscale(100%) invert(1)' 
-          : 'grayscale(100%)'
-      }}
-    />
-  );
-}
-
 export default function MainContent() {
   const [focusedCardIndex, setFocusedCardIndex] = React.useState(null);
   const [selectedCompany, setSelectedCompany] = React.useState('');
@@ -357,14 +307,6 @@ export default function MainContent() {
   };
 
   const allCompanies = [...new Set(technologiesData.flatMap(tech => tech.companies))].sort();
-
-  const filteredTechnologies = technologiesData.filter(tech => {
-    const matchesCompany = !selectedCompany || 
-      tech.companies.includes(selectedCompany);
-    
-    return matchesCompany;
-  });
-
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
