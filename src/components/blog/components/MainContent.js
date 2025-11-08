@@ -474,39 +474,6 @@ export default function MainContent() {
               overflow: 'auto'
             }}
           >
-        <Table sx={{ minWidth: 650 }} aria-label="skills table">
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ fontWeight: 'bold' }}>Technology</TableCell>
-              <TableCell align="center" sx={{ fontWeight: 'bold' }}>Proficiency</TableCell>
-              <TableCell align="center" sx={{ fontWeight: 'bold' }}>Experience</TableCell>
-              <TableCell align="right" sx={{ fontWeight: 'bold' }}>Companies Used At</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredTechnologies.map((tech) => (
-              <TableRow key={tech.technology} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                <TableCell component="th" scope="row">
-                  <Typography variant="body1" sx={{ fontWeight: 500 }}>{tech.technology}</Typography>
-                </TableCell>
-                <TableCell align="center">{tech.experience}</TableCell>
-                <TableCell align="center">
-                  <Box sx={{ width: '100%', mr: 1 }}>
-                    <LinearProgress variant="determinate" value={tech.proficiency} sx={{ height: 8, borderRadius: 4 }} />
-                    <Typography variant="caption" sx={{ mt: 0.5, display: 'block' }}>{tech.level}</Typography>
-                  </Box>
-                </TableCell>
-                <TableCell align="right">
-                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center' }}>
-                    {tech.companies.map((company, companyIndex) => (
-                      <CompanyIcon key={companyIndex} company={company} />
-                    ))}
-                  </Box>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
       </TableContainer>
         </StyledCardContent>
       </StyledCard>
