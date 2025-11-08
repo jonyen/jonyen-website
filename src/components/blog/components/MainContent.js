@@ -8,10 +8,6 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
-import TableContainer from '@mui/material/TableContainer';
-import Paper from '@mui/material/Paper';
-import ToggleButton from '@mui/material/ToggleButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { styled, useTheme } from '@mui/material/styles';
 import { useMediaQuery } from '@mui/material';
 import ColorModeIconDropdown from '../../shared-theme/ColorModeIconDropdown';
@@ -138,152 +134,8 @@ I completed both my master’s in Information Management & Systems and my underg
   },
 ];
 
-const technologiesData = [
-  {
-    technology: 'JavaScript',
-    proficiency: 90,
-    level: 'Expert',
-    experience: '10+ years',
-    companies: ['Atlassian', 'Medallia', 'Cvent', 'IBM / Aspera']
-  },
-  {
-    technology: 'TypeScript',
-    proficiency: 80,
-    level: 'Advanced',
-    experience: '5+ years',
-    companies: ['Atlassian', 'Medallia']
-  },
-  {
-    technology: 'React',
-    proficiency: 90,
-    level: 'Advanced',
-    experience: '7+ years',
-    companies: ['Atlassian', 'Medallia', 'Cvent']
-  },
-  {
-    technology: 'Node.js',
-    proficiency: 85,
-    level: 'Advanced',
-    experience: '7+ years',
-    companies: ['Atlassian', 'Medallia']
-  },
-  {
-    technology: 'GraphQL',
-    proficiency: 80,
-    level: 'Advanced',
-    experience: '6+ years',
-    companies: ['Atlassian', 'Medallia']
-  },
-  {
-    technology: 'Docker/Kubernetes',
-    proficiency: 75,
-    level: 'Advanced',
-    experience: '6+ years',
-    companies: ['Medallia']
-  },
-  {
-    technology: 'Python',
-    proficiency: 70,
-    level: 'Intermediate',
-    experience: '2+ years',
-    companies: ['Early Career']
-  },
-  {
-    technology: 'Amazon Web Services',
-    proficiency: 75,
-    level: 'Advanced',
-    experience: '4 years',
-    companies: ['IBM / Aspera']
-  },
-  {
-    technology: 'Java/Kotlin',
-    proficiency: 60,
-    level: 'Intermediate',
-    experience: '3 years',
-    companies: ['Atlassian', 'Early Career']
-  },
-  {
-    technology: 'Ruby on Rails',
-    proficiency: 70,
-    level: 'Intermediate',
-    experience: '4 years',
-    companies: ['Cvent', 'IBM / Aspera', 'Medallia']
-  },
-  {
-    technology: 'Jest',
-    proficiency: 85,
-    level: 'Advanced',
-    experience: '5 years',
-    companies: ['Atlassian', 'Medallia', 'Cvent']
-  },
-  {
-    technology: 'Playwright',
-    proficiency: 60,
-    level: 'Intermediate',
-    experience: '2 years',
-    companies: ['Atlassian']
-  },
-  {
-    technology: 'Postgres',
-    proficiency: 60,
-    level: 'Intermediate',
-    experience: '3 years',
-    companies: ['Medallia']
-  },
-  {
-    technology: 'Shell Scripting',
-    proficiency: 75,
-    level: 'Advanced',
-    experience: '10+ years',
-    companies: ['Atlassian', 'Medallia', 'Cvent', 'IBM / Aspera', 'Early Career']
-  },
-  {
-    technology: 'Angular',
-    proficiency: 50,
-    level: 'Beginner',
-    experience: '2 years',
-    companies: ['Medallia']
-  },
-  {
-    technology: 'Vue.js',
-    proficiency: 50,
-    level: 'Beginner',
-    experience: '2 years',
-    companies: ['Medallia']
-  },
-  {
-    technology: 'Swift/Objective-C',
-    proficiency: 50,
-    level: 'Beginner',
-    experience: '2+ years',
-    companies: ['Medallia', 'Early Career']
-  },
-  {
-    technology: 'Android Development',
-    proficiency: 30,
-    level: 'Beginner',
-    experience: '1 years',
-    companies: ['Medallia']
-  },
-  {
-    technology: 'PHP',
-    proficiency: 75,
-    level: 'Advanced',
-    experience: '6+ years',
-    companies: ['Medallia', 'Early Career']
-  },
-  {
-    technology: 'ActionScript',
-    proficiency: 60,
-    level: 'Intermediate',
-    experience: '3 years',
-    companies: ['Early Career']
-  }
-];
-
 export default function MainContent() {
   const [focusedCardIndex, setFocusedCardIndex] = React.useState(null);
-  const [selectedCompany, setSelectedCompany] = React.useState('');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -299,14 +151,6 @@ export default function MainContent() {
   const handleBlur = () => {
     setFocusedCardIndex(null);
   };
-
-  const handleCompanyChange = (event, newValue) => {
-    setSelectedCompany(newValue);
-    // Track skills filter usage
-    trackCardInteraction(`Skills Filter: ${newValue || 'All'}`, 'click');
-  };
-
-  const allCompanies = [...new Set(technologiesData.flatMap(tech => tech.companies))].sort();
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -376,49 +220,6 @@ export default function MainContent() {
         )}
       </Grid>
 
-      <StyledCard variant="outlined" sx={{ mt: 2 }}>
-        <StyledCardContent>
-          <Typography variant="h5" sx={{ mb: 1 }}>Skills & Technologies</Typography>
-          <StyledTypography variant="body2" color="text.secondary" gutterBottom>
-            Throughout my 15+ year career, I've collaborated with exceptional engineers at industry-leading companies, each experience shaping my technical expertise and professional growth. From building scalable web applications to leading frontend initiatives, I've worked with diverse programming languages and frameworks across different domains.
-            
-            The table below showcases the technologies I've mastered throughout my journey, with self-assessed proficiency levels based on hands-on experience and real-world application at each company.
-          </StyledTypography>
-          
-          <Box sx={{ mt: 2, mb: 2 }}>
-            <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>Filter by Company:</Typography>
-            <ToggleButtonGroup
-              value={selectedCompany}
-              exclusive
-              onChange={handleCompanyChange}
-              aria-label="company filter"
-              size="small"
-              sx={{ flexWrap: 'wrap' }}
-            >
-              <ToggleButton value="" aria-label="all companies">
-                All
-              </ToggleButton>
-              {allCompanies.map((company) => (
-                <ToggleButton key={company} value={company} aria-label={company}>
-                  {company}
-                </ToggleButton>
-              ))}
-            </ToggleButtonGroup>
-          </Box>
-
-          <TableContainer 
-            component={Paper} 
-            sx={{ 
-              mt: 1, 
-              border: 1, 
-              borderColor: 'divider',
-              height: 600,
-              overflow: 'auto'
-            }}
-          >
-      </TableContainer>
-        </StyledCardContent>
-      </StyledCard>
       <Grid container spacing={2} sx={{ mt: 2 }}>
         <Grid size={{ xs: 12, md: 6 }}>
           <StyledCard
