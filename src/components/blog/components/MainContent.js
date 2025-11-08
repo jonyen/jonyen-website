@@ -105,11 +105,7 @@ const cardData = [
     tag: 'Engineering',
     title: 'About Me',
     description:
-      `I’m a software engineer with 15+ years of experience building full-stack web applications, leading frontend teams, and scaling infrastructure. I’ve worked at industry-leading companies including Atlassian, Medallia, and IBM.
-
-My expertise lies in JavaScript/TypeScript, React, GraphQL, Node.js, and DevOps tooling in Docker and Kubernetes. Whether it’s building internal tools or customer-facing apps, I focus on elegant solutions that balance performance and maintainability.
-
-I completed both my master’s in Information Management & Systems and my undergraduate degree in Computer Science and Cognitive Science at the University of California, Berkeley.`,
+      `A software engineer by trade, I've worked at industry-leading companies over the past 15 years and have collaborated with some of the brightest minds in the industry. Educated at UC Berkeley, I spent over 10 years in the Bay Area before moving to Northern Virginia where I currently reside. I've worked across a wide range of tech stacks including React, Node.js, Ruby on Rails, PHP, Java/Kotlin, AWS, and many others. Outside of work, I'm a Sunday school teacher and I lead my church's children's ministry along with my wife.`,
     authors: [
       { name: 'Jonathan Yen', avatar: '/static/images/avatar/2.jpg' },
     ],
@@ -117,10 +113,10 @@ I completed both my master’s in Information Management & Systems and my underg
   {
     img: programmingImage,
     tag: 'Product',
-    title: 'Innovative product features that drive success',
+    title: 'Software Engineering ',
     description:
-      'Explore the key features of our latest product release that are helping businesses achieve their goals. From user-friendly interfaces to robust functionality, learn why our product stands out.',
-    authors: [{ name: 'Erica Johns', avatar: '/static/images/avatar/6.jpg' }],
+      'Computers - the most complex machine ever created by mankind. They are capable of doing incredible things, but they are also capable of doing incredibly stupid things. I am a software engineer, and I am here to help you understand how computers work.',
+    authors: [{ name: 'Jonathan Yen', avatar: '/static/images/avatar/6.jpg' }],
   },
   {
     img: 'https://picsum.photos/800/450?random=6',
@@ -130,7 +126,7 @@ I completed both my master’s in Information Management & Systems and my underg
       `* I have run 4 marathons and countless half-marathons
       * I have visited over 20 countries across 4 continents
       * Never had a cup of coffee in my life`,
-    authors: [{ name: 'Travis Howard', avatar: '/static/images/avatar/2.jpg' }],
+    authors: [{ name: 'Jonathan Yen', avatar: '/static/images/avatar/2.jpg' }],
   },
 ];
 
