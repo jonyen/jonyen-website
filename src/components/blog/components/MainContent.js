@@ -127,7 +127,7 @@ const cardData = [
       `* I have run 4 marathons and countless half-marathons
       * I have visited over 20 countries across 4 continents
       * Never had a cup of coffee in my life
-      * I've solved the NY Times Crossword every day since the start of the COVID pandemic (${getDaysSince('2020-03-23')} days and counting!)`,
+      * I've solved the NY Times Crossword every day since the start of the COVID pandemic quarantine orders (${getDaysSince('2020-03-23')} days and counting!)`,
     authors: [{ name: 'Jonathan Yen', avatar: '/static/images/avatar/2.jpg' }],
   },
 ];
