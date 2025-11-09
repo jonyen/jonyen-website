@@ -105,7 +105,7 @@ const cardData = [
     tag: 'Engineering',
     title: 'About Me',
     description:
-      `A software engineer by trade, I've worked at industry-leading companies over the past 15 years and have collaborated with some of the brightest minds in the industry. Educated at UC Berkeley, I spent over 10 years in the Bay Area before moving to Northern Virginia where I currently reside. I've worked across a wide range of tech stacks including React, Node.js, Ruby on Rails, PHP, Java/Kotlin, AWS, and many others. Outside of work, I'm a Sunday school teacher and I lead my church's children's ministry along with my wife.`,
+      `A software engineer by trade, I've worked at industry-leading companies over the past 15 years and have collaborated with some of the brightest minds in the industry. Educated at UC Berkeley, I spent over 10 years in the Bay Area before moving to Northern Virginia where I currently reside. I've worked across a wide range of tech stacks including React, Node.js, Ruby on Rails, PHP, Postgres, MySQL, Redis, iOS, Android,Java/Kotlin, AWS, and many others. Outside of work, I'm a Sunday school teacher and I lead my church's children's ministry along with my wife.`,
     authors: [
       { name: 'Jonathan Yen', avatar: '/static/images/avatar/2.jpg' },
     ],
