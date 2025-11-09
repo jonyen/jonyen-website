@@ -190,7 +190,19 @@ export default function MainContent() {
                 {cardData[0].description}
               </StyledTypography>
             </StyledCardContent>
-          </StyledCard>
+            <StyledCardContent>
+              <Typography gutterBottom variant="h6" component="div">
+                {cardData[2].title}
+              </Typography>
+              <Box component="ul" sx={{ pl: 2, m: 0 }}>
+                {cardData[2].description.split('\n').filter(line => line.trim().startsWith('*')).map((line, index) => (
+                  <Typography component="li" variant="body2" color="text.secondary" key={index} sx={{ mb: 0.5 }}>
+                    {line.trim().substring(1).trim()}
+                  </Typography>
+                ))}
+              </Box>
+            </StyledCardContent>
+        </StyledCard>
         </Grid>
         {!isMobile && (
           <Grid size={{ xs: 12, md: 6 }}>
@@ -215,33 +227,6 @@ export default function MainContent() {
           </Grid>
         )}
       </Grid>
-
-      <Grid container spacing={2} sx={{ mt: 2 }}>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <StyledCard
-                variant="outlined"
-                onFocus={() => handleFocus(0)}
-                onBlur={handleBlur}
-                tabIndex={0}
-                className={focusedCardIndex === 0 ? 'Mui-focused' : ''}
-                sx={{ height: '100%' }}
-              >
-                <StyledCardContent>
-                  <Typography gutterBottom variant="h6" component="div">
-                    {cardData[2].title}
-                  </Typography>
-                  <Box component="ul" sx={{ pl: 2, m: 0 }}>
-                    {cardData[2].description.split('\n').filter(line => line.trim().startsWith('*')).map((line, index) => (
-                      <Typography component="li" variant="body2" color="text.secondary" key={index} sx={{ mb: 0.5 }}>
-                        {line.trim().substring(1).trim()}
-                      </Typography>
-                    ))}
-                  </Box>
-                </StyledCardContent>
-              </StyledCard>
-        </Grid>
-      </Grid>
-
     </Box>
   );
 }
