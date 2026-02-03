@@ -44,7 +44,7 @@ const facts = [
     icon: TranslateIcon,
     number: getDaysSince('2025-01-01').toLocaleString(),
     label: 'Day Duolingo Streak',
-    description: 'Learning languages daily',
+    description: 'Learning languages daily since 1/1/2025',
     color: '#58cc02',
   },
 ];
