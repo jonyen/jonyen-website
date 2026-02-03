@@ -5,6 +5,7 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import profileImage from '../../../assets/profile.png';
 
 export default function Hero() {
   const scrollToAbout = () => {
@@ -111,22 +112,45 @@ export default function Hero() {
             </Typography>
           </Box>
 
-          {/* Main heading */}
-          <Typography
-            component="h1"
+          {/* Profile image and heading row */}
+          <Box
             className="animate-in animate-delay-1"
             sx={{
-              fontFamily: 'var(--font-display)',
-              fontSize: { xs: '3rem', sm: '4rem', md: '5.5rem', lg: '6.5rem' },
-              fontWeight: 600,
-              lineHeight: 1,
-              letterSpacing: '-0.03em',
-              color: 'var(--color-ink)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: { xs: 3, md: 4 },
               mb: 3,
+              flexWrap: 'wrap',
             }}
           >
-            Jonathan Yen
-          </Typography>
+            <Box
+              component="img"
+              src={profileImage}
+              alt="Jonathan Yen"
+              sx={{
+                width: { xs: 100, sm: 120, md: 150 },
+                height: { xs: 100, sm: 120, md: 150 },
+                borderRadius: '50%',
+                objectFit: 'cover',
+                border: '3px solid var(--color-ink)',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+              }}
+            />
+            {/* Main heading */}
+            <Typography
+              component="h1"
+              sx={{
+                fontFamily: 'var(--font-display)',
+                fontSize: { xs: '3rem', sm: '4rem', md: '5.5rem', lg: '6.5rem' },
+                fontWeight: 600,
+                lineHeight: 1,
+                letterSpacing: '-0.03em',
+                color: 'var(--color-ink)',
+              }}
+            >
+              Jonathan Yen
+            </Typography>
+          </Box>
 
           {/* Subtitle with animated line */}
           <Box className="animate-in animate-delay-2" sx={{ mb: 4 }}>
@@ -223,47 +247,6 @@ export default function Hero() {
         </Box>
       </Container>
 
-      {/* Scroll indicator */}
-      <Box
-        sx={{
-          position: 'absolute',
-          bottom: { xs: 30, md: 50 },
-          left: '50%',
-          transform: 'translateX(-50%)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 1,
-          animation: 'fadeIn 1s ease 1.5s forwards',
-          opacity: 0,
-        }}
-      >
-        <Typography
-          sx={{
-            fontFamily: 'var(--font-body)',
-            fontSize: '0.75rem',
-            color: 'var(--color-text-secondary)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.15em',
-          }}
-        >
-          Scroll
-        </Typography>
-        <Box
-          sx={{
-            width: 1,
-            height: 40,
-            backgroundColor: 'var(--color-text-secondary)',
-            animation: 'scrollLine 1.5s ease-in-out infinite',
-            transformOrigin: 'top',
-            '@keyframes scrollLine': {
-              '0%': { transform: 'scaleY(0)', opacity: 0 },
-              '50%': { transform: 'scaleY(1)', opacity: 1 },
-              '100%': { transform: 'scaleY(0)', opacity: 0, transformOrigin: 'bottom' },
-            },
-          }}
-        />
-      </Box>
     </Box>
   );
 }
