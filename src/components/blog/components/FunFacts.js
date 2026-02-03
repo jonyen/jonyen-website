@@ -2,11 +2,12 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Grid';
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 import PublicIcon from '@mui/icons-material/Public';
 import LocalCafeIcon from '@mui/icons-material/LocalCafe';
 import ExtensionIcon from '@mui/icons-material/Extension';
+import TranslateIcon from '@mui/icons-material/Translate';
+import { Link } from 'react-router-dom';
 import { getDaysSince } from '../../../utils/dateUtils';
 
 const facts = [
@@ -23,6 +24,7 @@ const facts = [
     label: 'Countries',
     description: 'Across 4 continents',
     color: '#3498db',
+    link: '/travel',
   },
   {
     icon: LocalCafeIcon,
@@ -38,24 +40,33 @@ const facts = [
     description: 'NY Times, since COVID lockdown',
     color: '#27ae60',
   },
+  {
+    icon: TranslateIcon,
+    number: getDaysSince('2025-01-01').toLocaleString(),
+    label: 'Day Duolingo Streak',
+    description: 'Learning languages daily',
+    color: '#58cc02',
+  },
 ];
 
 function FactCard({ fact, index, isVisible }) {
   const [isHovered, setIsHovered] = React.useState(false);
   const Icon = fact.icon;
+  const isClickable = !!fact.link;
 
-  return (
+  const cardContent = (
     <Box
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       sx={{
         position: 'relative',
+        height: '100%',
         p: { xs: 3, md: 4 },
         backgroundColor: 'var(--color-paper)',
         border: '1px solid var(--color-border)',
         borderRadius: '20px',
         overflow: 'hidden',
-        cursor: 'default',
+        cursor: isClickable ? 'pointer' : 'default',
         opacity: isVisible ? 1 : 0,
         transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
         transition: `all 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${0.1 + index * 0.1}s`,
@@ -148,8 +159,36 @@ function FactCard({ fact, index, isVisible }) {
       >
         {fact.description}
       </Typography>
+
+      {/* Click indicator for linked cards */}
+      {isClickable && (
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: 12,
+            right: 12,
+            fontSize: '0.75rem',
+            fontFamily: 'var(--font-body)',
+            color: fact.color,
+            opacity: isHovered ? 1 : 0.5,
+            transition: 'opacity 0.3s ease',
+          }}
+        >
+          View all →
+        </Box>
+      )}
     </Box>
   );
+
+  if (isClickable) {
+    return (
+      <Link to={fact.link} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>
+        {cardContent}
+      </Link>
+    );
+  }
+
+  return cardContent;
 }
 
 export default function FunFacts() {
@@ -251,13 +290,25 @@ export default function FunFacts() {
         </Box>
 
         {/* Facts grid */}
-        <Grid container spacing={3}>
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 3,
+            flexWrap: { xs: 'wrap', lg: 'nowrap' },
+          }}
+        >
           {facts.map((fact, index) => (
-            <Grid key={fact.label} size={{ xs: 12, sm: 6, lg: 3 }}>
+            <Box
+              key={fact.label}
+              sx={{
+                flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', lg: '1 1 0' },
+                minWidth: 0,
+              }}
+            >
               <FactCard fact={fact} index={index} isVisible={isVisible} />
-            </Grid>
+            </Box>
           ))}
-        </Grid>
+        </Box>
       </Container>
     </Box>
   );
