@@ -19,6 +19,7 @@ import ColorModeIconDropdown from '../../shared-theme/ColorModeIconDropdown';
 const navItems = [
   { label: 'About', href: '#about' },
   { label: 'Experience', href: '#experience' },
+  { label: 'Portfolio', href: '#portfolio' },
   { label: 'Fun Facts', href: '#fun-facts' },
   { label: 'Contact', href: '#contact' },
 ];
