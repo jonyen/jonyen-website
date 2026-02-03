@@ -45,41 +45,6 @@ export default function PassportHeader() {
         />
       </Box>
 
-      {/* Passport emblem */}
-      <Box
-        sx={{
-          width: { xs: 60, md: 80 },
-          height: { xs: 60, md: 80 },
-          mx: 'auto',
-          mb: 2,
-          borderRadius: '50%',
-          border: '3px solid var(--color-gold)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            inset: 4,
-            borderRadius: '50%',
-            border: '1px solid var(--color-gold)',
-            opacity: 0.5,
-          },
-        }}
-      >
-        <Typography
-          sx={{
-            fontFamily: 'var(--font-display)',
-            fontSize: { xs: '1.5rem', md: '2rem' },
-            fontWeight: 700,
-            color: 'var(--color-gold)',
-          }}
-        >
-          JY
-        </Typography>
-      </Box>
-
       {/* Main title */}
       <Typography
         variant="overline"
@@ -119,33 +84,8 @@ export default function PassportHeader() {
           mx: 'auto',
         }}
       >
-        23 countries explored and counting
+        20+ countries explored and counting
       </Typography>
-
-      {/* Decorative bottom border */}
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 2,
-          mt: 3,
-        }}
-      >
-        {[...Array(5)].map((_, i) => (
-          <Box
-            key={i}
-            sx={{
-              width: 6,
-              height: 6,
-              borderRadius: '50%',
-              backgroundColor: i === 2 ? 'var(--color-gold)' : 'transparent',
-              border: '1px solid var(--color-gold)',
-              opacity: i === 2 ? 1 : 0.5,
-            }}
-          />
-        ))}
-      </Box>
     </Box>
   );
 }

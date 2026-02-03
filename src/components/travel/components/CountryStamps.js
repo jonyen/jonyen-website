@@ -139,19 +139,6 @@ function StampCard({ country, index }) {
         {country.region}
       </Typography>
 
-      {/* Stamp circle decoration */}
-      <Box
-        sx={{
-          position: 'absolute',
-          top: 4,
-          right: 4,
-          width: 16,
-          height: 16,
-          borderRadius: '50%',
-          border: `1.5px solid ${colors.border}`,
-          opacity: 0.5,
-        }}
-      />
     </Box>
   );
 }

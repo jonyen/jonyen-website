@@ -12,6 +12,10 @@ import WorldMap from './components/WorldMap';
 import CountryStamps from './components/CountryStamps';
 
 export default function TravelPage(props) {
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <AppTheme {...props}>
       <CssBaseline enableColorScheme />
