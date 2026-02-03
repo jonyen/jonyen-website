@@ -5,9 +5,9 @@ import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 
 const techStack = [
-  { category: 'Frontend', items: ['React', 'TypeScript', 'Next.js'] },
+  { category: 'Frontend', items: ['React', 'TypeScript', 'GraphQL', 'Next.js'] },
   { category: 'Backend', items: ['Node.js', 'Ruby on Rails', 'Python'] },
-  { category: 'Mobile', items: ['iOS', 'Android'] },
+  { category: 'Mobile', items: ['iOS', 'Android', 'Responsive Web'] },
   { category: 'Infrastructure', items: ['AWS', 'PostgreSQL', 'Redis', 'Docker'] },
 ];
 
