@@ -4,6 +4,7 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 
 export default function Hero() {
   const scrollToAbout = () => {
@@ -89,6 +90,12 @@ export default function Hero() {
                   '0%, 100%': { opacity: 1 },
                   '50%': { opacity: 0.5 },
                 },
+              }}
+            />
+            <AccountBalanceIcon
+              sx={{
+                fontSize: '1rem',
+                color: 'var(--color-text-secondary)',
               }}
             />
             <Typography
