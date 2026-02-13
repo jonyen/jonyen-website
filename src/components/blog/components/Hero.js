@@ -24,7 +24,7 @@ export default function Hero() {
         alignItems: 'center',
         position: 'relative',
         overflow: 'hidden',
-        pt: { xs: 10, md: 0 },
+        pt: { xs: 'var(--header-height, 80px)', md: 0 },
       }}
     >
       {/* Decorative background elements */}

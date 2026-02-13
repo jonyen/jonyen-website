@@ -34,6 +34,7 @@ const socialLinks = [
 export default function Header() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
+  const headerRef = React.useRef(null);
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -42,6 +43,22 @@ export default function Header() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // useLayoutEffect runs synchronously after DOM mutations but before the
+  // browser paints. This is critical here because we're measuring the header's
+  // actual rendered height and writing it to a CSS variable. If we used
+  // useEffect instead, there'd be a brief frame where downstream elements
+  // (like Hero) render with stale/missing --header-height, causing a visible
+  // layout jump. useLayoutEffect guarantees the measurement is available
+  // before the user sees anything.
+  React.useLayoutEffect(() => {
+    if (!headerRef.current) return;
+    const height = headerRef.current.getBoundingClientRect().height;
+    document.documentElement.style.setProperty(
+      '--header-height',
+      `${height}px`,
+    );
+  }, [scrolled]);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -62,6 +79,7 @@ export default function Header() {
   return (
     <>
       <Box
+        ref={headerRef}
         component="header"
         sx={{
           position: 'fixed',

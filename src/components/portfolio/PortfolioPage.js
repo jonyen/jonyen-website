@@ -124,6 +124,14 @@ function ProjectIconDisplay({ title }) {
 
 function ProjectCard({ project, index, isVisible }) {
   const [isExpanded, setIsExpanded] = React.useState(false);
+  // useTransition lets us mark state updates as non-urgent. When the user
+  // clicks "Read more", React will immediately update the button text/arrow
+  // (the urgent part) while deferring the rendering of the expanded content
+  // (multiple paragraphs + tech list) to a lower-priority update. The
+  // isPending flag lets us show a subtle visual cue during the transition.
+  // Without useTransition, the entire state update is treated as urgent,
+  // which can cause the button to feel sluggish on slower devices.
+  const [isPending, startTransition] = React.useTransition();
 
   return (
     <Box
@@ -256,6 +264,7 @@ function ProjectCard({ project, index, isVisible }) {
             maxHeight: isExpanded ? '2000px' : '0px',
             overflow: 'hidden',
             transition: 'max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+            opacity: isPending ? 0.7 : 1,
           }}
         >
           <Box sx={{ pt: 2, borderTop: '1px solid var(--color-border)' }}>
@@ -315,7 +324,7 @@ function ProjectCard({ project, index, isVisible }) {
         {/* Expand/collapse button */}
         <Box
           component="button"
-          onClick={() => setIsExpanded(!isExpanded)}
+          onClick={() => startTransition(() => setIsExpanded(!isExpanded))}
           sx={{
             display: 'flex',
             alignItems: 'center',
