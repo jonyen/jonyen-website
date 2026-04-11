@@ -10,44 +10,10 @@ import TranslateIcon from '@mui/icons-material/Translate';
 import { Link } from 'react-router-dom';
 import { getDaysSince } from '../../../utils/dateUtils';
 
-const facts = [
-  {
-    icon: DirectionsRunIcon,
-    number: '4',
-    label: 'Marathons',
-    description: 'Plus countless half-marathons',
-    color: '#e74c3c',
-  },
-  {
-    icon: PublicIcon,
-    number: '20+',
-    label: 'Countries',
-    description: 'Across 4 continents',
-    color: '#3498db',
-    link: '/travel',
-  },
-  {
-    icon: LocalCafeIcon,
-    number: '0',
-    label: 'Cups of Coffee',
-    description: 'Ever. Seriously.',
-    color: '#9b59b6',
-  },
-  {
-    icon: ExtensionIcon,
-    number: getDaysSince('2020-03-23').toLocaleString(),
-    label: 'Day Crossword Streak',
-    description: 'NY Times, since COVID lockdown',
-    color: '#27ae60',
-  },
-  {
-    icon: TranslateIcon,
-    number: getDaysSince('2025-01-01').toLocaleString(),
-    label: 'Day Duolingo Streak',
-    description: 'Learning languages daily since 1/1/2025',
-    color: '#58cc02',
-  },
-];
+const DUOLINGO_USERNAME = 'jon.yen';
+const DUOLINGO_API_URL = `https://www.duolingo.com/2017-06-30/users?username=${encodeURIComponent(
+  DUOLINGO_USERNAME
+)}&fields=streak,streakData%7BcurrentStreak,previousStreak%7D`;
 
 function FactCard({ fact, index, isVisible }) {
   const [isHovered, setIsHovered] = React.useState(false);
@@ -194,6 +160,9 @@ function FactCard({ fact, index, isVisible }) {
 export default function FunFacts() {
   const sectionRef = React.useRef(null);
   const [isVisible, setIsVisible] = React.useState(false);
+  const [duolingoStreak, setDuolingoStreak] = React.useState(
+    () => getDaysSince('2025-01-01')
+  );
 
   React.useEffect(() => {
     const observer = new IntersectionObserver(
@@ -211,6 +180,75 @@ export default function FunFacts() {
 
     return () => observer.disconnect();
   }, []);
+
+  React.useEffect(() => {
+    let cancelled = false;
+
+    fetch(DUOLINGO_API_URL)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Duolingo API returned ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (cancelled) return;
+        const user = data?.users?.[0];
+        const streak =
+          user?.streakData?.currentStreak?.length ??
+          user?.streakData?.previousStreak?.length ??
+          user?.streak;
+        if (typeof streak === 'number' && streak > 0) {
+          setDuolingoStreak(streak);
+        }
+      })
+      .catch(() => {
+        // Silently fall back to the computed days-since value.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const facts = [
+    {
+      icon: DirectionsRunIcon,
+      number: '4',
+      label: 'Marathons',
+      description: 'Plus countless half-marathons',
+      color: '#e74c3c',
+    },
+    {
+      icon: PublicIcon,
+      number: '20+',
+      label: 'Countries',
+      description: 'Across 4 continents',
+      color: '#3498db',
+      link: '/travel',
+    },
+    {
+      icon: LocalCafeIcon,
+      number: '0',
+      label: 'Cups of Coffee',
+      description: 'Ever. Seriously.',
+      color: '#9b59b6',
+    },
+    {
+      icon: ExtensionIcon,
+      number: getDaysSince('2020-03-23').toLocaleString(),
+      label: 'Day Crossword Streak',
+      description: 'NY Times, since COVID lockdown',
+      color: '#27ae60',
+    },
+    {
+      icon: TranslateIcon,
+      number: duolingoStreak.toLocaleString(),
+      label: 'Day Duolingo Streak',
+      description: 'Learning languages daily since 1/1/2025',
+      color: '#58cc02',
+    },
+  ];
 
   return (
     <Box
