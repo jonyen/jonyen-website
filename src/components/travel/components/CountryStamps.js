@@ -18,6 +18,7 @@ const countries = [
   // Americas
   { name: 'Canada', region: 'Americas', flag: '🇨🇦' },
   { name: 'Mexico', region: 'Americas', flag: '🇲🇽' },
+  { name: 'Guatemala', region: 'Americas', flag: '🇬🇹' },
   // Oceania
   { name: 'Australia', region: 'Oceania', flag: '🇦🇺' },
   // Europe

@@ -4,7 +4,6 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 import PublicIcon from '@mui/icons-material/Public';
-import LocalCafeIcon from '@mui/icons-material/LocalCafe';
 import ExtensionIcon from '@mui/icons-material/Extension';
 import TranslateIcon from '@mui/icons-material/Translate';
 import { Link } from 'react-router-dom';
@@ -226,13 +225,6 @@ export default function FunFacts() {
       description: 'Across 4 continents',
       color: '#3498db',
       link: '/travel',
-    },
-    {
-      icon: LocalCafeIcon,
-      number: '0',
-      label: 'Cups of Coffee',
-      description: 'Ever. Seriously.',
-      color: '#9b59b6',
     },
     {
       icon: ExtensionIcon,

@@ -24,6 +24,7 @@ const visitedCountries = [
   { name: 'Japan', coordinates: [139.6917, 35.6895], code: 'JPN' },
   { name: 'Canada', coordinates: [-106.3468, 56.1304], code: 'CAN' },
   { name: 'Mexico', coordinates: [-99.1332, 19.4326], code: 'MEX' },
+  { name: 'Guatemala', coordinates: [-90.5328, 14.6349], code: 'GTM' },
   { name: 'Australia', coordinates: [151.2093, -33.8688], code: 'AUS' },
   { name: 'Germany', coordinates: [13.4050, 52.5200], code: 'DEU' },
   { name: 'France', coordinates: [2.3522, 48.8566], code: 'FRA' },
