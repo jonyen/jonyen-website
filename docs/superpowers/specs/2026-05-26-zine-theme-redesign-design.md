@@ -185,7 +185,7 @@ Same content as today. New treatment.
   - Visited: `var(--color-blue)`.
   - Unvisited: `var(--color-paper)` fill with ink hairline stroke.
   - Border stroke: `var(--color-ink)`.
-  - Hover: coral outline 2px.
+  - Hover (any country, visited or not): coral 2px outline stroke on top of the existing fill. Fill color does not change on hover.
 - Tooltip styling switches to mono labels on paper background with ink border.
 
 `CountryStamps.js`:
@@ -216,9 +216,9 @@ Same content as today. New treatment.
 
 `index.css`:
 - Replace the CSS variable block at `:root` and the `[data-mui-color-scheme="dark"]` override.
-- Swap the Fontshare `@import` for a Google Fonts `@import` covering Inter Tight, Inter, and IBM Plex Mono.
+- Swap the Fontshare `@import` for a Google Fonts `@import` loading specific weights to keep payload small: Inter Tight 900, Inter 400 and 500, IBM Plex Mono 500 and 600.
 - Add `pop` and `typewriter` keyframes.
-- Remove gold-related selection and scrollbar tints; selection becomes blue spot, scrollbar thumb becomes ink.
+- Remove gold-related selection and scrollbar tints. Selection background becomes `var(--color-blue)` with `var(--color-paper)` text. Scrollbar thumb becomes `var(--color-ink)`, which resolves to cream in dark mode and ink black in light mode.
 
 `AppTheme.js`:
 - No structural change. Still wraps children in MUI `ThemeProvider`.
