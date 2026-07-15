@@ -4,6 +4,7 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import { useColorScheme } from '@mui/material/styles';
 
+import datavaultLogo from '../../../assets/datavault-logo.png';
 import mercorLogo from '../../../assets/mercor-logo.png';
 import atlassianLogo from '../../../assets/atlassian-logo.svg';
 import medalliaLogo from '../../../assets/medallia-logo.png';
@@ -45,8 +46,14 @@ const companies = [
   {
     name: 'Mercor',
     logo: mercorLogo,
-    years: '2025 - Current',
+    years: '2025 - 2026',
     href: 'https://mercor.com',
+  },
+  {
+    name: 'Datavault',
+    logo: datavaultLogo,
+    years: '2026 - Current',
+    href: 'https://datavault.one',
   },
 ];
 
@@ -232,7 +239,7 @@ export default function Experience() {
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)', lg: 'repeat(6, 1fr)' },
+            gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)', lg: 'repeat(7, 1fr)' },
             gap: { xs: 2, md: 3 },
           }}
         >
