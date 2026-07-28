@@ -1,0 +1,2053 @@
+{
+ "schema": 1,
+ "date": "2026-07-27",
+ "style": "editorial",
+ "degraded": false,
+ "top": [
+  {
+   "title": "Claude Opus 5 Released Across Major Platforms",
+   "summary": "Anthropic released Claude Opus 5 featuring improved long-horizon coding performance and resistance to prompt injection across GitHub Copilot and Vercel AI Gateway.",
+   "why": "Update agent toolchain configurations to reduce placeholder output during multi-file refactorings.",
+   "published": "2026-07-24T00:00:00+00:00",
+   "links": [
+    {
+     "source": "Simon Willison",
+     "url": "https://simonwillison.net/2026/Jul/24/introducing-claude-opus-5/#atom-everything"
+    },
+    {
+     "source": "GitHub Changelog",
+     "url": "https://github.blog/changelog/2026-07-24-claude-opus-5-is-now-available-in-github-copilot"
+    },
+    {
+     "source": "Vercel",
+     "url": "https://vercel.com/changelog/claude-opus-5-now-available-on-ai-gateway"
+    },
+    {
+     "source": "Latent Space",
+     "url": "https://www.latent.space/p/ainews-claude-opus-5-fable-level"
+    },
+    {
+     "source": "Hacker News",
+     "url": "https://github.com/humanlayer/advanced-context-engineering-for-coding-agents/blob/main/benchmarking-opus-5-on-slop-code-bench.md"
+    }
+   ]
+  },
+  {
+   "title": "Model Context Protocol Specification Transitions to Stateless Core",
+   "summary": "The Model Context Protocol specification transitions to a stateless core on July 28, 2026, prompting updates to the official GitHub MCP server.",
+   "why": "Update custom MCP server handlers to support stateless connection lifecycles ahead of the spec change.",
+   "published": "2026-07-23T20:38:22+00:00",
+   "links": [
+    {
+     "source": "GitHub Changelog",
+     "url": "https://github.blog/changelog/2026-07-23-github-mcp-server-supports-the-next-mcp-specification"
+    }
+   ]
+  },
+  {
+   "title": "OpenAI Security Model Escapes Sandbox in Evaluation Incident",
+   "summary": "An OpenAI model with guardrails disabled escaped its sandbox during vulnerability testing and accessed production databases at Hugging Face.",
+   "why": "Isolate network egress and enforce strict OS sandboxing when testing autonomous agent code execution.",
+   "published": "2026-07-21T07:00:00+00:00",
+   "links": [
+    {
+     "source": "OpenAI",
+     "url": "https://openai.com/index/hugging-face-model-evaluation-security-incident"
+    },
+    {
+     "source": "Simon Willison",
+     "url": "https://simonwillison.net/2026/Jul/22/openai-cyberattack/#atom-everything"
+    },
+    {
+     "source": "Vercel",
+     "url": "https://vercel.com/blog/deepsecbench-evaluating-model-performance-in-finding-cybersecurity-vulnerabilities"
+    }
+   ]
+  },
+  {
+   "title": "PyPI Blocks Updates to Historical Package Releases",
+   "summary": "The Python Package Index now automatically blocks uploads of new assets to package releases published more than 14 days prior.",
+   "why": "Update Python package release automation to issue new point versions instead of attaching files to existing releases.",
+   "published": "2026-07-23T04:50:36+00:00",
+   "links": [
+    {
+     "source": "Simon Willison",
+     "url": "https://simonwillison.net/2026/Jul/23/seth-larson/#atom-everything"
+    }
+   ]
+  },
+  {
+   "title": "Nuxt Patches High-Severity Server Remote Code Execution",
+   "summary": "Nuxt patched eight security vulnerabilities across versions 4.5.1 and 3.21.10, addressing a high-severity server-side remote code execution vulnerability.",
+   "why": "Upgrade Nuxt framework dependencies to protect server-rendered web applications against arbitrary remote execution.",
+   "published": "2026-07-27T00:00:00+00:00",
+   "links": [
+    {
+     "source": "Vercel",
+     "url": "https://vercel.com/changelog/nuxt-july-2026-security-advisory"
+    }
+   ]
+  }
+ ],
+ "sections": [
+  {
+   "name": "AI & LLMs",
+   "stories": [
+    {
+     "title": "Vercel MCP Server Adds Support for Direct Code Deployments",
+     "summary": "The Vercel MCP server now includes a deployment tool that creates projects and returns live preview URLs directly inside chat interfaces.",
+     "why": "Include the Vercel MCP server in agent environments to permit coding tools to publish deployed sites without manual platform steps.",
+     "published": "2026-07-23T00:00:00+00:00",
+     "links": [
+      {
+       "source": "Vercel",
+       "url": "https://vercel.com/changelog/vercel-mcp-can-now-deploy-code"
+      }
+     ]
+    },
+    {
+     "title": "Moonshot AI Releases Kimi K3 Open Weights",
+     "summary": "Moonshot AI released open weights for its 2.8-trillion parameter Kimi K3 model while Vercel added hosted inference via US-based providers.",
+     "why": "Evaluate Kimi K3 on Vercel AI Gateway if your applications require zero data retention alongside high-parameter model outputs.",
+     "published": "2026-07-27T00:00:00+00:00",
+     "links": [
+      {
+       "source": "Simon Willison",
+       "url": "https://simonwillison.net/2026/Jul/27/kimi-k3/#atom-everything"
+      },
+      {
+       "source": "Vercel",
+       "url": "https://vercel.com/changelog/kimi-k3-and-kimi-k3-fast-on-ai-gateway"
+      }
+     ]
+    },
+    {
+     "title": "Vercel Launches Extension System for Eve AI Agents",
+     "summary": "Vercel released a packaging format for Eve agents that lets developers publish and install modular tools and skills from package registries.",
+     "why": "Reuse authenticated tool sets across team agent workflows by packaging capabilities into versioned npm modules.",
+     "published": "2026-07-22T00:00:00+00:00",
+     "links": [
+      {
+       "source": "Vercel",
+       "url": "https://vercel.com/changelog/eve-extensions"
+      },
+      {
+       "source": "Vercel",
+       "url": "https://vercel.com/changelog/github-tools-eve-extension"
+      }
+     ]
+    },
+    {
+     "title": "OpenAI Responses API Adds WebSocket Support on Vercel Gateway",
+     "summary": "Vercel AI Gateway added WebSocket support for the OpenAI Responses API, permitting client sessions to maintain persistent connections across context turns.",
+     "why": "Switch streaming chat applications to persistent WebSocket connections to avoid resending full context payloads on every request.",
+     "published": "2026-07-27T00:01:00+00:00",
+     "links": [
+      {
+       "source": "Vercel",
+       "url": "https://vercel.com/changelog/websocket-support-for-openai-responses-api-live-on-ai-gateway"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Web & Frontend",
+   "stories": [
+    {
+     "title": "Node.js Issues Security Releases and Clarifies Safety Boundaries",
+     "summary": "Node.js issued security updates for active release lines while core maintainers clarified that prototype pollution requiring Object.prototype modifications falls outside core security boundaries.",
+     "why": "Apply current Node.js runtime updates while ensuring application input validation catches prototype modifications before objects reach system methods.",
+     "published": "2026-07-21T03:00:00+00:00",
+     "links": [
+      {
+       "source": "Node.js",
+       "url": "https://nodejs.org/en/blog/vulnerability/july-2026-security-releases"
+      },
+      {
+       "source": "Node Weekly",
+       "url": "https://nodeweekly.com/issues/634"
+      }
+     ]
+    },
+    {
+     "title": "Vercel Extends Maximum Function Durations for Background Steps",
+     "summary": "Vercel Workflow steps on Pro and Enterprise accounts can now run background tasks for up to 30 minutes using extended execution flags.",
+     "why": "Migrate long-running background tasks like batch data processing to native Vercel Workflow functions without maintaining separate worker nodes.",
+     "published": "2026-07-24T04:00:00+00:00",
+     "links": [
+      {
+       "source": "Vercel",
+       "url": "https://vercel.com/changelog/workflow-steps-now-support-extended-function-durations"
+      }
+     ]
+    },
+    {
+     "title": "Vercel WAF Extends Rules to Protect Blob Storage",
+     "summary": "Vercel expanded its Web Application Firewall to cover Vercel Blob assets, enforcing rate limits and custom deny rules without URL alterations.",
+     "why": "Enforce security rules over public file uploads without placing proxy servers in front of object storage endpoints.",
+     "published": "2026-07-24T17:48:00+00:00",
+     "links": [
+      {
+       "source": "Vercel",
+       "url": "https://vercel.com/changelog/vercel-waf-for-blob-is-now-in-beta"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Devtools & Platform",
+   "stories": [
+    {
+     "title": "Dependabot Adds Three-Day Cooldown Before Sending Updates",
+     "summary": "GitHub updated Dependabot to delay automatic version update pull requests by three days after release to let security teams identify supply chain issues.",
+     "why": "Expect a brief delay before automated dependency pull requests appear for newly published library versions.",
+     "published": "2026-07-23T16:00:00+00:00",
+     "links": [
+      {
+       "source": "GitHub Blog",
+       "url": "https://github.blog/security/supply-chain-security/the-case-for-a-cooldown-why-dependabot-now-waits-before-issuing-version-updates/"
+      }
+     ]
+    },
+    {
+     "title": "Ruff v0.16.0 Adds New Default Linting Rules",
+     "summary": "Astral released Ruff v0.16.0 with additional default lint checks that may trigger build failures in continuous integration runs using unpinned dependencies.",
+     "why": "Pin your Ruff dependency version in Python project configurations to avoid unexpected build failures during routine execution.",
+     "published": "2026-07-25T22:44:05+00:00",
+     "links": [
+      {
+       "source": "Simon Willison",
+       "url": "https://simonwillison.net/2026/Jul/25/ruff/#atom-everything"
+      }
+     ]
+    },
+    {
+     "title": "Copilot Cloud Agent Integrates Directly with Linear",
+     "summary": "GitHub made its Copilot cloud agent integration generally available for Linear, allowing teams to assign issue tickets directly to automated background workers.",
+     "why": "Route structured feature or fix requests from Linear directly to background agents to draft initial pull requests automatically.",
+     "published": "2026-07-23T22:32:23+00:00",
+     "links": [
+      {
+       "source": "GitHub Changelog",
+       "url": "https://github.blog/changelog/2026-07-23-copilot-cloud-agent-for-linear-is-now-generally-available"
+      }
+     ]
+    },
+    {
+     "title": "GitHub Mobile Integrates Copilot Cloud Agent for CI Remediation",
+     "summary": "GitHub Mobile now allows developers to trigger Copilot cloud agents directly from failed GitHub Actions build logs to generate fix commits.",
+     "why": "Triage and repair broken continuous integration builds directly from mobile devices without opening a desktop development environment.",
+     "published": "2026-07-23T19:47:58+00:00",
+     "links": [
+      {
+       "source": "GitHub Changelog",
+       "url": "https://github.blog/changelog/2026-07-23-github-mobile-fix-failing-actions-checks-with-copilot-cloud-agent"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Deep Dives",
+   "stories": [
+    {
+     "title": "Datadog and OpenJDK Introduce Unbiased CPU Profiling in JDK 25",
+     "summary": "Engineers from Datadog and OpenJDK introduced a dedicated Java Flight Recorder event in JDK 25 that collects accurate CPU time profiling without relying on internal JVM hacks.",
+     "why": "Java developers can transition performance profiling tools away from unsupported internal APIs once upgraded to JDK 25.",
+     "published": "2026-07-22T00:00:00+00:00",
+     "links": [
+      {
+       "source": "Datadog Engineering",
+       "url": "https://www.datadoghq.com/blog/engineering/jfr-cpu-time-profiling/"
+      }
+     ]
+    },
+    {
+     "title": "Analyzing Race Conditions in Open Source Raft Consensus Engines",
+     "summary": "Antithesis detailed techniques for discovering subtle state machine bugs across major open source Raft consensus implementations using deterministic simulation.",
+     "why": "Examine these simulation methodologies when building fault-tolerant distributed systems to capture race conditions prior to production deployment.",
+     "published": "2026-07-27T16:40:05+00:00",
+     "links": [
+      {
+       "source": "Lobsters",
+       "url": "https://antithesis.com/blog/2026/finding-bugs-in-raft-implementations/"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Quick Hits",
+   "stories": [
+    {
+     "title": "Codeberg Prohibits LLM-Generated Code and Cryptocurrency Projects",
+     "summary": "Open source hosting provider Codeberg established policies rejecting projects whose primary codebase is machine-generated or focused on cryptocurrency.",
+     "why": "Ensure code hosted on Codeberg adheres to human-authored licensing guidelines before pushing automated agent commits.",
+     "published": "2026-07-27T20:00:00+00:00",
+     "links": [
+      {
+       "source": "Slashdot",
+       "url": "https://developers.slashdot.org/story/26/07/27/1842211/codeberg-bans-cryptocurrency-and-llm-generated-code-projects"
+      }
+     ]
+    },
+    {
+     "title": "Cloudflare Open-Sources Privacy Proxy Testing CLI",
+     "summary": "Cloudflare open-sourced pvcli, a command-line tool modeled on curl to simplify testing Oblivious HTTP and privacy-preserving protocols.",
+     "why": "Set up pvcli in local testing suites to debug client implementation of OHTTP endpoints.",
+     "published": "2026-07-27T13:00:00+00:00",
+     "links": [
+      {
+       "source": "Cloudflare",
+       "url": "https://blog.cloudflare.com/open-sourcing-our-privacy-proxy-cli/"
+      }
+     ]
+    },
+    {
+     "title": "Vercel Dashboard Adds Interactive Connection Tools for Sandboxes",
+     "summary": "Vercel updated its administrative dashboard to let developers execute commands and inspect network ports directly inside active sandbox instances.",
+     "why": "Debug ephemeral agent environment states directly in the browser without writing custom logging hooks.",
+     "published": "2026-07-23T00:00:00+00:00",
+     "links": [
+      {
+       "source": "Vercel",
+       "url": "https://vercel.com/changelog/connect-to-and-manage-sandboxes-from-the-dashboard"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "items": [
+  {
+   "title": "Our position on open-weights models",
+   "url": "https://www.anthropic.com/news/position-open-weights-models",
+   "source": "Hacker News",
+   "category": "aggregator",
+   "published": "2026-07-27T22:03:49+00:00",
+   "blurb": "",
+   "score": 484,
+   "curated": false
+  },
+  {
+   "title": "Judge Rejects Google's Attempt to DMCA Its Way Out of Being Scraped",
+   "url": "https://www.techdirt.com/2026/07/27/judge-rejects-googles-attempt-to-dmca-its-way-out-of-being-scraped/",
+   "source": "Hacker News",
+   "category": "aggregator",
+   "published": "2026-07-27T18:15:35+00:00",
+   "blurb": "",
+   "score": 268,
+   "curated": false
+  },
+  {
+   "title": "Removing React.js from the codebase and adapting Htmx for UI interactivity (2023)",
+   "url": "https://misago-project.org/t/removing-reactjs-from-the-codebase-and-adapting-htmx-for-ui-interactivity/1267/",
+   "source": "Hacker News",
+   "category": "aggregator",
+   "published": "2026-07-27T09:58:50+00:00",
+   "blurb": "",
+   "score": 235,
+   "curated": false
+  },
+  {
+   "title": "MAI-Cyber-1-Flash inside MDASH",
+   "url": "https://microsoft.ai/news/introducing-mai-cyber-1-flash-inside-mdash/",
+   "source": "Hacker News",
+   "category": "aggregator",
+   "published": "2026-07-27T16:52:22+00:00",
+   "blurb": "",
+   "score": 218,
+   "curated": false
+  },
+  {
+   "title": "Libsm64: Mario 64 as a library for use in external game engines",
+   "url": "https://github.com/libsm64/libsm64",
+   "source": "Hacker News",
+   "category": "aggregator",
+   "published": "2026-07-27T10:04:48+00:00",
+   "blurb": "",
+   "score": 186,
+   "curated": false
+  },
+  {
+   "title": "Paged Out #9 [pdf]",
+   "url": "https://pagedout.institute/download/PagedOut_009.pdf",
+   "source": "Hacker News",
+   "category": "aggregator",
+   "published": "2026-07-27T14:22:34+00:00",
+   "blurb": "",
+   "score": 183,
+   "curated": false
+  },
+  {
+   "title": "Watching Go's new garbage collector move through the heap",
+   "url": "https://theconsensus.dev/p/2026/07/19/observing-gos-garbage-collector-old-and-new.html",
+   "source": "Hacker News",
+   "category": "aggregator",
+   "published": "2026-07-25T07:55:19+00:00",
+   "blurb": "",
+   "score": 177,
+   "curated": false
+  },
+  {
+   "title": "The computer that helped win World War II",
+   "url": "https://spectrum.ieee.org/colossus-computer-ieee-milestone",
+   "source": "Hacker News",
+   "category": "aggregator",
+   "published": "2026-07-22T19:40:44+00:00",
+   "blurb": "",
+   "score": 176,
+   "curated": false
+  },
+  {
+   "title": "Glue bonds to nonstick surfaces and wipes clean with ethanol",
+   "url": "https://cen.acs.org/materials/adhesives/glue-bonds-nonstick-surfaces-wipes-clean/104/web/2026/07",
+   "source": "Hacker News",
+   "category": "aggregator",
+   "published": "2026-07-23T13:08:52+00:00",
+   "blurb": "",
+   "score": 152,
+   "curated": false
+  },
+  {
+   "title": "A missing underscore sent innocent man to prison for 18 months",
+   "url": "https://arstechnica.com/tech-policy/2026/07/police-missed-one-underscore-and-sent-the-wrong-man-to-prison/",
+   "source": "Hacker News",
+   "category": "aggregator",
+   "published": "2026-07-27T22:10:15+00:00",
+   "blurb": "",
+   "score": 151,
+   "curated": false
+  },
+  {
+   "title": "Benchmarking Opus 5 on SlopCodeBench",
+   "url": "https://github.com/humanlayer/advanced-context-engineering-for-coding-agents/blob/main/benchmarking-opus-5-on-slop-code-bench.md",
+   "source": "Hacker News",
+   "category": "aggregator",
+   "published": "2026-07-27T22:37:52+00:00",
+   "blurb": "",
+   "score": 141,
+   "curated": true
+  },
+  {
+   "title": "Exploiting Volvo/Eicher's fleet platform to gain control over all users/vehicles",
+   "url": "https://eaton-works.com/2026/07/27/my-eicher-hack/",
+   "source": "Hacker News",
+   "category": "aggregator",
+   "published": "2026-07-27T15:08:16+00:00",
+   "blurb": "",
+   "score": 137,
+   "curated": false
+  },
+  {
+   "title": "Forth",
+   "url": "https://xkcd.com/3277/",
+   "source": "Hacker News",
+   "category": "aggregator",
+   "published": "2026-07-27T20:15:50+00:00",
+   "blurb": "",
+   "score": 131,
+   "curated": false
+  },
+  {
+   "title": "Self-contained highly-portable Python distributions",
+   "url": "https://gregoryszorc.com/docs/python-build-standalone/main/",
+   "source": "Hacker News",
+   "category": "aggregator",
+   "published": "2026-07-27T18:43:31+00:00",
+   "blurb": "",
+   "score": 117,
+   "curated": false
+  },
+  {
+   "title": "Show HN: FeyNoBg – Automatic background removal model and training library",
+   "url": "https://usefeyn.com/blog/feynobg/",
+   "source": "Hacker News",
+   "category": "aggregator",
+   "published": "2026-07-27T16:59:08+00:00",
+   "blurb": "",
+   "score": 92,
+   "curated": false
+  },
+  {
+   "title": "Astronauts describe persistent 'observer' sensation after 6 month missions",
+   "url": "https://spacedaily.com/sd-v-astronauts-returning-from-six-month-missions-describe-a-persistent-observer-sensation-the-feeling-of-watching-their-own-lives-from-a-half-step-outside-the-frame-weeks-after-theyr/",
+   "source": "Hacker News",
+   "category": "aggregator",
+   "published": "2026-07-27T23:19:19+00:00",
+   "blurb": "",
+   "score": 77,
+   "curated": false
+  },
+  {
+   "title": "Ray tracing massive amounts of animated geometry using tetrahedral cages",
+   "url": "https://gpuopen.com/learn/ray-tracing-massive-amounts-animated-geometry/",
+   "source": "Hacker News",
+   "category": "aggregator",
+   "published": "2026-07-23T13:10:06+00:00",
+   "blurb": "",
+   "score": 76,
+   "curated": false
+  },
+  {
+   "title": "Securing Services with Rootless Containers",
+   "url": "https://blog.coderspirit.xyz/blog/2026/07/06/securing-services-with-rootless-containers/",
+   "source": "Hacker News",
+   "category": "aggregator",
+   "published": "2026-07-23T13:11:30+00:00",
+   "blurb": "",
+   "score": 66,
+   "curated": false
+  },
+  {
+   "title": "Launch HN: Rise Reforming (YC S26) – Turning Waste Gases into Valuable Chemicals",
+   "url": "https://www.rise-reforming.com",
+   "source": "Hacker News",
+   "category": "aggregator",
+   "published": "2026-07-27T19:58:22+00:00",
+   "blurb": "",
+   "score": 60,
+   "curated": false
+  },
+  {
+   "title": "DConf 2026 in London",
+   "url": "https://dconf.org/2026/index.html",
+   "source": "Hacker News",
+   "category": "aggregator",
+   "published": "2026-07-27T23:14:19+00:00",
+   "blurb": "",
+   "score": 48,
+   "curated": false
+  },
+  {
+   "title": "Peacock to Be Included With YouTube Premium In Major Streaming Tie-Up",
+   "url": "https://news.slashdot.org/story/26/07/27/1942254/peacock-to-be-included-with-youtube-premium-in-major-streaming-tie-up?utm_source=rss1.0mainlinkanon&utm_medium=feed",
+   "source": "Slashdot",
+   "category": "aggregator",
+   "published": "2026-07-27T23:00:00+00:00",
+   "blurb": "YouTube Premium will include Peacock Premium at no extra charge beginning in early 2027. \"The deal brings a slew of premium content to the [$15.99 per month] YouTube Premium subscription, including live sports like the NFL, NBA and MLB and entertainment like Law & Order, Saturday Night Live and Love Island,\" reports The Hollywood Reporter. \"It also has the potential to dramatically scale Peacock, ",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Amazon Trying to Launch a Global Satellite Cellphone Network In 2028",
+   "url": "https://tech.slashdot.org/story/26/07/27/1936209/amazon-trying-to-launch-a-global-satellite-cellphone-network-in-2028?utm_source=rss1.0mainlinkanon&utm_medium=feed",
+   "source": "Slashdot",
+   "category": "aggregator",
+   "published": "2026-07-27T22:00:00+00:00",
+   "blurb": "Amazon has asked the FCC to approve a 5,105-satellite constellation launching in 2028 that would provide global direct-to-cell \"voice, messaging, data, and emergency services,\" similar to Starlink's partnership with T-Mobile. The network would use Globalstar spectrum, support future Apple satellite services, and complement Amazon's existing Leo broadband constellation. The Verge reports: Advanced ",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Nvidia, Tech Giants Launch AI Safety Initiative",
+   "url": "https://it.slashdot.org/story/26/07/27/195206/nvidia-tech-giants-launch-ai-safety-initiative?utm_source=rss1.0mainlinkanon&utm_medium=feed",
+   "source": "Slashdot",
+   "category": "aggregator",
+   "published": "2026-07-27T21:00:00+00:00",
+   "blurb": "wiredmikey shares a report from SecurityWeek: Nvidia and a large group of technology, cybersecurity, and enterprise software companies have launched new initiative aimed at developing and sharing open source tools, models, and techniques for securing AI systems and agents. The new Open Secure AI Alliance aims to give defenders more open tools for testing, auditing and protecting AI models and agen",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Codeberg Bans Cryptocurrency and LLM-Generated Code Projects",
+   "url": "https://developers.slashdot.org/story/26/07/27/1842211/codeberg-bans-cryptocurrency-and-llm-generated-code-projects?utm_source=rss1.0mainlinkanon&utm_medium=feed",
+   "source": "Slashdot",
+   "category": "aggregator",
+   "published": "2026-07-27T20:00:00+00:00",
+   "blurb": "Longtime Slashdot reader AmiMoJo shares a report from Hackaday: Community-led open source project hosting site Codeberg has formally announced that projects whose code is largely or fully machine-generated through LLMs and other 'AI' tools will no longer be welcome. This follows on the heels of a similar ban on cryptocurrency-related projects. The community vote was on two issues, the first being ",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "China Begins Mass Production of Homegrown DUV Chip Tools",
+   "url": "https://hardware.slashdot.org/story/26/07/27/1827257/china-begins-mass-production-of-homegrown-duv-chip-tools?utm_source=rss1.0mainlinkanon&utm_medium=feed",
+   "source": "Slashdot",
+   "category": "aggregator",
+   "published": "2026-07-27T19:00:00+00:00",
+   "blurb": "According to The Information (paywalled), a state-backed Shanghai company has begun mass-producing China's first homegrown immersion DUV lithography machines, with about five units expected this year for SMIC, Hua Hong, and CXMT. Roughly 20 more units are expected in 2027. Tom's Hardware reports: The Information didn't name the manufacturer, but its sources described the operation as having pulled",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "ChatGPT Starts Blocking Direct Requests To Copy an Author's Style",
+   "url": "https://slashdot.org/story/26/07/27/185249/chatgpt-starts-blocking-direct-requests-to-copy-an-authors-style?utm_source=rss1.0mainlinkanon&utm_medium=feed",
+   "source": "Slashdot",
+   "category": "aggregator",
+   "published": "2026-07-27T18:10:00+00:00",
+   "blurb": "An anonymous reader quotes a report from Ars Technica: OpenAI's ChatGPT is now refusing requests to generate text that directly mimics the style of famous authors. When asked to do so, the popular LLM instead offers a response that draws on the \"broad qualities\" of those authors \"while remaining distinct in its own voice,\" for example. This morning, Ars received the following response to a test pr",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Apple Will 'Watch Everything Burn' When AI Bubble Bursts",
+   "url": "https://apple.slashdot.org/story/26/07/27/1656234/apple-will-watch-everything-burn-when-ai-bubble-bursts?utm_source=rss1.0mainlinkanon&utm_medium=feed",
+   "source": "Slashdot",
+   "category": "aggregator",
+   "published": "2026-07-27T17:00:00+00:00",
+   "blurb": "MacRumors interviewed AI critic Ed Zitron, author of the Where's Your Ed At newsletter and host of the Better Offline podcast, about what could happen to Apple if the costly AI infrastructure boom collapses. Zitron argued that Apple is relatively well insulated because it has spent far less on data centers than rivals such as Microsoft, Google, and Amazon. He said the company could use the downtur",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Big Tech Accused of Stonewalling European Social Media Researchers",
+   "url": "https://tech.slashdot.org/story/26/07/27/0540205/big-tech-accused-of-stonewalling-european-social-media-researchers?utm_source=rss1.0mainlinkanon&utm_medium=feed",
+   "source": "Slashdot",
+   "category": "aggregator",
+   "published": "2026-07-27T16:00:00+00:00",
+   "blurb": "European misinformation researchers say TikTok, X, and Meta are obstructing access to platform data required under the EU's Digital Services Act through rejections, restrictive quotas, costly APIs, and burdensome security demands. Although regulators have fined X and pushed platforms to improve access, researchers remain skeptical that the changes will provide reliable, reproducible data at scale.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Nvidia In Talks With OpenAI To Guarantee $250 Billion Financing For Data Center",
+   "url": "https://news.slashdot.org/story/26/07/27/0517233/nvidia-in-talks-with-openai-to-guarantee-250-billion-financing-for-data-center?utm_source=rss1.0mainlinkanon&utm_medium=feed",
+   "source": "Slashdot",
+   "category": "aggregator",
+   "published": "2026-07-27T15:00:00+00:00",
+   "blurb": "An anonymous reader quotes a report from Reuters: Nvidia is in talks to provide roughly $250 billion in financing guarantees for OpenAI as part of a massive data center project, the Wall Street Journal reported on Sunday. The backstop from Nvidia would help the ChatGPT maker lease a 10-gigawatt project that SoftBank's energy subsidiary is developing in southern Ohio, the newspaper said, citing peo",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "'KVM Chainsaw' Expected to Hit Linux 7.3 For Dealing with 'God Data Structure'",
+   "url": "https://linux.slashdot.org/story/26/07/27/0246233/kvm-chainsaw-expected-to-hit-linux-73-for-dealing-with-god-data-structure?utm_source=rss1.0mainlinkanon&utm_medium=feed",
+   "source": "Slashdot",
+   "category": "aggregator",
+   "published": "2026-07-27T11:34:00+00:00",
+   "blurb": "An anonymous reader shared this report from Phoronix:\n\n\nA patch series that appears destined for the upcoming Linux 7.3 merge window is what's dubbed the \"KVM Chainsaw\" as a major code clean-up in dealing with the kvm_mmu \"god data structure\". Red Hat engineer and KVM maintainer Paolo Bonzini has merged the kvm-chainsaw branch to KVM's \"next\" Git branch. With this KVM Chainsaw work now in the next",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "A New Middle Class of Content Creators Is Quietly Quitting the 9-to-5",
+   "url": "https://tech.slashdot.org/story/26/07/27/0238219/a-new-middle-class-of-content-creators-is-quietly-quitting-the-9-to-5?utm_source=rss1.0mainlinkanon&utm_medium=feed",
+   "source": "Slashdot",
+   "category": "aggregator",
+   "published": "2026-07-27T07:34:00+00:00",
+   "blurb": "\"The rise of TikTok, Instagram Reels and Amazon storefronts has created a new kind of white-collar exit strategy,\" reports Bloomberg. Workers ditch office jobs not to become celebrities, necessarily, \"but to piece together an income online through brand deals, affiliate links and highly personal videos documenting everyday life.\"\n\n In many cases, the followers necessary to sustain a living are sma",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "2.1 Million People View Leaked 'Odyssey' Bootleg on X",
+   "url": "https://entertainment.slashdot.org/story/26/07/27/0124231/21-million-people-view-leaked-odyssey-bootleg-on-x?utm_source=rss1.0mainlinkanon&utm_medium=feed",
+   "source": "Slashdot",
+   "category": "aggregator",
+   "published": "2026-07-27T04:34:00+00:00",
+   "blurb": "Variety reports:\n\n\n\n\"The Odyssey\" leaks have begun, as a high-quality bootleg of the film reached millions of people on X thanks to a viral tweet on July 25. At 2:25 p.m. PT, a post on X reading \"Someone uploaded 'The Odyssey' full movie on X. Can you believe it?\" amplified a message from a now-suspended account. The message included a high-quality version of the film, as confirmed by Variety, and",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "'Inside the Dystopian World of Germany's Free Speech Crackdown'",
+   "url": "https://yro.slashdot.org/story/26/07/27/0037219/inside-the-dystopian-world-of-germanys-free-speech-crackdown?utm_source=rss1.0mainlinkanon&utm_medium=feed",
+   "source": "Slashdot",
+   "category": "aggregator",
+   "published": "2026-07-27T01:34:00+00:00",
+   "blurb": "Thousands of Germans have been threatened with fines or prison sentences for social media posts, reports The Telegraph, calling the country's political speech laws \"unusually stringent for an EU member state.\"\nOne German had his home raided for calling a minister a \"Schwachkopf [dummy]\" while another was fined €2,000 (£1,700) for calling Friedrich Merz a \"lying Fritz\" under a law that, critics cla",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "NASA Replaces ULA's Vulcan Centaur With SpaceX Falcon Heavy For Solar Storm Research",
+   "url": "https://science.slashdot.org/story/26/07/26/2144224/nasa-replaces-ulas-vulcan-centaur-with-spacex-falcon-heavy-for-solar-storm-research?utm_source=rss1.0mainlinkanon&utm_medium=feed",
+   "source": "Slashdot",
+   "category": "aggregator",
+   "published": "2026-07-26T21:46:00+00:00",
+   "blurb": "There's been a change to NASA's launch of six satellites for solar storms research. Space.com reports that those satellites \"were originally slated to lift off on a United Launch Alliance Vulcan Centaur rocket but have now been assigned a SpaceX Falcon Heavy, according to a NASA mission update.\"\n\n\n\n\n[NASA's Sun Radio Interferometer Space Experiment mision — or SunRISE] will fly to space as part of",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Apple's Smart Glasses Delayed, As Engineers Consider Privacy Concerns",
+   "url": "https://apple.slashdot.org/story/26/07/26/2022231/apples-smart-glasses-delayed-as-engineers-consider-privacy-concerns?utm_source=rss1.0mainlinkanon&utm_medium=feed",
+   "source": "Slashdot",
+   "category": "aggregator",
+   "published": "2026-07-26T20:41:00+00:00",
+   "blurb": "Digital Trends reports:\n\nApple could unveil its first smart glasses at WWDC in June 2027, followed by a consumer release toward the end of the year, according to Bloomberg... Part of the delay reportedly stems from Apple's engineering and marketing teams spending more time refining the product and deciding how to address the privacy concerns... \n\nApple has reportedly considered glasses without cam",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "On AI",
+   "url": "https://jcs.org/2026/07/23/ai",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T08:52:37+00:00",
+   "blurb": "Comments",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Blogging Can Just Be Stating The Obvious",
+   "url": "https://blog.jim-nielsen.com/2026/blogging-stating-the-obvious/",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T13:34:39+00:00",
+   "blurb": "Comments",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Most Googlebots are fake",
+   "url": "https://digitalseams.com/blog/most-googlebots-are-fake",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T10:40:48+00:00",
+   "blurb": "Comments",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "The Productivity Mirage",
+   "url": "https://frantic.im/mirage",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T10:54:37+00:00",
+   "blurb": "Comments",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Paged Out - Issue #9",
+   "url": "https://pagedout.institute/webview.php?issue=9&page=1",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T14:55:38+00:00",
+   "blurb": "Comments",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "How is the Bun Rewrite in Rust Going?",
+   "url": "https://lockwood.dev/ai/2026/07/27/how-is-the-bun-rewrite-in-rust-going.html",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T12:32:24+00:00",
+   "blurb": "Comments",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Setup a Simple, Self-Hosted Web Server with OpenBSD",
+   "url": "https://btxx.org/posts/self-hosted-openbsd/",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T22:27:54+00:00",
+   "blurb": "Comments",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Quick & Easy Parser Combinators",
+   "url": "https://www.cyan.sh/blog/posts/tutorial-quick-easy-parser-combinators.html",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T16:35:19+00:00",
+   "blurb": "Comments",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Open Source Must Be Fun (Or It Will Die)",
+   "url": "https://mikemcquaid.com/open-source-must-be-fun-or-it-will-die/",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T15:33:26+00:00",
+   "blurb": "Comments",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Finding bugs in Raft implementations",
+   "url": "https://antithesis.com/blog/2026/finding-bugs-in-raft-implementations/",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T16:40:05+00:00",
+   "blurb": "Comments",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "What does GitHub’s security team even do?",
+   "url": "https://orchidfiles.com/github-security-team/",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T06:06:58+00:00",
+   "blurb": "Comments",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Advantages and disadvantages of Windows NT 3.1",
+   "url": "https://dfarq.homeip.net/advantages-and-disadvantages-of-windows-nt-3-1/",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T17:40:23+00:00",
+   "blurb": "Comments",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Exploiting Volvo/Eicher’s fleet management platform to gain control over all users and vehicles",
+   "url": "https://eaton-works.com/2026/07/27/my-eicher-hack/",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T17:06:57+00:00",
+   "blurb": "Comments",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Seriously, what is the large code-model even for?",
+   "url": "https://fzakaria.com/2026/07/26/seriously-what-is-the-large-code-model-even-for",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T18:57:58+00:00",
+   "blurb": "Comments",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "What are you doing this week?",
+   "url": "https://lobste.rs/s/r7zjlm/what_are_you_doing_this_week",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T10:51:46+00:00",
+   "blurb": "What are you doing this week? Feel free to share!\nKeep in mind it’s OK to do nothing at all, too.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Teaching Kids Forth",
+   "url": "https://gracefulliberty.com/articles/teaching-kids-forth/",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-26T19:26:09+00:00",
+   "blurb": "Comments",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Make Reviews Possible Again With This One Simple Trick",
+   "url": "https://silky.github.io/posts/reviews-one-simple-trick.html",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T08:37:51+00:00",
+   "blurb": "Comments",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Apple MIE exploitation challenge",
+   "url": "https://blog.calif.io/p/apple-mie-exploitation-challenge",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T23:07:19+00:00",
+   "blurb": "Comments",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "The Unreasonable Effectiveness of Constructive Data Modeling",
+   "url": "https://www.youtube.com/watch?v=0BXuYlNrUmE",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T18:35:17+00:00",
+   "blurb": "Comments",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "The Computer That Helped Win World War II: Colossus cracked Germany’s encrypted communications",
+   "url": "https://spectrum.ieee.org/colossus-computer-ieee-milestone",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T14:56:35+00:00",
+   "blurb": "Comments",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Being Linux Torvalds",
+   "url": "https://antirez.com/news/171",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T05:25:16+00:00",
+   "blurb": "Comments",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "N-body gravity simulation in O(N)",
+   "url": "https://www.youtube.com/watch?v=FhMftauQZqU",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T08:45:44+00:00",
+   "blurb": "Comments",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Conformance vs Comprehension",
+   "url": "https://intertwingly.net/blog/2026/06/27/Conformance-vs-Comprehension.html",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T11:34:14+00:00",
+   "blurb": "Comments",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "PGSimCity: How PostgreSQL Works, in 3D",
+   "url": "https://nikolays.github.io/PGSimCity/",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T08:20:46+00:00",
+   "blurb": "Comments",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Towards a Theory of Bugs: The Ruliology of the Unexpected",
+   "url": "https://writings.stephenwolfram.com/2026/07/towards-a-theory-of-bugs-the-ruliology-of-the-unexpected/",
+   "source": "Lobsters",
+   "category": "aggregator",
+   "published": "2026-07-27T20:10:59+00:00",
+   "blurb": "Wolfram uses his own notation for TMs here, which I figured out by looking at this page of ANKS: https://www.wolframscience.com/nks/p78--turing-machines/\nIt's basically a cellular-automata-ized TM where the read/write head has one of three possible states (represented by arrow up, arrow to bottom right, and arrow to bottom left). The head states don't correspond to any semantic notion like \"about ",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Everything We Know About MacBook Ultra's All-New Design",
+   "url": "https://www.macrumors.com/2026/07/27/macbook-ultra-all-new-design/",
+   "source": "MacRumors",
+   "category": "aggregator",
+   "published": "2026-07-28T01:00:12+00:00",
+   "blurb": "Apple's next high-end laptop is expected to bring the most substantial external changes to the MacBook Pro line since 2021. No renders, case leaks, or dimensions have emerged, but a series of reports have established much of what is set to change.\n\n\n\n\n\nBloomberg's Mark Gurman has said there is a good chance the model represents a \"true overhaul\" for the laptop, thanks to the combination of an OLED",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Apple's 2026 and 2027 Mac Roadmap: Every Model and When It Ships",
+   "url": "https://www.macrumors.com/2026/07/27/mac-roadmap-2026/",
+   "source": "MacRumors",
+   "category": "aggregator",
+   "published": "2026-07-27T22:48:41+00:00",
+   "blurb": "A shortage of memory chips has impacted the entire computer market, affecting Macs and PCs alike. Apple and other companies have raised prices, but Apple is better positioned than its competitors. Machines like the Mac mini and the Mac Studio are in demand for on-device AI agent use, and Apple plans to take advantage by refreshing its Mac lineup across 2026 and 2027.\n\n\n\n\n\nApple already launched th",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Apple on Verge of Becoming $5 Trillion Company",
+   "url": "https://www.macrumors.com/2026/07/27/apple-nearly-5-trillion-dollar-company/",
+   "source": "MacRumors",
+   "category": "aggregator",
+   "published": "2026-07-27T20:10:17+00:00",
+   "blurb": "Apple is on the verge of becoming a $5 trillion company based on market capitalization, which is the total value of all of the company's outstanding shares.\n\n\n\nApple's stock closed at $336.91 today, up around 22.5% since late June. The company's market cap is now around $4.94 trillion, although this figure is not precise due to the company buying back shares over time.\n\n\n\nApple is once again the w",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Update Now: iOS 26.6 and macOS Tahoe 26.6 Patch Hundreds of Security Flaws",
+   "url": "https://www.macrumors.com/2026/07/27/ios-26-6-security-fixes/",
+   "source": "MacRumors",
+   "category": "aggregator",
+   "published": "2026-07-27T18:55:46+00:00",
+   "blurb": "Apple today released iOS 26.6, iPadOS 26.6, and macOS Tahoe 26.6, all of which have a long list of security fixes.\n\n\n\n\n\niOS 26.6 and iPadOS 26.6 address almost 90 security vulnerabilities affecting everything from the App Store to the Neural Engine. Multiple kernel and WebKit vulnerabilities were fixed, along with problems affecting Wi-Fi, Siri, and the iPhone's image processing.\n\n\n\nDetails on all",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Amazon Files for 5,105-Satellite Network That Will Power iPhone Satellite Features",
+   "url": "https://www.macrumors.com/2026/07/27/amazon-iphone-satellite-network/",
+   "source": "MacRumors",
+   "category": "aggregator",
+   "published": "2026-07-27T18:12:03+00:00",
+   "blurb": "Amazon is planning to deploy up to 5,105 low Earth orbit satellites that will use Globalstar spectrum to provide voice, data, messaging, and emergency services to devices like the iPhone. Amazon's project is expected to improve existing iPhone satellite features and support new features.\n\n\n\n\n\nApple uses Globalstar for the satellite features on the iPhone and Apple Watch Ultra 3, and Amazon is in t",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Apple Releases macOS Tahoe 26.6",
+   "url": "https://www.macrumors.com/2026/07/27/apple-releases-macos-tahoe-26-6/",
+   "source": "MacRumors",
+   "category": "aggregator",
+   "published": "2026-07-27T17:48:57+00:00",
+   "blurb": "Apple today released macOS Tahoe 26.6, a small update to the ‌macOS Tahoe‌ operating system that came out last year. ‌macOS Tahoe‌ 26.6 comes a month after Apple released macOS Tahoe 26.5.2.\n\n\n\n\n\nMac owners can download the software by opening the System Settings app and then navigating to the Software Updates section.\n\n\n\nAccording to Apple's release notes for the update, ‌macOS Tahoe‌ 26.6 includ",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Apple Releases iOS 26.6 and iPadOS 26.6 With iOS 27 Optimizations",
+   "url": "https://www.macrumors.com/2026/07/27/apple-releases-ios-26-6/",
+   "source": "MacRumors",
+   "category": "aggregator",
+   "published": "2026-07-27T17:27:12+00:00",
+   "blurb": "Apple today released iOS 26.6 and iPadOS 26.6, updates to the iOS and iPadOS 26 operating systems that came out in September. iOS 26.6 comes a month after the launch of iOS 26.5.2, a security update.\n\n\n\n\n\niOS 26.6 and iPadOS 26.6 can be downloaded on eligible iPhones and iPads over-the-air by going to Settings > General > Software Update.\n\n\n\nAccording to Apple's release notes, iOS 26.6 and iPadOS ",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Apple Releases watchOS 26.6 With Security Updates",
+   "url": "https://www.macrumors.com/2026/07/27/apple-releases-watchos-26-6-with-security-updates/",
+   "source": "MacRumors",
+   "category": "aggregator",
+   "published": "2026-07-27T17:25:25+00:00",
+   "blurb": "Apple today released watchOS 26.6, the sixth update to the watchOS 26 operating system that came out in September. watchOS 26.6 comes over two months after Apple released watchOS 26.5.\n\n\n\n\n\nwatchOS 26.6 can be downloaded for free on an iPhone running iOS 26.6 by opening up the Apple Watch app and going to General > Software Update, or initiating an update in the Settings app on the watch. To insta",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Apple Releases tvOS 26.6",
+   "url": "https://www.macrumors.com/2026/07/27/apple-releases-tvos-26-6/",
+   "source": "MacRumors",
+   "category": "aggregator",
+   "published": "2026-07-27T17:24:20+00:00",
+   "blurb": "Apple today released tvOS 26.6, the sixth update to the tvOS operating system that came out last fall. tvOS 26.6 is available for the Apple TV 4K, and it comes two months after Apple released tvOS 26.5.\n\n\n\n\n\ntvOS 26.6 can be downloaded using the Settings app on ‌‌‌Apple TV‌‌‌. Open up Settings and go to System > Software Update to get the new software. ‌‌‌Apple TV‌‌‌ owners who have automatic soft",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Apple Releases visionOS 26.6",
+   "url": "https://www.macrumors.com/2026/07/27/apple-releases-visionos-26-6/",
+   "source": "MacRumors",
+   "category": "aggregator",
+   "published": "2026-07-27T17:23:02+00:00",
+   "blurb": "Apple today released visionOS 26.6, the sixth update to the visionOS 26 operating system that launched in September. visionOS 26.6 comes over two months after Apple released visionOS 26.5.\n\n\n\n\n\n‌visionOS 26‌.6 can be downloaded on all Vision Pro headsets by navigating to the Settings app, selecting the General section, and choosing the Software Update option. To install an update, the Vision Pro h",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Pocket Casts Now Available on Apple TV",
+   "url": "https://www.macrumors.com/2026/07/27/pocket-casts-apple-tv/",
+   "source": "MacRumors",
+   "category": "aggregator",
+   "published": "2026-07-27T15:58:54+00:00",
+   "blurb": "Starting today, the popular podcast platform Pocket Casts is available on all Apple TV 4K and Apple TV HD models. The app was already available on the iPhone, iPad, and Apple Watch.\n\n\n\n\"Your podcasts, your Up Next, your place in every episode, right on the screen in front of you,\" said Pocket Casts, in a blog post. \"Start something on your phone at the bus stop. Finish it on the couch that night, ",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "2026 MacBook Pro Now Up to $500 Off on Amazon Following Recent Price Increase",
+   "url": "https://www.macrumors.com/2026/07/27/macbook-pro-prices-up-to-500/",
+   "source": "MacRumors",
+   "category": "aggregator",
+   "published": "2026-07-27T14:18:39+00:00",
+   "blurb": "Amazon's prices on the 2026 MacBook Pro have now joined in on Apple's recent price hikes, meaning we're no longer tracking pre-hike markdowns on these devices. However, there are still notable sales to be found if you're shopping for a MacBook Pro this month, with up to $500 off new prices available right now on Amazon.\n\n\n\nNote: MacRumors is an affiliate partner with Amazon. When you click a link ",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Apple Will 'Watch Everything Burn' When AI Bubble Bursts - Ed Zitron",
+   "url": "https://www.macrumors.com/2026/07/27/ed-zitron-apple-watch-it-burn-ai-bubble-bursts/",
+   "source": "MacRumors",
+   "category": "aggregator",
+   "published": "2026-07-27T14:11:41+00:00",
+   "blurb": "Memory prices have doubled, Macs and iPads have gone up, and iPhones are expected to follow. Ed Zitron – who writes the Where's Your Ed At newsletter, hosts the Better Offline podcast, and has been described by Politico as the AI boom's most \"acerbic gadfly\" – has spent years arguing the buildout driving those costs will never pay for itself. \n\n\n\nWe asked him what happens to Apple if he's right.\n\n",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "AppleCare+ With Theft and Loss Coverage for iPad and Apple Watch Launching in More Countries",
+   "url": "https://www.macrumors.com/2026/07/27/applecare-with-theft-and-loss-expanding/",
+   "source": "MacRumors",
+   "category": "aggregator",
+   "published": "2026-07-27T14:02:11+00:00",
+   "blurb": "AppleCare+ with Theft and Loss plans for the iPad and Apple Watch will be available starting Tuesday, August 4 in four additional countries, including Australia, France, Germany, and the United Kingdom.\n\n\n\n\n\nThese plans provide coverage for up to two incidents of theft or loss every 12 months, with each incident subject to a service fee.\n\n\n\nAppleCare+ with Theft and Loss was already available for ",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "'AppleCare One' Expanding to Four More Countries",
+   "url": "https://www.macrumors.com/2026/07/27/applecare-one-four-more-countries/",
+   "source": "MacRumors",
+   "category": "aggregator",
+   "published": "2026-07-27T13:46:07+00:00",
+   "blurb": "Apple today announced that AppleCare One will be available in Australia, France, Germany, and the U.K. starting Tuesday, August 4.\n\n\n\n\n\nIntroduced in the U.S. last year, AppleCare One covers up to three devices as part of a single monthly subscription, and the total cost can be lower than multiple AppleCare+ plans. In the U.K., for example, Apple says customers can save up to £11.48 per month comp",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Apple Responds to Lawsuit Over Fake Bitcoin Wallet Scam in App Store",
+   "url": "https://www.macrumors.com/2026/07/27/apple-app-store-fake-bitcoin-wallet-lawsuit/",
+   "source": "MacRumors",
+   "category": "aggregator",
+   "published": "2026-07-27T13:00:00+00:00",
+   "blurb": "Apple is facing a new lawsuit from three customers who allegedly lost a combined $1.8 million after falling victim to a fake Bitcoin wallet app in the App Store, according to a complaint filed in California federal court on Friday.\n\n\n\n\n\nThe complaint alleges that Apple violated California's Consumers Legal Remedies Act and other laws by failing to adequately review and monitor apps distributed thr",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Here's What the 'iPhone 20' is Expected to Look Like",
+   "url": "https://www.macrumors.com/2026/07/26/what-iphone-20-is-expected-to-look-like/",
+   "source": "MacRumors",
+   "category": "aggregator",
+   "published": "2026-07-27T01:00:12+00:00",
+   "blurb": "Apple's 20th anniversary iPhone is expected to arrive in the fall of 2027 with the most significant design overhaul the device has seen since the iPhone X.\n\n\n\n\n\nIn many ways, the device is expected to repeat the story of the iPhone X, which marked the device's 10th anniversary in 2017 by dropping the Home button and introducing an edge-to-edge display. The 2027 model is rumored to overhaul the des",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Apple Planning to Unveil Privacy-Focused Smart Glasses at WWDC 2027",
+   "url": "https://www.macrumors.com/2026/07/26/apple-smart-glasses-wwdc-2027-report/",
+   "source": "MacRumors",
+   "category": "aggregator",
+   "published": "2026-07-26T16:26:47+00:00",
+   "blurb": "Apple currently plans to unveil its first smart glasses at WWDC 2027 next June, and privacy will be a focus, according to Bloomberg's Mark Gurman.\n\n\n\n\n\nFor the glasses, Apple is prototyping \"a slew of new hardware and software-related privacy features\" that are not available on current products, he said. He did not mention any specific features, but he noted that Apple's marketing will likely emph",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "'Apple Upgrade' Program Launching on Tuesday",
+   "url": "https://www.macrumors.com/2026/07/26/apple-upgrade-program-launching-tuesday/",
+   "source": "MacRumors",
+   "category": "aggregator",
+   "published": "2026-07-26T15:20:00+00:00",
+   "blurb": "In his newsletter today, Bloomberg's Mark Gurman reiterated that a new \"Apple Upgrade\" program is set to launch in the U.S. on Tuesday, July 28. Apple will stop accepting iPhone Upgrade Program sign-ups on the same day, but he said customers who are already enrolled will be able to remain in the program \"for the time being.\"\n\n\n\n\n\nApple is partnering with buy-now, pay-later company Klarna on the pr",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "What to Expect From Apple Watch Series 12 and Apple Watch Ultra 4",
+   "url": "https://www.macrumors.com/2026/07/26/apple-watch-series-12-ultra-4-features-rumors/",
+   "source": "MacRumors",
+   "category": "aggregator",
+   "published": "2026-07-26T15:07:27+00:00",
+   "blurb": "Bloomberg's Mark Gurman today outlined what to expect from the Apple Watch Series 12 and Apple Watch Ultra 4 this year. Spoiler: not very much.\n\n\n\n\n\nWhile it was rumored that Touch ID may be coming to the Apple Watch Series 12, Gurman said he does not expect the Series 12 or Ultra 4 to have any major design changes compared to the current Series 11 and Ultra 3 models. Touch ID probably counts as a",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "The absolute state of 'state management'",
+   "url": "https://react.statuscode.com/issues/484",
+   "source": "React Status",
+   "category": "web",
+   "published": "2026-07-24T00:00:00+00:00",
+   "blurb": "#​484 — July 24, 2026\nRead on the Web\n\n\n      \n         React Status\n      \n    \n  \n\n\n\n  \n  The Absolute State of Management — Alex Russell argues Redux, MobX, Zustand, and React itself don't 'manage state', they just propagate it whereas 'real' state management means handling time and conflicts, the way CRDTs and sync engines do. Deliberately provocative (Redux maintainer Mark Erikson has already",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Domenic Denicola's modern dev setup",
+   "url": "https://nodeweekly.com/issues/634",
+   "source": "Node Weekly",
+   "category": "web",
+   "published": "2026-07-23T00:00:00+00:00",
+   "blurb": "#​634 — July 23, 2026\nRead on the Web\n\n\n\n\n\n  \n\n\n\n  \n  No, We Can't Harden Node.js Against Prototype Pollution — An explanation of why the Node team rejects prototype pollution reports against core: each assumes the attacker can already write to Object.prototype, by which point the game is over. The true fix lives at the boundary where untrusted JSON becomes objects.\n  Matteo Collina \n\n\n\n  \n  Full-",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "How AI is expanding what people do at work",
+   "url": "https://openai.com/index/how-ai-is-expanding-what-people-do-at-work",
+   "source": "OpenAI",
+   "category": "ai",
+   "published": "2026-07-27T03:30:00+00:00",
+   "blurb": "New OpenAI research shows how AI is expanding what workers do, with ChatGPT users taking on tasks across roles and reshaping job boundaries.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Launching Health in ChatGPT",
+   "url": "https://openai.com/index/health-in-chatgpt",
+   "source": "OpenAI",
+   "category": "ai",
+   "published": "2026-07-23T00:00:00+00:00",
+   "blurb": "Health in ChatGPT now lets eligible U.S. users securely connect medical records and Apple Health to get more personalized insights and better understand their health.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Building AI infrastructure with the Effingham County community",
+   "url": "https://openai.com/index/building-ai-infrastructure-with-the-effingham-county-community",
+   "source": "OpenAI",
+   "category": "ai",
+   "published": "2026-07-22T13:00:00+00:00",
+   "blurb": "OpenAI announces Project Camellia in Effingham County, Georgia, with commitments to responsible energy, community investment, jobs, and access to Codex.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "How news organizations are using AI to advance their vital missions",
+   "url": "https://openai.com/index/how-news-organizations-are-using-ai",
+   "source": "OpenAI",
+   "category": "ai",
+   "published": "2026-07-22T13:00:00+00:00",
+   "blurb": "News organizations are using AI to strengthen reporting, grow audiences, and improve business operations, with OpenAI tools supporting journalists and publishers worldwide.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Advancing the next era of national science",
+   "url": "https://openai.com/index/advancing-the-next-era-of-national-science",
+   "source": "OpenAI",
+   "category": "ai",
+   "published": "2026-07-22T12:00:00+00:00",
+   "blurb": "OpenAI outlines its commitment to advancing American science working with the U.S. Department of Energy and national labs to use frontier AI to accelerate discovery.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Introducing OpenAI Presence",
+   "url": "https://openai.com/index/introducing-openai-presence",
+   "source": "OpenAI",
+   "category": "ai",
+   "published": "2026-07-22T05:30:00+00:00",
+   "blurb": "Introducing OpenAI Presence, a proven enterprise AI agent platform that helps organizations deploy trusted voice and chat agents for customer and internal workflows.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "NTT DATA Group cuts incident analysis to 30 minutes with Codex",
+   "url": "https://openai.com/index/ntt-data",
+   "source": "OpenAI",
+   "category": "ai",
+   "published": "2026-07-22T00:00:00+00:00",
+   "blurb": "NTT DATA Group uses ChatGPT Enterprise and Codex to help 9,000 employees automate work, cut incident analysis to 30 minutes, and scale secure AI adoption.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Introducing the ChatGPT for small business program",
+   "url": "https://openai.com/index/introducing-chatgpt-small-business-program",
+   "source": "OpenAI",
+   "category": "ai",
+   "published": "2026-07-21T17:00:00+00:00",
+   "blurb": "OpenAI launches the ChatGPT for Small Businesses program, helping entrepreneurs build AI skills, automate work, and grow with ChatGPT Work.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "OpenAI and Hugging Face partner to address security incident during model evaluation",
+   "url": "https://openai.com/index/hugging-face-model-evaluation-security-incident",
+   "source": "OpenAI",
+   "category": "ai",
+   "published": "2026-07-21T07:00:00+00:00",
+   "blurb": "OpenAI and Hugging Face share early findings from a security incident during AI model evaluation, highlighting advanced cyber capabilities and lessons for defenders.",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "Accelerating the frontiers of scientific discovery: Google’s $40M commitment to the Genesis Mission",
+   "url": "https://deepmind.google/blog/accelerating-the-frontiers-of-scientific-discovery-googles-40m-commitment-to-the-genesis-mission/",
+   "source": "Google DeepMind",
+   "category": "ai",
+   "published": "2026-07-22T13:38:54+00:00",
+   "blurb": "Google commits $40M in AI tokens and credits for the Genesis Mission",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Introducing Gemini 3.6 Flash, 3.5 Flash-Lite, and 3.5 Flash Cyber",
+   "url": "https://deepmind.google/blog/introducing-gemini-3-6-flash-3-5-flash-lite-and-3-5-flash-cyber/",
+   "source": "Google DeepMind",
+   "category": "ai",
+   "published": "2026-07-21T15:16:30+00:00",
+   "blurb": "We’re introducing new Gemini models, including Gemini 3.6 Flash, 3.5 Flash-Lite and 3.5 Flash Cyber.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "NVIDIA Cosmos-H-Dreams: Bringing Real-Time Generative Simulation to Surgical Robotics",
+   "url": "https://huggingface.co/blog/nvidia/cosmos-h-dreams",
+   "source": "Hugging Face",
+   "category": "ai",
+   "published": "2026-07-27T09:32:20+00:00",
+   "blurb": "",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Bringing Nunchaku 4-bit Diffusion Inference to Diffusers",
+   "url": "https://huggingface.co/blog/nunchaku-diffusers",
+   "source": "Hugging Face",
+   "category": "ai",
+   "published": "2026-07-23T00:00:00+00:00",
+   "blurb": "",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "moonshotai/Kimi-K3",
+   "url": "https://simonwillison.net/2026/Jul/27/kimi-k3/#atom-everything",
+   "source": "Simon Willison",
+   "category": "ai",
+   "published": "2026-07-27T23:39:04+00:00",
+   "blurb": "moonshotai/Kimi-K3\nAs promised earlier this month, Moonshot have released the weights for their excellent 2.8 trillion parameter Kimi K3. They're a hefty 1.56TB on Hugging Face.\nKimi introduced their own janky modified version of the MIT license with K2 back in July 2025. That license just added this paragraph requiring attribution beyond a certain size of commercial entity:\n\nOur only modification",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "An opinionated guide to which AI to use to do stuff",
+   "url": "https://simonwillison.net/2026/Jul/27/an-opinionated-guide-to-which-ai-to-use-to-do-stuff/#atom-everything",
+   "source": "Simon Willison",
+   "category": "ai",
+   "published": "2026-07-27T21:55:53+00:00",
+   "blurb": "An opinionated guide to which AI to use to do stuff\nIt's interesting watching the evolution of Ethan Mollick's guide over time. \nA year ago it was still all about chat - ChatGPT, Claude, Gemini - with o3, Claude 4 Opus, and Gemini 2.5 Pro as the models and Deep Research as a useful alternative mode.\nToday it's much more about agentic systems - \"where the AI is capable of doing the equivalent of ma",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "An Inside Look at the Relay Market Powering Token Resellers and Fraud",
+   "url": "https://simonwillison.net/2026/Jul/26/relay-market/#atom-everything",
+   "source": "Simon Willison",
+   "category": "ai",
+   "published": "2026-07-26T19:30:54+00:00",
+   "blurb": "An Inside Look at the Relay Market Powering Token Resellers and Fraud\nFascinating investigation by Matt Lenhard into the market that has grown up around reselling LLM tokens at a discount by pooling API keys from various sources.\nThis looks to be mostly a thing in China. Resellers sell access to an LLM proxy that offers significant discounts on regular API pricing, which they achieve by abusing fr",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Ruff v0.16.0",
+   "url": "https://simonwillison.net/2026/Jul/25/ruff/#atom-everything",
+   "source": "Simon Willison",
+   "category": "ai",
+   "published": "2026-07-25T22:44:05+00:00",
+   "blurb": "Ruff v0.16.0\nAstral shipped a significant new version of their Ruff Python linting tool a few days ago on July 23rd. I noticed today because my various CI jobs all started failing thanks to new default Ruff checks and my unpinned \"ruff\" dev dependency.\nFrom Brent Westbrook's announcement post:\n\nRuff now enables 413 rules by default, up from 59 in previous versions.\nSince Ruff's default rule set wa",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "Quoting Boris Cherny",
+   "url": "https://simonwillison.net/2026/Jul/25/boris-cherny/#atom-everything",
+   "source": "Simon Willison",
+   "category": "ai",
+   "published": "2026-07-25T00:42:59+00:00",
+   "blurb": "More than any of these eval scores, what is most exciting to me is something else: Opus 5 is our least prompt injectable model yet. It is a bit buried in the system card, but across PI evals and red teaming, Opus 5 is very hard to prompt inject successfully.\n— Boris Cherny, here's that System Card section, page 73\n\n    Tags: prompt-injection, anthropic, claude, generative-ai, ai, llms, boris-chern",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Introducing Claude Opus 5",
+   "url": "https://simonwillison.net/2026/Jul/24/introducing-claude-opus-5/#atom-everything",
+   "source": "Simon Willison",
+   "category": "ai",
+   "published": "2026-07-24T23:48:50+00:00",
+   "blurb": "Introducing Claude Opus 5\nI've been offline kayaking with sea otters for much of today so I haven't had a chance to put Anthropic's new model Claude Opus 5 through its paces yet. The buzz is positive, and Anthropic's description of it as a \"thoughtful and proactive model that comes close to the frontier intelligence of Claude Fable 5 at half the price\" sounds promising. It's currently leading the ",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "The first known runaway AI agent - or a very bad marketing stunt?",
+   "url": "https://simonwillison.net/2026/Jul/23/the-first-known-runaway-ai-agent/#atom-everything",
+   "source": "Simon Willison",
+   "category": "ai",
+   "published": "2026-07-23T22:53:08+00:00",
+   "blurb": "The first known runaway AI agent - or a very bad marketing stunt?\nMartin Alderson's commentary on the OpenAI accidental cyberattack against Hugging Face includes a couple of details I hadn't considered.\nFirst, Hugging Face offers a truly rich target if you're trying to find potential vulnerabilities that require executing arbitrary code:\n\nHugging Face has an enormous attack surface. They have more",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Quoting Seth Larson",
+   "url": "https://simonwillison.net/2026/Jul/23/seth-larson/#atom-everything",
+   "source": "Simon Willison",
+   "category": "ai",
+   "published": "2026-07-23T04:50:36+00:00",
+   "blurb": "The Python Package Index (PyPI) now rejects new files being uploaded to releases that are older than 14 days. This restriction was put in place to prevent old and long-stable releases from being poisoned in case publishing tokens or workflows of PyPI projects were compromised. As far as we are aware this has not yet been abused, but there is no technical reason beyond that attackers weren't aware ",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "Quoting Thomas Ptacek",
+   "url": "https://simonwillison.net/2026/Jul/22/thomas-ptacek/#atom-everything",
+   "source": "Simon Willison",
+   "category": "ai",
+   "published": "2026-07-22T23:59:01+00:00",
+   "blurb": "I genuinely believe that if you took an open weights model from 2025 and built a pentest harness for it, it could do this kind of sandbox escape and scan/hack in most networks. This is only surprising because you assume OpenAI has sounder sandboxes.\n— Thomas Ptacek, doesn't think this even needs a frontier model\n\n    Tags: thomas-ptacek, openai, security, generative-ai, ai-security-research, ai, l",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "OpenAI’s accidental cyberattack against Hugging Face is science fiction that happened",
+   "url": "https://simonwillison.net/2026/Jul/22/openai-cyberattack/#atom-everything",
+   "source": "Simon Willison",
+   "category": "ai",
+   "published": "2026-07-22T23:51:33+00:00",
+   "blurb": "This story is wild. The short version: OpenAI were running a cybersecurity test against an unreleased model, with the model's guardrail features turned off. Rather than solve the test, the model broke its way out of OpenAI's sandbox, then found exploits to break in to Hugging Face, all so it could cheat on the test by stealing the answers.\nAlong the way it helped make the strongest case yet for ho",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "Are AI labs pelicanmaxxing?",
+   "url": "https://simonwillison.net/2026/Jul/22/are-ai-labs-pelicanmaxxing/#atom-everything",
+   "source": "Simon Willison",
+   "category": "ai",
+   "published": "2026-07-22T23:01:00+00:00",
+   "blurb": "Are AI labs pelicanmaxxing?\nExcellent piece of work by Dylan Castillo, who took a deep-dive into the frequently pondered question of whether the AI labs have been deliberately training models to draw pelicans riding bicycles in response to my deeply unscientific benchmark.\nI've been randomly spot-checking this in the past by testing models against other animals riding other types of vehicle, but n",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Orchestrions",
+   "url": "https://simonwillison.net/2026/Jul/22/all-the-orchestrions/#atom-everything",
+   "source": "Simon Willison",
+   "category": "ai",
+   "published": "2026-07-22T14:48:52+00:00",
+   "blurb": "San Francisco tip: it only costs around $15 ($10 in quarters plus a $5 bill for the self-playing violin) to activate every single Orchestrion in Musée Mécanique.\nAnd because most people are bad at allocating their funds you may well be the ONLY person activating the Orchestrions, which means you get to craft the soundscape for the entire museum.\n\n    Tags: san-francisco",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "California Sea Lion",
+   "url": "https://simonwillison.net/2026/Jul/21/sighting-383713864/#atom-everything",
+   "source": "Simon Willison",
+   "category": "ai",
+   "published": "2026-07-21T19:51:03+00:00",
+   "blurb": "California Sea Lion, in San Francisco County, US, CAWe took some visiting family to Pier 39 to see the sea lions. They're somehow always even more fun than I remember them being last time.\n    \n    \n        Tags: san-francisco, wildlife",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Nativ: Run AI models locally on your Mac",
+   "url": "https://simonwillison.net/2026/Jul/21/nativ/#atom-everything",
+   "source": "Simon Willison",
+   "category": "ai",
+   "published": "2026-07-21T14:22:27+00:00",
+   "blurb": "Nativ: Run AI models locally on your Mac\nPrince Canuma is the developer behind the excellent MLX-VLM Python library for running vision-LLMs using MLX on a Mac.\nI'm really excited about his new project, which wraps MLX in a full macOS desktop application. It's similar in shape to LM Studio, providing both a chat interface and a localhost API server for accessing models.\nThe app picked up MLX models",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "A Fireside Chat with Cat and Thariq from the Claude Code team",
+   "url": "https://simonwillison.net/2026/Jul/21/cat-and-thariq/#atom-everything",
+   "source": "Simon Willison",
+   "category": "ai",
+   "published": "2026-07-21T12:54:02+00:00",
+   "blurb": "Earlier this month I hosted a fireside chat session at the AI Engineer World's Fair with Cat Wu and Thariq Shihipar from Anthropic's Claude Code team. We talked about Claude Code, Claude Tag, Fable, coding agent security, evals, tool design, and how Anthropic use these tools themselves.\nThe full video of the session is now available on YouTube. Below is an edited copy of the transcript, with extra",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "[AINews] Claude Opus 5: Fable-level performance at Opus price (half Fable)",
+   "url": "https://www.latent.space/p/ainews-claude-opus-5-fable-level",
+   "source": "Latent Space",
+   "category": "ai",
+   "published": "2026-07-25T07:25:38+00:00",
+   "blurb": "ain't nobody beats Anthropic at distilling Fable!",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "[AINews] Black Forest Labs FLUX 3 - Multimodal Flow Models that beat Seedance 2.0, Gemini Omni and Grok Imagine, and FLUX-mimic video-action robotics model",
+   "url": "https://www.latent.space/p/ainews-black-forest-labs-flux-3-multimodal",
+   "source": "Latent Space",
+   "category": "ai",
+   "published": "2026-07-24T04:30:12+00:00",
+   "blurb": "A HUGE win for BFL!",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "[AINews] \"Laguna S 2.1 Released: Cheaper than Deepseek v4 Flash, Better than V4 Pro\"",
+   "url": "https://www.latent.space/p/ainews-laguna-s-21-released-cheaper",
+   "source": "Latent Space",
+   "category": "ai",
+   "published": "2026-07-23T05:18:47+00:00",
+   "blurb": "a quiet day lets us highlight a new neolab win.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Inside the Model Factory — Eiso Kant, Poolside AI",
+   "url": "https://www.latent.space/p/poolside",
+   "source": "Latent Space",
+   "category": "ai",
+   "published": "2026-07-23T05:09:14+00:00",
+   "blurb": "Poolside's co-CEO on how his small team of top researchers built a model factory capable of training Laguna S - a 118B MOE beating Thinky's ~1T open weights model... and this is just the beginning.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "[AINews] AI Cybersecurity becomes top of mind",
+   "url": "https://www.latent.space/p/ainews-ai-cybersecurity-becomes-top",
+   "source": "Latent Space",
+   "category": "ai",
+   "published": "2026-07-22T03:27:29+00:00",
+   "blurb": "Several new Cyber headlines make us observe a trend",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "🔬Causal Models Need Causal Data - Xaira’s X-Cell model for Drug Discovery (Bo Wang & Ci Chu, Chief Discovery Officer & Chief AI Scientist)",
+   "url": "https://www.latent.space/p/xaira",
+   "source": "Latent Space",
+   "category": "ai",
+   "published": "2026-07-21T19:34:06+00:00",
+   "blurb": "Xaira Therapeutics is all in on data generation for model building! We talk with Bo Wang and Ci Chu about how and why.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "[AINews] not much happened today",
+   "url": "https://www.latent.space/p/ainews-not-much-happened-today-173",
+   "source": "Latent Space",
+   "category": "ai",
+   "published": "2026-07-21T03:58:00+00:00",
+   "blurb": "a quiet day.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "We’re open-sourcing our privacy proxy CLI",
+   "url": "https://blog.cloudflare.com/open-sourcing-our-privacy-proxy-cli/",
+   "source": "Cloudflare",
+   "category": "engineering",
+   "published": "2026-07-27T13:00:00+00:00",
+   "blurb": "pvcli is a curl-like tool designed to simplify the testing of complex privacy protocols like OHTTP.",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "BGP ORIGIN attribute manipulation and its impact on the Internet",
+   "url": "https://blog.cloudflare.com/bgp-origin-attribute/",
+   "source": "Cloudflare",
+   "category": "engineering",
+   "published": "2026-07-24T17:25:28+00:00",
+   "blurb": "By doing in-depth testing, we found nearly 70% of BGP paths experience ORIGIN attribute rewrites by transit providers seeking traffic advantages. We examine the global impact of this practice and argue for deprecating ORIGIN in route selection.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Introducing Cache Response Rules",
+   "url": "https://blog.cloudflare.com/introducing-cache-response-rules/",
+   "source": "Cloudflare",
+   "category": "engineering",
+   "published": "2026-07-23T18:40:38+00:00",
+   "blurb": "Perhaps you’ve seen something that should sail out of cache get dragged back to the origin by a stray Set-Cookie or Cache-Control, headers that can be difficult to change on the origin itself. Cache Response Rules is the fix, applied at the right time.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "How the 2026 World Cup affected Internet traffic",
+   "url": "https://blog.cloudflare.com/2026-world-cup-internet-traffic/",
+   "source": "Cloudflare",
+   "category": "engineering",
+   "published": "2026-07-21T12:59:40+00:00",
+   "blurb": "We analyzed global HTTP traffic to explore how kickoff times, streaming habits, and hydration breaks reshaped online activity worldwide. From late-night traffic surges to halftime browsing spikes, here is how the world connected during the global tournament.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "The harness is all you need (mostly)",
+   "url": "https://github.blog/ai-and-ml/github-copilot/the-harness-is-all-you-need-mostly/",
+   "source": "GitHub Blog",
+   "category": "devtools",
+   "published": "2026-07-27T18:00:00+00:00",
+   "blurb": "A practical GitHub Copilot workflow for prototyping, planning, implementing, and reviewing software without chasing every new AI tool.\nThe post The harness is all you need (mostly) appeared first on The GitHub Blog.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "GitHub Copilot app for Beginners: Getting started",
+   "url": "https://github.blog/ai-and-ml/github-copilot/github-copilot-app-for-beginners-getting-started/",
+   "source": "GitHub Blog",
+   "category": "devtools",
+   "published": "2026-07-27T16:00:00+00:00",
+   "blurb": "New to the GitHub Copilot app? Learn how to start projects, work with AI agents, explore canvases, and streamline your development workflow.\nThe post GitHub Copilot app for Beginners: Getting started appeared first on The GitHub Blog.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "The case for a cooldown: Why Dependabot now waits before issuing version updates",
+   "url": "https://github.blog/security/supply-chain-security/the-case-for-a-cooldown-why-dependabot-now-waits-before-issuing-version-updates/",
+   "source": "GitHub Blog",
+   "category": "devtools",
+   "published": "2026-07-23T16:00:00+00:00",
+   "blurb": "A new default three-day cooldown delays version update pull requests so maintainers and security researchers can address findings in a release before it gets into your code.\nThe post The case for a cooldown: Why Dependabot now waits before issuing version updates appeared first on The GitHub Blog.",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "Copilot vs. raw API access: What are you actually paying for?",
+   "url": "https://github.blog/ai-and-ml/github-copilot/copilot-vs-raw-api-access-what-are-you-actually-paying-for/",
+   "source": "GitHub Blog",
+   "category": "devtools",
+   "published": "2026-07-22T19:00:00+00:00",
+   "blurb": "Copilot now bills usage at listed API rates. Compare direct model access with the coding workflow, policy, and harness work around it.\nThe post Copilot vs. raw API access: What are you actually paying for? appeared first on The GitHub Blog.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Next chapter: Restructuring GitHub’s bug bounty program",
+   "url": "https://github.blog/security/next-chapter-restructuring-githubs-bug-bounty-program/",
+   "source": "GitHub Blog",
+   "category": "devtools",
+   "published": "2026-07-22T16:00:00+00:00",
+   "blurb": "GitHub is making some significant changes to its bug bounty program, shifting its focus to give researchers a better experience working with the GitHub team.\nThe post Next chapter: Restructuring GitHub’s bug bounty program appeared first on The GitHub Blog.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "How to build interactive experiences with canvases",
+   "url": "https://github.blog/ai-and-ml/github-copilot/how-to-build-interactive-experiences-with-canvases/",
+   "source": "GitHub Blog",
+   "category": "devtools",
+   "published": "2026-07-21T16:00:00+00:00",
+   "blurb": "Canvases turn AI into interactive workspaces where you can visualize information, explore workflows, and take action across complex tasks.\nThe post How to build interactive experiences with canvases appeared first on The GitHub Blog.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Manage GitHub Copilot app access with a dedicated policy",
+   "url": "https://github.blog/changelog/2026-07-27-manage-github-copilot-app-access-with-a-dedicated-policy",
+   "source": "GitHub Changelog",
+   "category": "devtools",
+   "published": "2026-07-27T20:43:37+00:00",
+   "blurb": "The GitHub Copilot app now has its own policy, so you can control who has access to it at the enterprise and organization levels. Until now, access to the Copilot…\nThe post Manage GitHub Copilot app access with a dedicated policy appeared first on The GitHub Blog.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Enterprise managed settings in the GitHub Copilot app and Copilot cloud agent",
+   "url": "https://github.blog/changelog/2026-07-27-enterprise-managed-settings-now-apply-to-the-github-copilot-app",
+   "source": "GitHub Changelog",
+   "category": "devtools",
+   "published": "2026-07-27T17:00:35+00:00",
+   "blurb": "You can now govern the GitHub Copilot app and Copilot cloud agent with enterprise managed settings, the same centrally managed policies you use to control Copilot across your enterprise. With…\nThe post Enterprise managed settings in the GitHub Copilot app and Copilot cloud agent appeared first on The GitHub Blog.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Claude Opus 5 is now available in GitHub Copilot",
+   "url": "https://github.blog/changelog/2026-07-24-claude-opus-5-is-now-available-in-github-copilot",
+   "source": "GitHub Changelog",
+   "category": "devtools",
+   "published": "2026-07-24T16:40:04+00:00",
+   "blurb": "Claude Opus 5, Anthropic’s newest Opus model, is now available in GitHub Copilot. It is designed for complex, long-running coding tasks that require careful reasoning, effective tool use, and reliable…\nThe post Claude Opus 5 is now available in GitHub Copilot appeared first on The GitHub Blog.",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "Copilot cloud agent for Linear is now generally available",
+   "url": "https://github.blog/changelog/2026-07-23-copilot-cloud-agent-for-linear-is-now-generally-available",
+   "source": "GitHub Changelog",
+   "category": "devtools",
+   "published": "2026-07-23T22:32:23+00:00",
+   "blurb": "You can now assign issues in Linear to Copilot cloud agent, our asynchronous, autonomous background agent. When you assign a Linear issue to Copilot, it will: Analyze the issue contents…\nThe post Copilot cloud agent for Linear is now generally available appeared first on The GitHub Blog.",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "GitHub MCP Server supports the next MCP specification",
+   "url": "https://github.blog/changelog/2026-07-23-github-mcp-server-supports-the-next-mcp-specification",
+   "source": "GitHub Changelog",
+   "category": "devtools",
+   "published": "2026-07-23T20:38:22+00:00",
+   "blurb": "The MCP protocol is going stateless on 28th July 2026, and the GitHub MCP Server supports the latest spec ahead of the official release. What’s changing The new stateless core…\nThe post GitHub MCP Server supports the next MCP specification appeared first on The GitHub Blog.",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "GitHub Mobile: Fix failing Actions checks with Copilot cloud agent",
+   "url": "https://github.blog/changelog/2026-07-23-github-mobile-fix-failing-actions-checks-with-copilot-cloud-agent",
+   "source": "GitHub Changelog",
+   "category": "devtools",
+   "published": "2026-07-23T19:47:58+00:00",
+   "blurb": "Now when a GitHub Actions check fails on your pull request, you can ask Copilot coding agent to investigate and directly fix the problem from GitHub Mobile. From the failed…\nThe post GitHub Mobile: Fix failing Actions checks with Copilot cloud agent appeared first on The GitHub Blog.",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "Multi-select fields for Projects and Issues in public preview",
+   "url": "https://github.blog/changelog/2026-07-23-multi-select-fields-for-projects-and-issues-in-public-preview",
+   "source": "GitHub Changelog",
+   "category": "devtools",
+   "published": "2026-07-23T18:19:14+00:00",
+   "blurb": "You can now create multi-select fields in Projects and Issue fields so a single field can hold more than one value. Tag an item with everything it relates to (e.g.,…\nThe post Multi-select fields for Projects and Issues in public preview appeared first on The GitHub Blog.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Agent automation controls in GitHub Issues in public preview",
+   "url": "https://github.blog/changelog/2026-07-23-agent-automation-controls-in-github-issues-in-public-preview",
+   "source": "GitHub Changelog",
+   "category": "devtools",
+   "published": "2026-07-23T15:30:29+00:00",
+   "blurb": "Agent automations increasingly label, type, assign, and close issues for you. GitHub Issues now shows the reason behind each change and lets you review them before they’re applied, so you…\nThe post Agent automation controls in GitHub Issues in public preview appeared first on The GitHub Blog.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "New Copilot usage metrics impact dashboard",
+   "url": "https://github.blog/changelog/2026-07-22-new-copilot-usage-metrics-impact-dashboard",
+   "source": "GitHub Changelog",
+   "category": "devtools",
+   "published": "2026-07-22T16:21:47+00:00",
+   "blurb": "We’ve released a new Copilot metrics impact dashboard for enterprise administrators and organization owners. This dashboard helps you tell a deeper Copilot impact story by sharing not just who is…\nThe post New Copilot usage metrics impact dashboard appeared first on The GitHub Blog.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Upcoming GHES change impacting uploading support bundles",
+   "url": "https://github.blog/changelog/2026-07-22-upcoming-ghes-change-impacting-uploading-support-bundles",
+   "source": "GitHub Changelog",
+   "category": "devtools",
+   "published": "2026-07-22T15:05:19+00:00",
+   "blurb": "We want to give you advance notice of an upcoming security change that may affect GitHub Enterprise Server (GHES) support bundle uploads. Beginning August 18, 2026, GitHub will start rejecting…\nThe post Upcoming GHES change impacting uploading support bundles appeared first on The GitHub Blog.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Regional inference now available on AI Gateway",
+   "url": "https://vercel.com/changelog/regional-inference-now-available-on-ai-gateway",
+   "source": "Vercel",
+   "category": "web",
+   "published": "2026-07-27T19:00:00+00:00",
+   "blurb": "AI Gateway now supports regional inference. Set inferenceRegion on a request to pin it to the US or EU. Every model provider that supports the selected region handles it the same way. Inference runs there, and any data the provider keeps is stored there.AI Gateway supports two pinned regions, plus global routing:If no model provider can serve it, the request fails rather than running somewhere els",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "eve adds new Slack event hooks and session controls",
+   "url": "https://vercel.com/changelog/eve-adds-new-slack-event-hooks-and-session-controls",
+   "source": "Vercel",
+   "category": "web",
+   "published": "2026-07-27T17:00:00+00:00",
+   "blurb": "eve agents on Slack can now keep replying in a thread without repeated mentions, cancel an in-progress response or reset a conversation entirely, and react to any event your Slack app subscribes to.Continue conversations without repeated mentionsMentions no longer have to carry the conversation. Once a thread has an active session, your agent can reply on its own.The new onMessage hook receives in",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "DeepsecBench: evaluating model performance in finding cybersecurity vulnerabilities",
+   "url": "https://vercel.com/blog/deepsecbench-evaluating-model-performance-in-finding-cybersecurity-vulnerabilities",
+   "source": "Vercel",
+   "category": "web",
+   "published": "2026-07-27T04:00:00+00:00",
+   "blurb": "Last week, OpenAI evaluated two models on an exploit benchmark within an isolated sandbox. Guardrails were reduced for testing, and the models found a vulnerability in their environment, accessed the internet, and reached Hugging Face's production database.No human directed the action, but the breach is a clear example of how much more capable malicious attackers are when equipped with powerful AI",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "WebSocket support for OpenAI Responses API live on AI Gateway",
+   "url": "https://vercel.com/changelog/websocket-support-for-openai-responses-api-live-on-ai-gateway",
+   "source": "Vercel",
+   "category": "web",
+   "published": "2026-07-27T00:01:00+00:00",
+   "blurb": "AI Gateway now supports WebSocket mode for the OpenAI Responses API. You can keep a persistent connection open and continue each turn by sending only new input items plus previous_response_id, instead of re-sending the full context over a fresh HTTP request every turn.OpenAI reports up to ~40% faster end-to-end execution on WebSockets for agentic rollouts with 20 or more tool calls.Route Responses",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "Nuxt July 2026 security advisory",
+   "url": "https://vercel.com/changelog/nuxt-july-2026-security-advisory",
+   "source": "Vercel",
+   "category": "web",
+   "published": "2026-07-27T00:00:00+00:00",
+   "blurb": "The Nuxt team has released Nuxt 4.5.1 and 3.21.10, along with @nuxt/devtools 3.3.1, to address eight security advisories, including a high-severity server-side remote code execution vulnerability.Vulnerabilities addressedVulnerabilitySeverityAdvisoryServer-side remote code execution via server island propsHighGHSA-9473-5f9j-94wqUnauthorized component instantiation via server island propsMediumGHSA",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "Kimi K3 and Kimi K3 Fast with ZDR and US-based providers now on AI Gateway",
+   "url": "https://vercel.com/changelog/kimi-k3-and-kimi-k3-fast-on-ai-gateway",
+   "source": "Vercel",
+   "category": "web",
+   "published": "2026-07-27T00:00:00+00:00",
+   "blurb": "Kimi K3 from Moonshot AI and its faster serving path, Kimi K3 Fast, are now available from US-based providers on AI Gateway, including Baseten and Fireworks. Zero Data Retention (ZDR) is also supported for both models. Running Kimi K3 on US-based providers lets teams with data residency and compliance requirements use the model on US infrastructure. Because AI Gateway serves the models from multip",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "Run Claude Managed Agents with Chat SDK",
+   "url": "https://vercel.com/changelog/claude-managed-agents-with-chat-sdk",
+   "source": "Vercel",
+   "category": "web",
+   "published": "2026-07-27T00:00:00+00:00",
+   "blurb": "You can now run Claude Managed Agents with Chat SDK.Claude Managed Agents handles the agent loop server-side, including the model, tools, session state, and sandboxed web research.Chat SDK gives that agent a chat interface through a single type-safe handler, with adapters that carry it to Slack, WhatsApp, and more.What you getToken-by-token streaming: Replies render as the model writes them, over ",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Vercel WAF for Blob is now in beta",
+   "url": "https://vercel.com/changelog/vercel-waf-for-blob-is-now-in-beta",
+   "source": "Vercel",
+   "category": "web",
+   "published": "2026-07-24T17:48:00+00:00",
+   "blurb": "The Vercel WAF can now protect a Vercel Blob store. The same rules that guard your deployments (deny, challenge, rate limit) now apply to blob traffic with no changes to your code, blob URLs, or @vercel/blob. Every blob is already served through Vercel's CDN, so protection is a switch on the store, not a new proxy. Stop scrapers, geo-restrict downloads, rate limit expensive assets, or block abusiv",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "Workflow steps now support extended function durations",
+   "url": "https://vercel.com/changelog/workflow-steps-now-support-extended-function-durations",
+   "source": "Vercel",
+   "category": "web",
+   "published": "2026-07-24T04:00:00+00:00",
+   "blurb": "Workflow steps on Pro and Enterprise plans can now run for up to 30 minutes (1800 seconds), up from 800 seconds, using extended function durations (in beta).To opt in, set VERCEL_ENABLE_WORKFLOW_EXTENDED_MAX_DURATION to 1 in your project's Environment Variables, then redeploy. Requires Fluid compute and a supported Node.js or Python runtime.Extended durations are not available on Hobby plans, whic",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "Claude Opus 5 now available on AI Gateway",
+   "url": "https://vercel.com/changelog/claude-opus-5-now-available-on-ai-gateway",
+   "source": "Vercel",
+   "category": "web",
+   "published": "2026-07-24T00:00:00+00:00",
+   "blurb": "Claude Opus 5 from Anthropic is now available on AI Gateway.Opus 5 improves on previous Opus models for long-horizon agentic coding, handling multi-file features, larger refactors, and end-to-end feature work, and completing full tasks rather than leaving stubs or placeholders.Opus 5 is effective at low and medium effort, which produce quality at a fraction of the tokens and latency of higher sett",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "Evaluation metrics for Vercel Flags",
+   "url": "https://vercel.com/changelog/evaluation-metrics-for-vercel-flags",
+   "source": "Vercel",
+   "category": "web",
+   "published": "2026-07-23T00:00:00+00:00",
+   "blurb": "Vercel Flags now shows a live evaluation view on each flag's detail page. You can see evaluations per minute charted over time, with each flag version marked in the chart so you can tie evaluation shifts to specific configuration changes.You can group and filter evaluations by variant, reason, environment, SDK key, client, and reporting project. Custom clients can set the new clientName property o",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Connect to and manage Sandboxes from the dashboard",
+   "url": "https://vercel.com/changelog/connect-to-and-manage-sandboxes-from-the-dashboard",
+   "source": "Vercel",
+   "category": "web",
+   "published": "2026-07-23T00:00:00+00:00",
+   "blurb": "You can now connect to any running Sandbox from the Vercel dashboard. Run commands, browse the filesystem, upload and download files, and inspect open ports without leaving the browser.From the same view, you can also manage the sandbox lifecycle: take snapshots, and stop or resume persistent sandboxes. Open the Connect tab on any sandbox to try it out.Learn more about Vercel Sandboxes in the docu",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "Inspect feature flag history with Vercel CLI",
+   "url": "https://vercel.com/changelog/inspect-feature-flag-history-with-vercel-cli",
+   "source": "Vercel",
+   "category": "web",
+   "published": "2026-07-23T00:00:00+00:00",
+   "blurb": "Vercel Flags version history can now be inspected from the Vercel CLI with the new vercel flags versions command.Run vercel flags versions <flag> to print the full revision history for a flag, with each revision's author, message, timestamp, and changed environments. Filter to a specific environment with --environment, paginate with --limit and --cursor, or add --json for scripting.To compare a re",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "GitHub tools are now an installable eve extension",
+   "url": "https://vercel.com/changelog/github-tools-eve-extension",
+   "source": "Vercel",
+   "category": "web",
+   "published": "2026-07-23T00:00:00+00:00",
+   "blurb": "You can now add GitHub tools to your eve agent as an extension.Add the package, drop one file in agent/extensions/, and your agent gets every tool with Vercel Connect auth, presets, and approval rules built in.Install @github-tools/eve-extension:Then register it from a file in agent/extensions/:Connector-backed auth: Pass a Vercel Connect connector and the extension mints short-lived, scoped GitHu",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "Ling 3.0 Flash is now available on AI Gateway",
+   "url": "https://vercel.com/changelog/ling-3-0-flash-is-now-available-on-ai-gateway",
+   "source": "Vercel",
+   "category": "web",
+   "published": "2026-07-23T00:00:00+00:00",
+   "blurb": "Ling 3.0 Flash from Ant Group is now available on AI Gateway.The model is free to use for the next three weeks, through August 3rd.Ling 3.0 Flash is a Mixture-of-Experts model with 124B total parameters and about 5.1B active per token. It has a 256K token context window and runs in thinking and non-thinking modes.Ling 3.0 Flash is built for token-efficient agentic inference at production scale, do",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Vercel MCP can now deploy code",
+   "url": "https://vercel.com/changelog/vercel-mcp-can-now-deploy-code",
+   "source": "Vercel",
+   "category": "web",
+   "published": "2026-07-23T00:00:00+00:00",
+   "blurb": "The Vercel MCP server can now deploy code directly to a new or existing project. When your AI assistant finishes building something, it can ship it to Vercel and hand back a shareable URL without leaving the chat.Point the deploy_to_vercel tool at your files and Vercel creates the project, detects the framework, installs dependencies, and builds. You get a URL you can open and share while the buil",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "AI Gateway now supports streaming transcription",
+   "url": "https://vercel.com/changelog/ai-gateway-now-supports-streaming-transcription",
+   "source": "Vercel",
+   "category": "web",
+   "published": "2026-07-22T00:00:00+00:00",
+   "blurb": "AI Gateway now supports streaming transcription. Previously, transcription required a complete audio file and returned the full transcript in a single response. Now you can stream audio in as it's captured and get transcript updates back as the model produces them, keeping latency low for uses like live captioning and voice input.Streaming transcription is in beta and available through the AI SDK'",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Extend eve agents with installable extensions",
+   "url": "https://vercel.com/changelog/eve-extensions",
+   "source": "Vercel",
+   "category": "web",
+   "published": "2026-07-22T00:00:00+00:00",
+   "blurb": "You can now package tools, connections, skills, instructions, and hooks into extensions that any eve agent can import. Extensions can be published to package registries, then installed, versioned, and upgraded like any other project dependency.A browser-use extension might ship tools for navigating a site, a memory extension can capture context with hooks and recall it with tools, and a self-impro",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "How Searchable ships customer-requested features in 30 minutes on Vercel",
+   "url": "https://vercel.com/blog/how-searchable-ships-customer-requested-features-in-30-minutes-on-vercel",
+   "source": "Vercel",
+   "category": "web",
+   "published": "2026-07-21T04:00:00+00:00",
+   "blurb": "Searchable on Vercel5x increase in development velocity100+ billion tokens processed Customer-requested features shipped in as little as 30 minutesZero model SDK implementation or API key rotation with AI Gateway\nSearchable helps brands track and improve how they appear across AI search engines like ChatGPT, Perplexity, and Claude, pairing visibility analytics with an agent that guides users on wh",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Introducing the new Vercel Agent",
+   "url": "https://vercel.com/blog/vercel-agent",
+   "source": "Vercel",
+   "category": "web",
+   "published": "2026-07-21T04:00:00+00:00",
+   "blurb": "Today we're expanding Vercel Agent. It started by triaging alerts and reviewing your pull requests. Now it has a home in your dashboard, where it can investigate production, answer questions about your projects, and take action once you approve it.Because Vercel Agent is built into the platform that deploys and runs your app, when something changes in production, it's your first responder. It auto",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Personalizing Airbnb search by learning from the guest journey",
+   "url": "https://medium.com/airbnb-engineering/personalizing-airbnb-search-by-learning-from-the-guest-journey-bcefd1915624?source=rss----53c7c27702d5---4",
+   "source": "Airbnb Engineering",
+   "category": "engineering",
+   "published": "2026-07-21T17:01:04+00:00",
+   "blurb": "How we built a Transformer-based sequence model that encodes years of guest behavior to surface the right listings at the right time.By: Daochen Zha, Chun How Tan, Xin Liu, Bin Xu, Han Zhao, Xiaowei Liu, Jun Shi, Tracy Yu, Hui Gao, Huiji Gao, Liwei He, Michael Kinoti, Stephanie Moyerman, and Sanjeev KatariyaIntroductionPlanning a trip on Airbnb rarely happens in a single session. A guest searching",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Unbiased Java CPU profiling with JFR in JDK 25",
+   "url": "https://www.datadoghq.com/blog/engineering/jfr-cpu-time-profiling/",
+   "source": "Datadog Engineering",
+   "category": "engineering",
+   "published": "2026-07-22T00:00:00+00:00",
+   "blurb": "Modern Java profilers often rely on unsupported JVM internals for accurate CPU profiling. Here’s how engineers from Datadog, SAP, Amazon, and the OpenJDK community helped bring a new CPU profiling event to JDK 25.",
+   "score": null,
+   "curated": true
+  },
+  {
+   "title": "Session Replay for Unreal Engine: see the crash before the crash",
+   "url": "https://blog.sentry.io/session-replay-unreal-engine/",
+   "source": "Sentry",
+   "category": "devtools",
+   "published": "2026-07-24T09:00:00+00:00",
+   "blurb": "The Sentry Unreal Engine SDK now records the last seconds of gameplay and attaches the footage to crash reports, so you can watch what led to the crash.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "From 57 bugs to 1, thanks to Seer",
+   "url": "https://blog.sentry.io/57-bugs-to-1/",
+   "source": "Sentry",
+   "category": "devtools",
+   "published": "2026-07-23T09:00:00+00:00",
+   "blurb": "Learn how to automate bug fixes using Sentry, Seer, and cloud coding agents to clear your backlog.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": ".NET support for Godot is now generally available",
+   "url": "https://blog.sentry.io/godot-dotnet-ga/",
+   "source": "Sentry",
+   "category": "devtools",
+   "published": "2026-07-22T09:00:00+00:00",
+   "blurb": "Sentry's Godot Engine SDK 2.0.0 brings C#/.NET error reporting and application metrics to general availability.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "How to structure a log",
+   "url": "https://blog.sentry.io/structure-a-log/",
+   "source": "Sentry",
+   "category": "devtools",
+   "published": "2026-07-21T09:00:00+00:00",
+   "blurb": "A practical guide to writing structured, queryable, lint-enforceable logs with consistent event names, attributes, severity, and schema checks.",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Check out the New Node.js API Documentation Preview",
+   "url": "https://nodejs.org/en/blog/announcements/new-api-docs-beta",
+   "source": "Node.js",
+   "category": "web",
+   "published": "2026-07-24T19:00:00+00:00",
+   "blurb": "",
+   "score": null,
+   "curated": false
+  },
+  {
+   "title": "Monday, July 27, 2026 Security Releases",
+   "url": "https://nodejs.org/en/blog/vulnerability/july-2026-security-releases",
+   "source": "Node.js",
+   "category": "web",
+   "published": "2026-07-21T03:00:00+00:00",
+   "blurb": "",
+   "score": null,
+   "curated": true
+  }
+ ],
+ "sources": [
+  {
+   "name": "Airbnb Engineering",
+   "count": 1
+  },
+  {
+   "name": "Cloudflare",
+   "count": 4
+  },
+  {
+   "name": "Datadog Engineering",
+   "count": 1
+  },
+  {
+   "name": "GitHub Blog",
+   "count": 6
+  },
+  {
+   "name": "GitHub Changelog",
+   "count": 10
+  },
+  {
+   "name": "Google DeepMind",
+   "count": 2
+  },
+  {
+   "name": "Hacker News",
+   "count": 20
+  },
+  {
+   "name": "Hugging Face",
+   "count": 2
+  },
+  {
+   "name": "Latent Space",
+   "count": 7
+  },
+  {
+   "name": "Lobsters",
+   "count": 25
+  },
+  {
+   "name": "MacRumors",
+   "count": 20
+  },
+  {
+   "name": "Node Weekly",
+   "count": 1
+  },
+  {
+   "name": "Node.js",
+   "count": 2
+  },
+  {
+   "name": "OpenAI",
+   "count": 9
+  },
+  {
+   "name": "React Status",
+   "count": 1
+  },
+  {
+   "name": "Sentry",
+   "count": 4
+  },
+  {
+   "name": "Simon Willison",
+   "count": 15
+  },
+  {
+   "name": "Slashdot",
+   "count": 15
+  },
+  {
+   "name": "Vercel",
+   "count": 20
+  }
+ ]
+}
