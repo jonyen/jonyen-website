@@ -1,8 +1,8 @@
 {
-  "version": "0.9.8",
-  "notes": "## What's New\n\n- Improved the reliability and speed of future app update downloads.\n- Enhanced update security with signed release packages to ensure safe delivery.\n- General backend improvements to support smoother app updates moving forward.",
-  "zipURL": "https://jonyen.com/zephyr-updates/Zephyr-0.9.8.app.zip",
-  "dmgURL": "https://jonyen.com/zephyr-updates/Zephyr-0.9.8.dmg",
-  "signature": "RmCzAQuhixnlahqGcSGu1+ZvZIkpVURrrAysrHbY0XkonA7TfP0AvAEAcJz1QHGdSyPCJqfcUqr9MyG497OPAA==",
-  "publishedAt": "2026-07-31T03:43:20Z"
+  "version": "0.9.9",
+  "notes": "## What's New\n\n* **Enhanced Update Security:** Upgraded our update system to ensure future releases deliver securely and without interruption.\n* **Seamless Future Upgrades:** Prepared the app infrastructure to handle security maintenance smoothly behind the scenes.",
+  "zipURL": "https://jonyen.com/zephyr-updates/Zephyr-0.9.9.app.zip",
+  "dmgURL": "https://jonyen.com/zephyr-updates/Zephyr-0.9.9.dmg",
+  "signature": "iWdBBG9VduLesHSmrPfBd+h5USwOihIamNPk29QRtjZDjP3nHkffXZvHSqMTyTa5o/1/uFXZrjJeA7oZ6wR/Bw==",
+  "publishedAt": "2026-07-31T15:11:22Z"
 }
