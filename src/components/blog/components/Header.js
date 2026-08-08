@@ -21,6 +21,7 @@ const navItems = [
   { label: 'Experience', href: '#experience' },
   { label: 'Portfolio', href: '#portfolio' },
   { label: 'Fun Facts', href: '#fun-facts' },
+  { label: 'Blog', href: 'https://blog.jonyen.com' },
   { label: 'Contact', href: '#contact' },
 ];
 
