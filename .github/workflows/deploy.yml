@@ -31,7 +31,7 @@ jobs:
 
       - run: npm run build
         env:
-          REACT_APP_GA_TRACKING_ID: ${{ vars.REACT_APP_GA_TRACKING_ID }}
+          VITE_GA_TRACKING_ID: ${{ vars.REACT_APP_GA_TRACKING_ID }}
 
       - uses: actions/configure-pages@v5
 
