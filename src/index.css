@@ -15,6 +15,7 @@
   /* Typography */
   --font-display: 'Clash Display', sans-serif;
   --font-body: 'Satoshi', sans-serif;
+  --font-mono: 'JetBrains Mono', source-code-pro, Menlo, Monaco, Consolas, monospace;
 
   /* Spacing */
   --space-xs: 0.5rem;

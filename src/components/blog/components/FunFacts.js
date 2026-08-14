@@ -290,7 +290,7 @@ export default function FunFacts() {
               mb: 2,
             }}
           >
-            04 / Beyond Code
+            05 / Beyond Code
           </Typography>
           <Typography
             component="h2"
