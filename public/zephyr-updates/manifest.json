@@ -1,8 +1,8 @@
 {
-  "version": "0.9.9",
-  "notes": "## What's New\n\n* **Enhanced Update Security:** Upgraded our update system to ensure future releases deliver securely and without interruption.\n* **Seamless Future Upgrades:** Prepared the app infrastructure to handle security maintenance smoothly behind the scenes.",
-  "zipURL": "https://jonyen.com/zephyr-updates/Zephyr-0.9.9.app.zip",
-  "dmgURL": "https://jonyen.com/zephyr-updates/Zephyr-0.9.9.dmg",
-  "signature": "iWdBBG9VduLesHSmrPfBd+h5USwOihIamNPk29QRtjZDjP3nHkffXZvHSqMTyTa5o/1/uFXZrjJeA7oZ6wR/Bw==",
-  "publishedAt": "2026-07-31T15:11:22Z"
+  "version": "1.0.0",
+  "notes": "## What's New\n\n* **Enhanced Text Formatting:** Read comfortably with native paragraph breaks, line-by-line poetry layout, section headings, and Psalm superscriptions.\n* **Built-in Reading Timer:** Track your quiet times and reading sessions with a customizable timer accessible directly from the app interface and menu bar.\n* **Seamless macOS Integration:** Search for and jump to Scripture quickly via Spotlight, with convenient keyboard shortcuts like `Shift-Command-N` for toggling notes.",
+  "zipURL": "https://jonyen.com/zephyr-updates/Zephyr-1.0.0.app.zip",
+  "dmgURL": "https://jonyen.com/zephyr-updates/Zephyr-1.0.0.dmg",
+  "signature": "WO4tVck+MTW9s/tEiUPQ+Aho7YnE/g1Y2Go/p6flKwcrAB8Gtd3aKo3Xvz1yEiNvk6oeHgBX0Ay/CpRlIrNtBg==",
+  "publishedAt": "2026-08-22T00:39:00Z"
 }
