@@ -106,7 +106,7 @@ export default function Contact() {
               mb: 2,
             }}
           >
-            05 / Get in Touch
+            06 / Get in Touch
           </Typography>
           <Typography
             component="h2"
