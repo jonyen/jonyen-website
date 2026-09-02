@@ -26,7 +26,12 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "prepare": "husky"
+    "prepare": "husky",
+    "resume:public": "node resume/build.mjs --variant public --out public/resume",
+    "resume:full": "node resume/build.mjs --variant full --out dist/resume-full",
+    "resume:link": "node resume/mint-link.mjs",
+    "prebuild": "npm run resume:public",
+    "test:worker": "node --test \"worker/test/*.test.mjs\""
   },
   "eslintConfig": {
     "extends": [
@@ -48,7 +53,8 @@
   },
   "devDependencies": {
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.6"
+    "lint-staged": "^16.1.6",
+    "puppeteer": "^25.9.0"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

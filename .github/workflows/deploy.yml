@@ -29,9 +29,19 @@ jobs:
 
       - run: npm ci
 
+      - run: npm run test:worker
+
+      # `npm run build` triggers prebuild, which renders the public (phone-free)
+      # resume PDFs into public/resume before CRA copies them into the bundle.
       - run: npm run build
         env:
           REACT_APP_GA_TRACKING_ID: ${{ vars.REACT_APP_GA_TRACKING_ID }}
+
+      - name: Install poppler-utils
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+
+      - name: Fail if a phone number reached the published PDFs
+        run: node resume/check-public.mjs
 
       - uses: actions/configure-pages@v5
 
@@ -41,3 +51,41 @@ jobs:
 
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  deploy-resume-links:
+    runs-on: ubuntu-latest
+    needs: build-and-deploy
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # The full PDFs carry the phone number, so they are rendered here and
+      # bundled straight into the Worker. They are never committed.
+      - name: Render full resume PDFs
+        run: npm run resume:full
+        env:
+          RESUME_PHONE: ${{ secrets.RESUME_PHONE }}
+
+      - name: Bundle PDFs into the Worker
+        run: node resume/bundle-worker.mjs
+
+      - name: Publish signing secret
+        working-directory: worker
+        run: echo "$LINK_SECRET" | npx wrangler secret put LINK_SECRET
+        env:
+          LINK_SECRET: ${{ secrets.RESUME_LINK_SECRET }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Deploy Worker
+        working-directory: worker
+        run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

@@ -1,0 +1,100 @@
+{
+  "slug": "jonathan-yen-resume-frontend",
+  "title": "Frontend Software Engineer",
+  "extraContact": [],
+  "summary": "Experienced full stack engineer with 15+ years of experience building scalable web applications in agile, cloud-based, and DevOps environments. Proficient in JavaScript/TypeScript, React, Node.js, GraphQL, and AWS, with a strong focus on API design, CI/CD, and containerized architectures. US Citizen (no sponsorship required)",
+  "skills": [
+    { "label": "Languages & Frameworks", "value": "JavaScript/TypeScript, React, Next.js, PHP, Python, Node.js, Ruby on Rails, CSS/SCSS, GraphQL, Apollo, Shell Scripting" },
+    { "label": "Cloud & DevOps", "value": "AWS (S3, EBS, EC2, CloudFront, VPC), Docker, Kubernetes, Jenkins, CI/CD, Observability (Splunk, SignalFx), SonarQube, Bitbucket Pipelines, Bamboo, Github, Gitlab, Google Cloud Platform" },
+    { "label": "Databases", "value": "Postgres, MySQL, Redis, Elasticsearch, SQLite" },
+    { "label": "Methodologies & Tools", "value": "Agile, Git, Cursor, VSCode, Claude AI, Github Copilot, System Design, Test Automation (Playwright, Cypress, Selenium), Secure Coding Practices, Linux" }
+  ],
+  "experience": [
+    {
+      "company": "Datavault AI",
+      "role": "Software Engineer (Platform)",
+      "dates": "February 2026 – Current",
+      "subtitle": "Next.js/React/TypeScript engineer on AI-powered data exchange platform",
+      "bullets": [
+        "Top-3 contributor to the Next.js/React/TypeScript customer portal, delivering 300+ commits across the portal and the platform's Go core API",
+        "Shipped the React analysis UI for the AI data-valuation feature (Intelligent Data Analyst) behind a feature flag, wired to Go analysis endpoints",
+        "Built per-branch frontend preview deploys with signed-cookie routing, giving reviewers a live URL for every pull request",
+        "Integrated IBM watsonx privacy scoring from backend through to the UI; introduced AI-assisted PR review to the team workflow"
+      ]
+    },
+    {
+      "company": "Mercor",
+      "role": "Senior Domain Expert (Software Developer)",
+      "dates": "November 2025 – February 2026",
+      "subtitle": "React/TypeScript/Node.js/Next.js/GraphQL/PHP/Docker/Postgres expert",
+      "bullets": [
+        "Provided subject matter expertise in software development for a top AI lab",
+        "Architected and developed dozens of 0->1 projects, manually creating deliverables from scratch",
+        "Developed data generation tooling to assist hundreds of experts",
+        "Collaborated with reviewers to improve AI training data"
+      ]
+    },
+    {
+      "company": "Atlassian",
+      "role": "Frontend Software Engineer",
+      "dates": "August 2022 – June 2025",
+      "subtitle": "React/Node.js/GraphQL Software Engineer in Central AI and Confluence teams",
+      "bullets": [
+        "Modernized Confluence frontend package management, resulting in an 8.5x installation improvement",
+        "Utilized observability tools such as Splunk and SignalFX for troubleshooting issues in production and staging environments",
+        "Helped to deliver Rovo, the company's new flagship AI product, in record time by implementing core third-party connectors",
+        "Led team of engineers to build a frontend autosuggestion component to improve search experience in Confluence",
+        "Mentored and trained 5 junior engineers",
+        "Taught best practices in using git to identify problematic code",
+        "Second most prolific code contributor in an org of over 200 engineers in 2022 (before AI tooling was widely available)"
+      ]
+    },
+    {
+      "company": "Medallia",
+      "role": "Software Engineer",
+      "dates": "January 2020 – August 2022",
+      "subtitle": "React/Node.js/GraphQL, PHP Software engineer",
+      "bullets": [
+        "Developed web application for crowdsourcing innovation in React, Node.js and PHP",
+        "Upgraded code infrastructure to latest version of PHP, built out REST and GraphQL APIs",
+        "Set up observability infrastructure with Grafana and Loki",
+        "Simplified multistep developer environment setup from several hours to 3 minutes using Docker compose",
+        "Led workshop on debugging best practices in NodeJS and PHP",
+        "Created Jenkins agent to manage continuous integration environment for testing and linting PHP codebase",
+        "Served as security champion for project team: managed security vulnerabilities and enforced safe/secure code practices"
+      ]
+    },
+    {
+      "company": "Cvent",
+      "role": "Software Engineer II",
+      "dates": "January 2019 – January 2020",
+      "subtitle": "Full stack Ruby on Rails/JavaScript developer",
+      "bullets": [
+        "Developed new UI components and functionality for the event management platform and customer portal",
+        "Created development environment setup script to help new developers set up their machines within 15 minutes"
+      ]
+    },
+    {
+      "company": "Aspera, an IBM Company",
+      "role": "Technical Consultant/Software Developer",
+      "dates": "July 2015 – January 2019",
+      "subtitle": "Ruby on Rails development; Object-oriented JavaScript",
+      "bullets": [
+        "Core Ruby on Rails developer for workflow automation software; provided JavaScript expertise for the team",
+        "Worked on UI overhaul, improved usability of software through development of new features",
+        "Migrated codebase from Subversion to Git"
+      ]
+    },
+    {
+      "company": "Aspera, an IBM Company",
+      "role": "Build & Release Engineer",
+      "dates": "July 2011 – June 2015",
+      "subtitle": "Systems & build maintenance; shell scripting; PHP web programming; cloud solutions",
+      "bullets": [
+        "Created build dashboard tool to help monitor status of builds across dozens of Aspera products",
+        "Developed cloud-based product offering of Aspera on Amazon Web Services (known as Aspera on Demand)",
+        "Reduced the build process of Aspera On Demand offerings from 3 hours to 12 minutes (15x improvement)"
+      ]
+    }
+  ]
+}

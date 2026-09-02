@@ -1,0 +1,11 @@
+name = "resume-links"
+main = "src/index.js"
+compatibility_date = "2026-08-01"
+workers_dev = false
+
+# The jonyen.com/resume/dl/* route is managed outside this file: the deploy
+# token intentionally has no Workers Routes permission. Create the route once in
+# the Cloudflare dashboard (Workers & Pages > resume-links > Settings > Domains
+# & Routes), after which every deploy just replaces the script behind it.
+#
+# LINK_SECRET is set by the deploy workflow with `wrangler secret put`.
