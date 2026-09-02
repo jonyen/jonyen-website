@@ -53,3 +53,23 @@ copy.
 Links are stateless signatures, not database rows: an individual link cannot be
 revoked, and anyone the link is forwarded to can use it until it expires.
 Rotating `RESUME_LINK_SECRET` invalidates every outstanding link at once.
+
+## Bots
+
+`public/robots.txt` disallows `/resume` for every crawler and blocks the known AI
+training crawlers site-wide, and each redirect page carries a `noindex` meta tag.
+The Worker sets `X-Robots-Tag: noindex` on the expiring downloads itself.
+
+Two limits worth knowing:
+
+- The PDFs cannot carry a meta tag, and GitHub Pages cannot set response headers,
+  so `robots.txt` is the only signal covering them. To add a real
+  `X-Robots-Tag: noindex` header, create a Cloudflare Transform Rule on
+  `/resume/*` — a dashboard action.
+- `robots.txt` is a request. Compliant crawlers honour it; scrapers do not.
+  Actual blocking is a Cloudflare edge concern (Security > Bots, and the "Block
+  AI Scrapers and Crawlers" toggle).
+
+Disallowing `/resume` also keeps the resume out of Google. Anyone who lands on
+jonyen.com still finds it; searching for it directly will not surface it. Drop
+the two `Disallow: /resume` lines to reverse that.

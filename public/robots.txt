@@ -1,3 +1,32 @@
 # https://www.robotstxt.org/robotstxt.html
+
+# The resume is for people, not for crawlers or training corpora. This is a
+# request, not a control: well-behaved crawlers honour it, scrapers ignore it.
+# Enforcement lives at the Cloudflare edge.
 User-agent: *
-Disallow:
+Disallow: /resume
+Disallow: /resume/
+
+# AI crawlers and training-data collectors: nothing on the site.
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-Web
+User-agent: anthropic-ai
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: FacebookBot
+User-agent: Bytespider
+User-agent: Amazonbot
+User-agent: PerplexityBot
+User-agent: CCBot
+User-agent: Diffbot
+User-agent: ImagesiftBot
+User-agent: Omgilibot
+User-agent: Timpibot
+User-agent: cohere-ai
+User-agent: YouBot
+User-agent: Scrapy
+Disallow: /
