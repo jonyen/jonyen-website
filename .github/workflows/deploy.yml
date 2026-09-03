@@ -20,11 +20,11 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - run: npm ci
@@ -32,10 +32,10 @@ jobs:
       - run: npm run test:worker
 
       # `npm run build` triggers prebuild, which renders the public (phone-free)
-      # resume PDFs into public/resume before CRA copies them into the bundle.
+      # resume PDFs into public/resume before Vite copies them into the bundle.
       - run: npm run build
         env:
-          REACT_APP_GA_TRACKING_ID: ${{ vars.REACT_APP_GA_TRACKING_ID }}
+          VITE_GA_TRACKING_ID: ${{ vars.REACT_APP_GA_TRACKING_ID }}
 
       - name: Install poppler-utils
         run: sudo apt-get update && sudo apt-get install -y poppler-utils
@@ -43,24 +43,24 @@ jobs:
       - name: Fail if a phone number reached the published PDFs
         run: node resume/check-public.mjs
 
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: build
 
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
   deploy-resume-links:
     runs-on: ubuntu-latest
     needs: build-and-deploy
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - run: npm ci
