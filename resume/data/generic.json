@@ -1,0 +1,77 @@
+{
+  "slug": "jonathan-yen-resume",
+  "title": "Full Stack Software Engineer — AI Products",
+  "extraContact": ["Fairfax, VA (Washington, DC area)", "U.S. Citizen"],
+  "summary": "Full stack engineer with 15+ years building scalable web applications in agile, cloud-based, DevOps environments, now focused on shipping production AI systems. Built and deployed an end-to-end Claude-powered data classification platform (scraping, LLM classification, human-in-the-loop verification, vector search) at a Nasdaq-listed data company. Deep daily practitioner of Anthropic tooling (Claude API, Claude Code, MCP). Strong record of enterprise-grade engineering: API design, CI/CD, observability, secure coding, and 0-to-1 delivery.",
+  "skills": [
+    { "label": "AI Engineering", "value": "Claude API, Claude Code, MCP server development, agent workflows, LLM classification pipelines, human-in-the-loop review systems, vector databases, prompt & evaluation design" },
+    { "label": "Languages & Frameworks", "value": "JavaScript/TypeScript, React, Node.js, Next.js, Python, GraphQL, Apollo, PHP, Ruby on Rails, CSS/SCSS, Shell" },
+    { "label": "Cloud & DevOps", "value": "AWS (EC2, S3, SSM, CloudFront, VPC), Docker, Kubernetes, Jenkins, Bitbucket Pipelines, CI/CD, Observability (Splunk, SignalFx, Grafana/Loki), SonarQube" },
+    { "label": "Databases", "value": "Postgres, MySQL, Redis, Elasticsearch, SQLite, vector stores" },
+    { "label": "Practices", "value": "Agile, system design, test automation (Playwright, Cypress, Selenium), secure coding / security champion, Linux" }
+  ],
+  "experience": [
+    {
+      "company": "Datavault AI (Nasdaq: DVLT)",
+      "role": "Sr. Full Stack Engineer",
+      "dates": "Feb 2026 – Present · Remote",
+      "bullets": [
+        "Designed and shipped DES, a 0-to-1 AI data-classification platform: scrapes public data marketplaces (AWS Data Exchange, Datarade, Snowflake, Databricks), classifies listings into industries with Claude, routes low-confidence results to a human verification queue, and serves approved records from a vector + SQLite reference store designed to feed the company's analytics valuation model",
+        "Built the full delivery pipeline for it: Docker deployment to AWS via SSM, Bitbucket Pipelines CI with smoke tests, and an authenticated web UI for review workflows; currently running as an internal pre-launch pilot",
+        "Contribute to the customer portal (Next.js, Microsoft Entra ID auth) and to data-governance API contract design for enterprise data-exchange compliance"
+      ]
+    },
+    {
+      "company": "Mercor",
+      "role": "Senior Domain Expert, Software Development",
+      "dates": "Nov 2025 – Feb 2026 · Remote",
+      "bullets": [
+        "Provided software-development subject-matter expertise for AI model training at a top AI lab (React/TypeScript/Node.js/Next.js/GraphQL/PHP/Docker/Postgres)",
+        "Architected and developed dozens of 0-to-1 projects; built data-generation tooling used by hundreds of experts; collaborated with reviewers to improve AI training data quality"
+      ]
+    },
+    {
+      "company": "Atlassian",
+      "role": "Software Engineer (Frontend), Central AI & Confluence",
+      "dates": "Aug 2022 – Jun 2025 · Remote",
+      "bullets": [
+        "Modernized Confluence frontend package management, achieving an 8.5x installation-time improvement",
+        "Built and maintained React/Node.js/GraphQL features across Confluence and Central AI teams at enterprise scale"
+      ]
+    },
+    {
+      "company": "Medallia",
+      "role": "Frontend Developer",
+      "dates": "Jan 2020 – Aug 2022 · McLean, VA",
+      "bullets": [
+        "Built React/Node.js/PHP crowdsourced-innovation application; upgraded PHP infrastructure and built REST and GraphQL APIs",
+        "Set up observability with Grafana Loki; cut multi-step developer environment setup from hours to 3 minutes with Docker Compose",
+        "Served as project security champion: managed vulnerabilities and enforced secure coding practices; led NodeJS/PHP debugging workshops; ran Jenkins CI for testing and linting"
+      ]
+    },
+    {
+      "company": "Cvent",
+      "role": "Software Engineer II",
+      "dates": "Jan 2019 – Jan 2020",
+      "bullets": [
+        "Full stack Ruby on Rails/JavaScript development on event-management platform and customer portal; wrote setup scripts cutting new-developer onboarding to 15 minutes"
+      ]
+    },
+    {
+      "company": "Aspera, an IBM Company",
+      "role": "Technical Consultant / Software Developer",
+      "dates": "Jul 2015 – Jan 2019",
+      "bullets": [
+        "Core Ruby on Rails developer for enterprise workflow-automation software used by large media and government customers; led UI overhaul; migrated codebase from Subversion to Git"
+      ]
+    },
+    {
+      "company": "Aspera, an IBM Company",
+      "role": "Build & Release Engineer",
+      "dates": "Jul 2011 – Jun 2015",
+      "bullets": [
+        "Developed Aspera On Demand cloud offering on AWS; built build-status dashboard across dozens of products; reduced build process from 3 hours to 12 minutes (15x)"
+      ]
+    }
+  ]
+}

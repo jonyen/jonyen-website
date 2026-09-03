@@ -24,7 +24,12 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:ci": "vitest run",
-    "prepare": "husky"
+    "prepare": "husky",
+    "resume:public": "node resume/build.mjs --variant public --out public/resume",
+    "resume:full": "node resume/build.mjs --variant full --out dist/resume-full",
+    "resume:link": "node resume/mint-link.mjs",
+    "prebuild": "npm run resume:public",
+    "test:worker": "node --test \"worker/test/*.test.mjs\""
   },
   "eslintConfig": {
     "extends": [
@@ -39,6 +44,7 @@
     "husky": "^9.1.7",
     "jsdom": "^30.0.1",
     "lint-staged": "^16.1.6",
+    "puppeteer": "^25.9.0",
     "vite": "^8.2.1",
     "vitest": "^4.1.10"
   },

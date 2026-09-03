@@ -31,3 +31,8 @@ yarn-error.log*
 
 # brainstorming companion
 .superpowers/
+
+# Resume PDFs are rendered from resume/data at build time
+/public/resume/*.pdf
+/dist/
+/worker/src/pdfs.generated.js
