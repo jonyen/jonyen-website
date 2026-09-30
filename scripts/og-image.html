@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<!-- Source for public/og-image.png (1200x630). Regenerate with: node scripts/og-image.mjs -->
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600&display=swap" />
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400&display=swap" />
+<style>
+  :root {
+    --color-ink: #0a1628;
+    --color-paper: #faf8f5;
+    --color-cream: #f5f2ed;
+    --color-gold: #c9a227;
+    --color-gold-dim: rgba(201, 162, 39, 0.15);
+    --color-text-secondary: #5a6478;
+    --color-border: rgba(10, 22, 40, 0.08);
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1200px; height: 630px; }
+  body {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: 'Satoshi', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .glow {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201, 162, 39, 0.22) 0%, transparent 70%);
+    filter: blur(60px);
+  }
+  .glow.a { width: 560px; height: 560px; top: -140px; right: -140px; }
+  .glow.b { width: 420px; height: 420px; bottom: -200px; left: -160px; }
+  .card {
+    position: absolute;
+    inset: 0;
+    padding: 0 96px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 56px;
+  }
+  .photo {
+    flex: none;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid var(--color-ink);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  }
+  h1 {
+    font-family: 'Clash Display', sans-serif;
+    font-weight: 600;
+    font-size: 92px;
+    white-space: nowrap;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .role {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-top: 28px;
+  }
+  .role .line { width: 64px; height: 3px; background: var(--color-gold); }
+  .role span {
+    font-family: 'Clash Display', sans-serif;
+    font-weight: 500;
+    font-size: 30px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--color-gold);
+  }
+  .blurb {
+    margin-top: 22px;
+    max-width: 600px;
+    font-size: 30px;
+    line-height: 1.4;
+    color: var(--color-text-secondary);
+  }
+  .url {
+    margin-top: 30px;
+    font-family: 'Clash Display', sans-serif;
+    font-weight: 500;
+    font-size: 26px;
+    letter-spacing: 0.02em;
+    color: var(--color-ink);
+  }
+</style>
+</head>
+<body>
+  <div class="glow a"></div>
+  <div class="glow b"></div>
+  <div class="card">
+    <img class="photo" src="../src/assets/profile.png" alt="" />
+    <div>
+      <h1>Jonathan Yen</h1>
+      <div class="role"><div class="line"></div><span>Full Stack Engineer</span></div>
+      <p class="blurb">15+ years writing software for <span style="white-space: nowrap">industry-leading</span> companies.</p>
+      <p class="url">jonyen.com</p>
+    </div>
+  </div>
+</body>
+</html>
