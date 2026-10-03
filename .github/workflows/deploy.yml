@@ -34,8 +34,6 @@ jobs:
       # `npm run build` triggers prebuild, which renders the public (phone-free)
       # resume PDFs into public/resume before Vite copies them into the bundle.
       - run: npm run build
-        env:
-          VITE_GA_TRACKING_ID: ${{ vars.REACT_APP_GA_TRACKING_ID }}
 
       - name: Install poppler-utils
         run: sudo apt-get update && sudo apt-get install -y poppler-utils
