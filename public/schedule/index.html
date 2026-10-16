@@ -290,11 +290,10 @@
             : 'No open weekday time left this week.';
         setCopyState('', 'Copy');
 
-        const updated = fmtTime.format(Date.parse(data.generatedAt));
-        statusEl.className = data.incomplete ? 'note warn' : 'note';
-        statusEl.textContent = data.incomplete
-            ? `One of my calendars didn't load, so some busy times may be missing. Updated ${updated}.`
-            : `Updated ${updated}.`;
+        // Only a partial feed needs a note; otherwise the status line goes away.
+        statusEl.className = 'note warn';
+        statusEl.textContent = "One of my calendars didn't load, so some busy times may be missing.";
+        statusEl.hidden = !data.incomplete;
     }
 
     const COPY_ICON = $('copy').innerHTML;
