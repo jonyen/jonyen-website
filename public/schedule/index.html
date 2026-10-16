@@ -99,6 +99,10 @@
         .booking h2 { font-size: 1.25rem; margin: 0 0 1rem; }
         .booking iframe { display: block; width: 100%; height: 720px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
         .booking .note { margin-top: .5rem; }
+        .blocked { padding: 1.25rem; border: 1px solid var(--line); border-radius: 8px; }
+        .blocked p { margin: 0 0 .6rem; }
+        .blocked p:last-child { margin: 0; }
+        .blocked a { color: var(--accent); }
         .booking a { color: var(--accent); }
         @media (max-width: 30rem) {
             .week { --hour: 30px; grid-template-columns: 2.75rem repeat(5, 1fr); }
@@ -132,8 +136,13 @@
     </div>
     <section id="book" class="booking">
         <h2>Book a time</h2>
-        <iframe src="https://calendar.google.com/calendar/appointments/AcZssZ0ErAD3_ySrke5VN5jq51fzheAJUb2TH8HMOQQ=?gv=true" title="Book a time with Jonathan Yen" loading="lazy"></iframe>
-        <p class="note"><a href="https://calendar.google.com/calendar/appointments/AcZssZ0ErAD3_ySrke5VN5jq51fzheAJUb2TH8HMOQQ=">Open the booking page in a new tab</a> if it doesn't show here.</p>
+        <iframe id="bookframe" src="https://calendar.google.com/calendar/appointments/AcZssZ0ErAD3_ySrke5VN5jq51fzheAJUb2TH8HMOQQ=?gv=true" title="Book a time with Jonathan Yen" loading="lazy"></iframe>
+        <p class="note" id="booknote"><a href="https://calendar.google.com/calendar/appointments/AcZssZ0ErAD3_ySrke5VN5jq51fzheAJUb2TH8HMOQQ=">Open the booking page in a new tab</a> if it doesn't show here.</p>
+        <div class="blocked" id="blocked" hidden>
+            <p><strong>The booking calendar can't load on this network.</strong> Some workplaces block Google Calendar.</p>
+            <p>Copy the free times from the list, pick one, and send it to me wherever we've been talking.</p>
+            <p>Or try the <a href="https://calendar.google.com/calendar/appointments/AcZssZ0ErAD3_ySrke5VN5jq51fzheAJUb2TH8HMOQQ=">booking page</a> from your phone or a home network.</p>
+        </div>
     </section>
     </div>
 </main>
@@ -145,6 +154,25 @@
     const DAY = 86400000;
 
     const $ = (id) => document.getElementById(id);
+
+    // A blocked cross-origin iframe can't be inspected, so probe the same host
+    // with a small image instead: a firewall block page or a dropped request
+    // fails to decode, and a request that never answers times out.
+    (() => {
+        let settled = false;
+        const probe = new Image();
+        const blocked = () => {
+            if (settled) return;
+            settled = true;
+            $('bookframe').remove();
+            $('booknote').hidden = true;
+            $('blocked').hidden = false;
+        };
+        probe.onload = () => { settled = true; };
+        probe.onerror = blocked;
+        setTimeout(blocked, 8000);
+        probe.src = `https://calendar.google.com/googlecalendar/images/favicons_2020q4/calendar_31.ico?t=${Date.now()}`;
+    })();
 
     // Favicon: a calendar page showing today's date in Eastern time.
     const todayNum = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TZ, day: 'numeric' }).format(Date.now());
