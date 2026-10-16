@@ -41,7 +41,7 @@
             color: var(--fg);
             font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
-        main { max-width: 78rem; margin: 0 auto; padding: 2rem 16px 3rem; }
+        main { max-width: 90rem; margin: 0 auto; padding: 2rem 16px 3rem; }
         h1 { font-size: 1.5rem; margin: 0 0 .25rem; }
         .lede { margin: 0 0 1.25rem; color: var(--muted); }
         .note { color: var(--muted); font-size: .9rem; margin: 0 0 1rem; }
@@ -74,10 +74,11 @@
 
         .layout { display: grid; gap: 2.5rem; align-items: start; }
         .booking { border-top: 1px solid var(--line); padding-top: 1.5rem; }
-        @media (min-width: 64rem) {
-            .layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+        /* Google's booking page shows two tiles per row from ~690px wide. */
+        @media (min-width: 80rem) {
+            .layout { grid-template-columns: minmax(0, 1fr) 720px; }
             .layout .booking { border-top: 0; padding-top: 0; }
-            .layout .booking iframe { height: 640px; }
+            .layout .booking iframe { height: 800px; }
         }
         .copybox { margin-top: 1.25rem; }
         .copybox header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .4rem; }
