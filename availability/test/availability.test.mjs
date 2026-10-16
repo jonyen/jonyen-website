@@ -95,6 +95,7 @@ const env = {
   GOOGLE_REFRESH_PERSONAL: 'r1',
   GOOGLE_CALENDARS_ACTS2: 'me@acts2.network, shared@group.calendar.google.com',
   GOOGLE_REFRESH_ACTS2: 'r2',
+  GOOGLE_SKIP_ALL_DAY: 'shared@group.calendar.google.com',
   OUTLOOK_ICS_URL: 'https://outlook.example/cal.ics',
 };
 
@@ -111,7 +112,10 @@ function fakeFetch({ failOutlook = false } = {}) {
       const busyFor = {
         'me@gmail.com': [{ start: '2026-10-19T16:15:00Z', end: '2026-10-19T17:00:00Z' }],
         'me@acts2.network': [{ start: '2026-10-20T18:00:00Z', end: '2026-10-20T19:00:00Z' }],
-        'shared@group.calendar.google.com': [{ start: '2026-10-21T23:00:00Z', end: '2026-10-22T01:00:00Z' }],
+        'shared@group.calendar.google.com': [
+          { start: '2026-10-21T23:00:00Z', end: '2026-10-22T01:00:00Z' },
+          { start: '2026-10-26T04:00:00Z', end: '2026-10-27T03:59:00Z' }, // all-day marker
+        ],
       };
       return Response.json({ calendars: Object.fromEntries(items.map(({ id }) => [id, { busy: busyFor[id] }])) });
     }
@@ -138,6 +142,7 @@ test('merges all three sources and exposes only start/end', async () => {
     { start: '2026-10-20T18:00:00.000Z', end: '2026-10-20T19:00:00.000Z' },
   ]);
   assert.ok(body.busy.some((b) => b.start === '2026-10-21T23:00:00.000Z'), 'shared calendar counted');
+  assert.ok(!body.busy.some((b) => b.start === '2026-10-26T04:00:00.000Z'), 'all-day block on a skip calendar ignored');
   for (const b of body.busy) assert.deepEqual(Object.keys(b), ['start', 'end']);
 });
 

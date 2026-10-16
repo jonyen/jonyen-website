@@ -36,7 +36,7 @@
             color: var(--fg);
             font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
-        main { max-width: 46rem; margin: 0 auto; padding: 2rem 16px 3rem; }
+        main { max-width: 78rem; margin: 0 auto; padding: 2rem 16px 3rem; }
         h1 { font-size: 1.5rem; margin: 0 0 .25rem; }
         .lede { margin: 0 0 1.25rem; color: var(--muted); }
         .note { color: var(--muted); font-size: .9rem; margin: 0 0 1rem; }
@@ -67,7 +67,13 @@
         .legend .f::before { background: var(--free); }
         .legend .b::before { background: var(--busy); }
 
-        .booking { margin-top: 2.5rem; border-top: 1px solid var(--line); padding-top: 1.5rem; scroll-margin-top: 1rem; }
+        .layout { display: grid; gap: 2.5rem; align-items: start; }
+        .booking { border-top: 1px solid var(--line); padding-top: 1.5rem; }
+        @media (min-width: 64rem) {
+            .layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+            .layout .booking { border-top: 0; padding-top: 0; }
+            .layout .booking iframe { height: 640px; }
+        }
         .booking h2 { font-size: 1.25rem; margin: 0 0 1rem; }
         .booking iframe { display: block; width: 100%; height: 720px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
         .booking .note { margin-top: .5rem; }
@@ -81,8 +87,9 @@
 <body>
 <main>
     <h1>When I'm free</h1>
-    <p class="lede">Weekdays, 8am to 9pm Eastern time, over the next two weeks. Gray means busy. Pick a time in the booking calendar below.</p>
+    <p class="lede">Weekdays, 8am to 9pm Eastern time, over the next two weeks. Gray means busy. Pick a time in the booking calendar.</p>
     <p class="note" id="status">Loading…</p>
+    <div class="layout">
     <div id="calendar" hidden>
         <div class="weeknav">
             <button type="button" id="prev" aria-label="Previous week">‹</button>
@@ -97,6 +104,7 @@
         <iframe src="https://calendar.google.com/calendar/appointments/AcZssZ0ErAD3_ySrke5VN5jq51fzheAJUb2TH8HMOQQ=?gv=true" title="Book a time with Jonathan Yen" loading="lazy"></iframe>
         <p class="note"><a href="https://calendar.google.com/calendar/appointments/AcZssZ0ErAD3_ySrke5VN5jq51fzheAJUb2TH8HMOQQ=">Open the booking page in a new tab</a> if it doesn't show here.</p>
     </section>
+    </div>
 </main>
 <script>
 (() => {
@@ -226,7 +234,7 @@
         })
         .catch(() => {
             statusEl.className = 'note warn';
-            statusEl.textContent = "Availability couldn't load right now. Use the booking calendar below to see open slots.";
+            statusEl.textContent = "Availability couldn't load right now. Use the booking calendar to see open slots.";
         });
 })();
 </script>
