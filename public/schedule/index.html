@@ -54,6 +54,8 @@
             border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--fg); cursor: pointer;
         }
         .weeknav button:disabled { opacity: .35; cursor: default; }
+        .weeknav .navbtns { display: flex; gap: .4rem; }
+        .weeknav #today { width: auto; padding: 0 .8rem; font-size: .9rem; }
 
         .week { --hour: 36px; display: grid; grid-template-columns: 3.25rem repeat(5, 1fr); }
         .week .head { text-align: center; font-size: .85rem; padding-bottom: .35rem; border-bottom: 1px solid var(--line); }
@@ -112,9 +114,12 @@
     <div class="layout">
     <div id="calendar" hidden>
         <div class="weeknav">
-            <button type="button" id="prev" aria-label="Previous week">‹</button>
             <h2 id="weeklabel"></h2>
-            <button type="button" id="next" aria-label="Next week">›</button>
+            <div class="navbtns">
+                <button type="button" id="today">Today</button>
+                <button type="button" id="prev" aria-label="Previous week">‹</button>
+                <button type="button" id="next" aria-label="Next week">›</button>
+            </div>
         </div>
         <div class="week" id="week"></div>
         <div class="copybox">
@@ -190,6 +195,7 @@
 
         $('weeklabel').textContent = `Week of ${fmtDate.format(monday)}`;
         $('prev').disabled = weekIndex === 0;
+        $('today').disabled = weekIndex === 0;
         $('next').disabled = weekIndex === weeks.length - 1;
 
         const grid = $('week');
@@ -284,11 +290,10 @@
             : 'No open weekday time left this week.';
         setCopyState('', 'Copy');
 
-        const updated = fmtTime.format(Date.parse(data.generatedAt));
-        statusEl.className = data.incomplete ? 'note warn' : 'note';
-        statusEl.textContent = data.incomplete
-            ? `One of my calendars didn't load, so some busy times may be missing. Updated ${updated}.`
-            : `Updated ${updated}.`;
+        // Only a partial feed needs a note; otherwise the status line goes away.
+        statusEl.className = 'note warn';
+        statusEl.textContent = "One of my calendars didn't load, so some busy times may be missing.";
+        statusEl.hidden = !data.incomplete;
     }
 
     const COPY_ICON = $('copy').innerHTML;
@@ -309,6 +314,8 @@
             setCopyState('', 'Press ⌘C to copy');
         }
     });
+    // Week 0 is the current week, or the coming one on a weekend.
+    $('today').addEventListener('click', () => { if (weekIndex !== 0) { weekIndex = 0; render(); } });
     $('prev').addEventListener('click', () => { if (weekIndex > 0) { weekIndex--; render(); } });
     $('next').addEventListener('click', () => { if (weekIndex < weeks.length - 1) { weekIndex++; render(); } });
 
