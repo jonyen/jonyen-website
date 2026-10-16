@@ -3,7 +3,9 @@
  * of busy intervals, with no titles, attendees or locations:
  *
  *   - two Google accounts, read with refresh tokens limited to the
- *     calendar.freebusy scope (they can see busy times and nothing else)
+ *     calendar.freebusy scope (they can see busy times and nothing else).
+ *     Each account lists its calendars in GOOGLE_CALENDARS_<ACCOUNT>,
+ *     comma-separated, so shared calendars it can see count too.
  *   - work Outlook, read from a published "Can view when I'm busy" ICS feed
  *
  * GET /schedule/busy.json -> { generatedAt, from, to, incomplete, busy: [{ start, end }] }
@@ -38,7 +40,7 @@ async function googleAccessToken(env, refreshToken, fetchImpl) {
   return (await res.json()).access_token;
 }
 
-export async function googleBusy(env, email, refreshToken, from, to, fetchImpl) {
+export async function googleBusy(env, calendarIds, refreshToken, from, to, fetchImpl) {
   const token = await googleAccessToken(env, refreshToken, fetchImpl);
   const res = await fetchImpl('https://www.googleapis.com/calendar/v3/freeBusy', {
     method: 'POST',
@@ -46,13 +48,16 @@ export async function googleBusy(env, email, refreshToken, from, to, fetchImpl) 
     body: JSON.stringify({
       timeMin: new Date(from).toISOString(),
       timeMax: new Date(to).toISOString(),
-      items: [{ id: email }],
+      items: calendarIds.map((id) => ({ id })),
     }),
   });
   if (!res.ok) throw new Error(`google freeBusy ${res.status}`);
-  const cal = (await res.json()).calendars?.[email];
-  if (!cal || cal.errors?.length) throw new Error(`google freeBusy calendar error ${cal?.errors?.[0]?.reason}`);
-  return cal.busy.map((b) => ({ start: Date.parse(b.start), end: Date.parse(b.end) }));
+  const { calendars } = await res.json();
+  return calendarIds.flatMap((id) => {
+    const cal = calendars?.[id];
+    if (!cal || cal.errors?.length) throw new Error(`google freeBusy calendar error ${cal?.errors?.[0]?.reason}`);
+    return cal.busy.map((b) => ({ start: Date.parse(b.start), end: Date.parse(b.end) }));
+  });
 }
 
 function isBusy(event) {
@@ -116,13 +121,15 @@ export function mergeIntervals(intervals) {
   return out;
 }
 
+const calendarList = (value) => value.split(',').map((id) => id.trim()).filter(Boolean);
+
 export function createHandler({ fetchImpl = fetch, now = Date.now, cache = null } = {}) {
   async function build(env) {
     const from = now();
     const to = from + WINDOW_DAYS * 86400_000;
     const sources = [
-      () => googleBusy(env, env.GOOGLE_EMAIL_PERSONAL, env.GOOGLE_REFRESH_PERSONAL, from, to, fetchImpl),
-      () => googleBusy(env, env.GOOGLE_EMAIL_ACTS2, env.GOOGLE_REFRESH_ACTS2, from, to, fetchImpl),
+      () => googleBusy(env, calendarList(env.GOOGLE_CALENDARS_PERSONAL), env.GOOGLE_REFRESH_PERSONAL, from, to, fetchImpl),
+      () => googleBusy(env, calendarList(env.GOOGLE_CALENDARS_ACTS2), env.GOOGLE_REFRESH_ACTS2, from, to, fetchImpl),
       async () => {
         const res = await fetchImpl(env.OUTLOOK_ICS_URL);
         if (!res.ok) throw new Error(`outlook ics ${res.status}`);

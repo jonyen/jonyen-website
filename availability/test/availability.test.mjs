@@ -91,9 +91,9 @@ test('mergeIntervals coalesces overlapping and touching blocks', () => {
 const env = {
   GOOGLE_CLIENT_ID: 'id',
   GOOGLE_CLIENT_SECRET: 'secret',
-  GOOGLE_EMAIL_PERSONAL: 'me@gmail.com',
+  GOOGLE_CALENDARS_PERSONAL: 'me@gmail.com',
   GOOGLE_REFRESH_PERSONAL: 'r1',
-  GOOGLE_EMAIL_ACTS2: 'me@acts2.network',
+  GOOGLE_CALENDARS_ACTS2: 'me@acts2.network, shared@group.calendar.google.com',
   GOOGLE_REFRESH_ACTS2: 'r2',
   OUTLOOK_ICS_URL: 'https://outlook.example/cal.ics',
 };
@@ -108,12 +108,12 @@ function fakeFetch({ failOutlook = false } = {}) {
     }
     if (url.endsWith('/freeBusy')) {
       const { items } = JSON.parse(init.body);
-      const id = items[0].id;
-      const busy =
-        id === 'me@gmail.com'
-          ? [{ start: '2026-10-19T16:15:00Z', end: '2026-10-19T17:00:00Z' }]
-          : [{ start: '2026-10-20T18:00:00Z', end: '2026-10-20T19:00:00Z' }];
-      return Response.json({ calendars: { [id]: { busy } } });
+      const busyFor = {
+        'me@gmail.com': [{ start: '2026-10-19T16:15:00Z', end: '2026-10-19T17:00:00Z' }],
+        'me@acts2.network': [{ start: '2026-10-20T18:00:00Z', end: '2026-10-20T19:00:00Z' }],
+        'shared@group.calendar.google.com': [{ start: '2026-10-21T23:00:00Z', end: '2026-10-22T01:00:00Z' }],
+      };
+      return Response.json({ calendars: Object.fromEntries(items.map(({ id }) => [id, { busy: busyFor[id] }])) });
     }
     if (url === env.OUTLOOK_ICS_URL) {
       return failOutlook ? new Response('nope', { status: 500 }) : new Response(ICS);
@@ -137,6 +137,7 @@ test('merges all three sources and exposes only start/end', async () => {
     { start: '2026-10-19T16:00:00.000Z', end: '2026-10-19T17:00:00.000Z' },
     { start: '2026-10-20T18:00:00.000Z', end: '2026-10-20T19:00:00.000Z' },
   ]);
+  assert.ok(body.busy.some((b) => b.start === '2026-10-21T23:00:00.000Z'), 'shared calendar counted');
   for (const b of body.busy) assert.deepEqual(Object.keys(b), ['start', 'end']);
 });
 
@@ -149,7 +150,7 @@ test('a failed source still serves the rest, marked incomplete and not cached', 
   const body = await (await get(worker)).json();
   console.error = realError;
   assert.equal(body.incomplete, true);
-  assert.equal(body.busy.length, 2);
+  assert.equal(body.busy.length, 3);
   assert.equal(puts, 0);
 });
 
