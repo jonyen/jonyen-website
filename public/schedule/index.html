@@ -78,6 +78,17 @@
             .layout .booking { border-top: 0; padding-top: 0; }
             .layout .booking iframe { height: 640px; }
         }
+        .copybox { margin-top: 1.25rem; }
+        .copybox header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .4rem; }
+        .copybox h3 { font-size: .95rem; margin: 0; }
+        .copybox button {
+            font: inherit; font-size: .85rem; padding: .3rem .75rem; border-radius: 6px; cursor: pointer;
+            border: 1px solid var(--line); background: var(--bg); color: var(--fg);
+        }
+        .copybox pre {
+            margin: 0; padding: .75rem; border: 1px solid var(--line); border-radius: 8px;
+            font: .9rem/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; white-space: pre-wrap; user-select: all;
+        }
         .booking h2 { font-size: 1.25rem; margin: 0 0 1rem; }
         .booking iframe { display: block; width: 100%; height: 720px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
         .booking .note { margin-top: .5rem; }
@@ -101,6 +112,10 @@
             <button type="button" id="next" aria-label="Next week">›</button>
         </div>
         <div class="week" id="week"></div>
+        <div class="copybox">
+            <header><h3>Free times as text</h3><button type="button" id="copy">Copy</button></header>
+            <pre id="freetext"></pre>
+        </div>
     </div>
     <section id="book" class="booking">
         <h2>Book a time</h2>
@@ -182,6 +197,18 @@
         }
         grid.append(hours);
 
+        // Compact times for the text list: "9–10:30am", "11am–2pm".
+        const short = (ms) => {
+            const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit', hour12: true })
+                .formatToParts(ms).map(x => [x.type, x.value]));
+            return { t: p.minute === '00' ? p.hour : `${p.hour}:${p.minute}`, ap: p.dayPeriod.toLowerCase() };
+        };
+        const shortRange = (s, e) => {
+            const a = short(s), b = short(e);
+            return a.ap === b.ap ? `${a.t}–${b.t}${b.ap}` : `${a.t}${a.ap}–${b.t}${b.ap}`;
+        };
+        const textLines = [];
+
         const dataEnd = Date.parse(data.to);
         for (let i = 0; i < 5; i++) {
             const day = new Date(monday + i * DAY);
@@ -207,6 +234,7 @@
             const range = (s, e) => `${fmtTime.format(Math.max(s, winStart))}–${fmtTime.format(Math.min(e, winEnd))}`;
             // Past time and time beyond the feed both read as unavailable.
             const blocked = [[winStart, now], [dataEnd, winEnd]];
+            const free = [];
             place(winStart, now, 'past');
             place(dataEnd, winEnd, 'past');
             for (const [s, e] of busy) {
@@ -216,15 +244,28 @@
                 }
             }
             // Free time is whatever the blocked intervals leave open.
-            blocked.sort((a, b) => a[0] - b[0]);
+            const clipped = blocked
+                .map(([s, e]) => [Math.max(s, winStart), Math.min(e, winEnd)])
+                .filter(([s, e]) => e > s)
+                .sort((a, b) => a[0] - b[0]);
             let cursor = winStart;
-            for (const [s, e] of blocked) {
-                if (s > cursor) place(cursor, s, 'free', `Free ${range(cursor, s)}`, 'Free');
+            for (const [s, e] of clipped) {
+                if (s > cursor) free.push([cursor, s]);
                 cursor = Math.max(cursor, e);
             }
-            if (cursor < winEnd) place(cursor, winEnd, 'free', `Free ${range(cursor, winEnd)}`, 'Free');
+            if (cursor < winEnd) free.push([cursor, winEnd]);
+            for (const [s, e] of free) place(s, e, 'free', `Free ${range(s, e)}`, 'Free');
+            const open = free.filter(([s, e]) => e - s >= 30 * 60000);
+            if (winEnd > now && winStart < dataEnd) {
+                textLines.push(`${fmtDow.format(day)}, ${fmtDate.format(day)}: ${open.length ? open.map(([s, e]) => shortRange(s, e)).join(', ') : 'no open time'}`);
+            }
             grid.append(col);
         }
+
+        $('freetext').textContent = textLines.length
+            ? `Free times (Eastern):\n${textLines.join('\n')}`
+            : 'No open weekday time left this week.';
+        $('copy').textContent = 'Copy';
 
         const updated = fmtTime.format(Date.parse(data.generatedAt));
         statusEl.className = data.incomplete ? 'note warn' : 'note';
@@ -233,6 +274,15 @@
             : `Updated ${updated}.`;
     }
 
+    $('copy').addEventListener('click', async () => {
+        try {
+            await navigator.clipboard.writeText($('freetext').textContent);
+            $('copy').textContent = 'Copied';
+        } catch {
+            getSelection().selectAllChildren($('freetext'));
+            $('copy').textContent = 'Press ⌘C';
+        }
+    });
     $('prev').addEventListener('click', () => { if (weekIndex > 0) { weekIndex--; render(); } });
     $('next').addEventListener('click', () => { if (weekIndex < weeks.length - 1) { weekIndex++; render(); } });
 
