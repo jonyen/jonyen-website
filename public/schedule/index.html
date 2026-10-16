@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Schedule - Jonathan Yen</title>
+    <link rel="icon" type="image/svg+xml" id="favicon" href="/favicon.svg">
     <meta name="description" content="When Jonathan Yen is free on weekdays over the next two weeks, and a calendar to book a time.">
     <style>
         :root {
@@ -132,6 +133,15 @@
     const DAY = 86400000;
 
     const $ = (id) => document.getElementById(id);
+
+    // Favicon: a calendar page showing today's date in Eastern time.
+    const todayNum = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TZ, day: 'numeric' }).format(Date.now());
+    $('favicon').href = 'data:image/svg+xml,' + encodeURIComponent(
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">` +
+        `<rect x="1.5" y="1.5" width="29" height="29" rx="6" fill="#fff" stroke="#0b5fff" stroke-width="3"/>` +
+        `<path d="M1.5 7.5a6 6 0 0 1 6-6h17a6 6 0 0 1 6 6v2.5h-29z" fill="#0b5fff"/>` +
+        `<text x="16" y="26.5" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif" ` +
+        `font-weight="700" font-size="${todayNum.length > 1 ? 16 : 18}" fill="#0b5fff">${todayNum}</text></svg>`);
     const statusEl = $('status');
 
     // Offset in ms of `tz` at instant `ms` (positive east of UTC).
