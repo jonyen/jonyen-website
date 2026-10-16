@@ -81,7 +81,7 @@
 <body>
 <main>
     <h1>When I'm free</h1>
-    <p class="lede">Weekdays, 8am to 9pm Pacific time, over the next two weeks. Gray means busy. Pick a time in the booking calendar below.</p>
+    <p class="lede">Weekdays, 8am to 9pm Eastern time, over the next two weeks. Gray means busy. Pick a time in the booking calendar below.</p>
     <p class="note" id="status">Loading…</p>
     <div id="calendar" hidden>
         <div class="weeknav">
@@ -100,7 +100,7 @@
 </main>
 <script>
 (() => {
-    const HOME_TZ = 'America/Los_Angeles';
+    const HOME_TZ = 'America/New_York';
     const START_HOUR = 8;
     const END_HOUR = 21;
     const DAY = 86400000;
@@ -122,7 +122,7 @@
         const first = guess - offset(tz, guess);
         return guess - offset(tz, first);
     }
-    // Pacific calendar date of an instant, as a UTC-midnight "day number" in ms.
+    // Eastern calendar date of an instant, as a UTC-midnight "day number" in ms.
     function homeDay(ms) {
         const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: HOME_TZ, year: 'numeric', month: 'numeric', day: 'numeric' })
             .formatToParts(ms).map(x => [x.type, x.value]));

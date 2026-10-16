@@ -15,5 +15,7 @@ workers_dev = false
 # scope; mint new ones with availability/scripts/mint-google-token.mjs.
 
 [vars]
-GOOGLE_EMAIL_PERSONAL = "jonyen@gmail.com"
-GOOGLE_EMAIL_ACTS2 = "jonathan.yen@acts2.network"
+# Calendars each Google account reads, comma-separated. The acts2 list adds the
+# shared "A2K + Churchwide (mirror)" calendar.
+GOOGLE_CALENDARS_PERSONAL = "jonyen@gmail.com"
+GOOGLE_CALENDARS_ACTS2 = "jonathan.yen@acts2.network,c_af3b7f631adc7ad1b21f146dd993ff7644bd739a3c920ded3bcc79099b90b72c@group.calendar.google.com"
