@@ -80,7 +80,6 @@
         @media (min-width: 80rem) {
             .layout { grid-template-columns: minmax(0, 1fr) 720px; }
             .layout .booking { border-top: 0; padding-top: 0; }
-            .layout .booking iframe { height: 800px; }
         }
         .copybox { margin-top: 1.25rem; }
         .copybox h3 { font-size: .95rem; margin: 0 0 .4rem; }
@@ -97,7 +96,15 @@
             font: .9rem/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; white-space: pre-wrap; user-select: all;
         }
         .booking h2 { font-size: 1.25rem; margin: 0 0 1rem; }
-        .booking iframe { display: block; width: 100%; height: 720px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+        /* Google's page is cross-origin, so it can't report its height. These are
+           its measured heights by width: the event-type tiles first, then (.open)
+           the slot picker for a fully open day of 15-minute slots. */
+        .booking iframe { display: block; width: 100%; height: 830px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+        .booking iframe.open { height: 1945px; }
+        @media (max-width: 715px) { .booking iframe { height: 920px; } }
+        @media (max-width: 633px) { .booking iframe.open { height: 2470px; } }
+        @media (max-width: 527px) { .booking iframe { height: 1035px; } }
+        @media (max-width: 387px) { .booking iframe { height: 1050px; } }
         .booking .note { margin-top: .5rem; }
         .blocked { padding: 1.25rem; border: 1px solid var(--line); border-radius: 8px; }
         .blocked p { margin: 0 0 .6rem; }
@@ -167,6 +174,12 @@
         const to = ['jonyen', 'gmail.com'].join('@');
         const body = `Hi Jonathan,\n\nThis time works for me:\n\n\n${$('freetext').textContent}\n`;
         $('emailme').href = `mailto:${to}?subject=${encodeURIComponent('Finding a time to meet')}&body=${encodeURIComponent(body)}`;
+    });
+
+    // Picking an event type swaps in a much taller slot picker without an iframe
+    // load event, so grow on the first click into the frame (it takes focus).
+    window.addEventListener('blur', () => {
+        if (document.activeElement === $('bookframe')) $('bookframe').classList.add('open');
     });
 
     // A blocked cross-origin iframe can't be inspected, so probe the same host
