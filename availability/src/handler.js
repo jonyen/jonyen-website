@@ -25,7 +25,9 @@ const ALL_DAY_MS = 20 * 3600_000;
 
 const JSON_HEADERS = {
   'Content-Type': 'application/json; charset=utf-8',
-  'Cache-Control': `public, max-age=${CACHE_SECONDS}`,
+  // Browsers re-check after a minute; the Worker's own cache (s-maxage) keeps
+  // calendar API calls to one round per CACHE_SECONDS.
+  'Cache-Control': `public, max-age=60, s-maxage=${CACHE_SECONDS}`,
   'X-Robots-Tag': 'noindex',
   'X-Content-Type-Options': 'nosniff',
 };
