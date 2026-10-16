@@ -1,0 +1,19 @@
+name = "schedule-availability"
+main = "src/index.js"
+compatibility_date = "2026-08-01"
+workers_dev = false
+
+# The jonyen.com/schedule/busy.json route is managed outside this file: the
+# deploy token intentionally has no Workers Routes permission. Create the route
+# once in the Cloudflare dashboard (Workers & Pages > schedule-availability >
+# Settings > Domains & Routes), after which every deploy just replaces the
+# script behind it.
+#
+# GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_PERSONAL,
+# GOOGLE_REFRESH_ACTS2 and OUTLOOK_ICS_URL are set by the deploy workflow with
+# `wrangler secret put`. The refresh tokens carry only the calendar.freebusy
+# scope; mint new ones with availability/scripts/mint-google-token.mjs.
+
+[vars]
+GOOGLE_EMAIL_PERSONAL = "jonyen@gmail.com"
+GOOGLE_EMAIL_ACTS2 = "jonathan.yen@acts2.network"
