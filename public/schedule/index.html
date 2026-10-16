@@ -4,13 +4,183 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Schedule - Jonathan Yen</title>
-    <meta http-equiv="refresh" content="0; url=https://calendar.google.com/calendar/u/0/appointments/AcZssZ0ErAD3_ySrke5VN5jq51fzheAJUb2TH8HMOQQ=">
-    <link rel="canonical" href="https://calendar.google.com/calendar/u/0/appointments/AcZssZ0ErAD3_ySrke5VN5jq51fzheAJUb2TH8HMOQQ=">
+    <meta name="description" content="When Jonathan Yen is free over the next two weeks, and a link to book a time.">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --fg: #16181d;
+            --muted: #5b616b;
+            --line: #e3e5e8;
+            --free: #e8f4ec;
+            --busy: #9aa1ab;
+            --accent: #0b5fff;
+            --accent-fg: #ffffff;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #121417;
+                --fg: #eceef1;
+                --muted: #9aa1ab;
+                --line: #2a2e34;
+                --free: #1b3324;
+                --busy: #5b616b;
+                --accent: #6b9cff;
+                --accent-fg: #0b0d10;
+            }
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--fg);
+            font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        main { max-width: 46rem; margin: 0 auto; padding: 2rem 16px 3rem; }
+        h1 { font-size: 1.5rem; margin: 0 0 .25rem; }
+        .lede { margin: 0 0 1.25rem; color: var(--muted); }
+        .actions { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; margin-bottom: 1.5rem; }
+        .book {
+            display: inline-block; padding: .55rem 1rem; border-radius: 8px;
+            background: var(--accent); color: var(--accent-fg); text-decoration: none; font-weight: 600;
+        }
+        label { color: var(--muted); font-size: .9rem; }
+        select { font: inherit; font-size: .9rem; padding: .2rem .3rem; }
+        .note { color: var(--muted); font-size: .9rem; margin: 0 0 1rem; }
+        .warn { color: #b25e00; }
+        .day { display: grid; grid-template-columns: 6.5rem 1fr; gap: .25rem .75rem; padding: .6rem 0; border-top: 1px solid var(--line); }
+        .day h2 { font-size: .95rem; margin: 0; font-weight: 600; }
+        .bar { position: relative; height: 14px; border-radius: 4px; background: var(--free); overflow: hidden; align-self: center; }
+        .bar span { position: absolute; top: 0; bottom: 0; background: var(--busy); }
+        .free { grid-column: 2; font-size: .9rem; color: var(--muted); }
+        @media (max-width: 30rem) {
+            .day { grid-template-columns: 1fr; }
+            .free { grid-column: 1; }
+        }
+    </style>
 </head>
 <body>
-    <p>Redirecting to calendar...</p>
-    <script>
-        window.location.href = "https://calendar.google.com/calendar/u/0/appointments/AcZssZ0ErAD3_ySrke5VN5jq51fzheAJUb2TH8HMOQQ=";
-    </script>
+<main>
+    <h1>When I'm free</h1>
+    <p class="lede">Open time over the next two weeks, between 8am and 9pm Pacific. Gray means busy.</p>
+    <div class="actions">
+        <a class="book" href="https://calendar.google.com/calendar/u/0/appointments/AcZssZ0ErAD3_ySrke5VN5jq51fzheAJUb2TH8HMOQQ=">Book a time</a>
+        <label>Times in <select id="tz"></select></label>
+    </div>
+    <p class="note" id="status">Loading…</p>
+    <div id="days"></div>
+</main>
+<script>
+(() => {
+    const HOME_TZ = 'America/Los_Angeles';
+    const START_HOUR = 8;
+    const END_HOUR = 21;
+    const MIN_FREE_MINUTES = 30;
+
+    const tzSelect = document.getElementById('tz');
+    const statusEl = document.getElementById('status');
+    const daysEl = document.getElementById('days');
+    const localTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const zones = [[HOME_TZ, 'Pacific']];
+    if (localTz && localTz !== HOME_TZ) zones.push([localTz, `My time (${localTz.replace(/_/g, ' ')})`]);
+    for (const [value, label] of zones) tzSelect.add(new Option(label, value));
+    try { const saved = localStorage.getItem('schedule-tz'); if (zones.some(z => z[0] === saved)) tzSelect.value = saved; } catch {}
+
+    // Offset in ms of `tz` at instant `ms` (positive east of UTC).
+    function offset(tz, ms) {
+        const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
+            timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit',
+        }).formatToParts(ms).map(x => [x.type, x.value]));
+        return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(ms / 1000) * 1000;
+    }
+    // UTC instant of wall-clock y-m-d h:00 in `tz`.
+    function zoned(tz, y, m, d, h) {
+        const guess = Date.UTC(y, m, d, h);
+        const first = guess - offset(tz, guess);
+        return guess - offset(tz, first);
+    }
+    function ymd(tz, ms) {
+        const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: tz, year: 'numeric', month: 'numeric', day: 'numeric' })
+            .formatToParts(ms).map(x => [x.type, +x.value || x.value]));
+        return [p.year, p.month - 1, p.day];
+    }
+
+    let data = null;
+
+    function render() {
+        const tz = tzSelect.value;
+        const fmtTime = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit' });
+        const fmtDay = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TZ, weekday: 'short', month: 'short', day: 'numeric' });
+        const busy = data.busy.map(b => [Date.parse(b.start), Date.parse(b.end)]);
+        const now = Date.now();
+        const end = Date.parse(data.to);
+        daysEl.replaceChildren();
+
+        // Days follow Pacific dates, since the 8am–9pm window is Pacific.
+        let [y, m, d] = ymd(HOME_TZ, now);
+        for (let i = 0; i < 15; i++, d++) {
+            const winStart = zoned(HOME_TZ, y, m, d, START_HOUR);
+            const winEnd = zoned(HOME_TZ, y, m, d, END_HOUR);
+            if (winStart >= end) break;
+            if (winEnd <= now) continue;
+
+            const row = document.createElement('section');
+            row.className = 'day';
+            const h = document.createElement('h2');
+            h.textContent = fmtDay.format(winStart);
+            const bar = document.createElement('div');
+            bar.className = 'bar';
+            const span = winEnd - winStart;
+
+            // Time already past counts as busy.
+            const blocks = busy.filter(([s, e]) => e > winStart && s < winEnd)
+                .map(([s, e]) => [Math.max(s, winStart), Math.min(e, winEnd)]);
+            if (now > winStart) blocks.push([winStart, now]);
+            blocks.sort((a, b) => a[0] - b[0]);
+
+            const free = [];
+            let cursor = winStart;
+            for (const [s, e] of blocks) {
+                const el = document.createElement('span');
+                el.style.left = `${((s - winStart) / span) * 100}%`;
+                el.style.width = `${((e - s) / span) * 100}%`;
+                bar.append(el);
+                if (s > cursor) free.push([cursor, s]);
+                cursor = Math.max(cursor, e);
+            }
+            if (cursor < winEnd) free.push([cursor, winEnd]);
+
+            const text = document.createElement('div');
+            text.className = 'free';
+            const open = free.filter(([s, e]) => e - s >= MIN_FREE_MINUTES * 60000);
+            text.textContent = open.length
+                ? 'Free ' + open.map(([s, e]) => `${fmtTime.format(s)}–${fmtTime.format(e)}`).join(', ')
+                : 'No open time';
+            bar.title = text.textContent;
+            row.append(h, bar, text);
+            daysEl.append(row);
+        }
+
+        const updated = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit' }).format(Date.parse(data.generatedAt));
+        statusEl.className = data.incomplete ? 'note warn' : 'note';
+        statusEl.textContent = data.incomplete
+            ? `One of my calendars didn't load, so some busy times may be missing. Updated ${updated}.`
+            : `Updated ${updated}.`;
+    }
+
+    tzSelect.addEventListener('change', () => {
+        try { localStorage.setItem('schedule-tz', tzSelect.value); } catch {}
+        if (data) render();
+    });
+
+    fetch('/schedule/busy.json')
+        .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(json => { data = json; render(); })
+        .catch(() => {
+            statusEl.className = 'note warn';
+            statusEl.textContent = "Availability couldn't load right now. Use Book a time to see open slots.";
+        });
+})();
+</script>
 </body>
 </html>
