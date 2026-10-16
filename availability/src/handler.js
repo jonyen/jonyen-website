@@ -19,7 +19,7 @@
  */
 import ICAL from 'ical.js';
 
-const WINDOW_DAYS = 14;
+const WINDOW_DAYS = 31;
 const CACHE_SECONDS = 600;
 const ALL_DAY_MS = 20 * 3600_000;
 
