@@ -19,3 +19,6 @@ workers_dev = false
 # shared "A2K + Churchwide (mirror)" calendar.
 GOOGLE_CALENDARS_PERSONAL = "jonyen@gmail.com"
 GOOGLE_CALENDARS_ACTS2 = "jonathan.yen@acts2.network,c_af3b7f631adc7ad1b21f146dd993ff7644bd739a3c920ded3bcc79099b90b72c@group.calendar.google.com"
+# Calendars whose all-day (20h+) blocks are not busy, e.g. the Monday
+# "E-Sabbath & Family Night" on the A2K + Churchwide mirror.
+GOOGLE_SKIP_ALL_DAY = "c_af3b7f631adc7ad1b21f146dd993ff7644bd739a3c920ded3bcc79099b90b72c@group.calendar.google.com"

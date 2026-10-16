@@ -5,7 +5,10 @@
  *   - two Google accounts, read with refresh tokens limited to the
  *     calendar.freebusy scope (they can see busy times and nothing else).
  *     Each account lists its calendars in GOOGLE_CALENDARS_<ACCOUNT>,
- *     comma-separated, so shared calendars it can see count too.
+ *     comma-separated, so shared calendars it can see count too. Calendars in
+ *     GOOGLE_SKIP_ALL_DAY drop blocks of 20 hours or more: freeBusy carries no
+ *     titles, so all-day markers like "E-Sabbath & Family Night" are told
+ *     apart by length alone.
  *   - work Outlook, read from a published "Can view when I'm busy" ICS feed
  *
  * GET /schedule/busy.json -> { generatedAt, from, to, incomplete, busy: [{ start, end }] }
@@ -18,6 +21,7 @@ import ICAL from 'ical.js';
 
 const WINDOW_DAYS = 14;
 const CACHE_SECONDS = 600;
+const ALL_DAY_MS = 20 * 3600_000;
 
 const JSON_HEADERS = {
   'Content-Type': 'application/json; charset=utf-8',
@@ -40,7 +44,7 @@ async function googleAccessToken(env, refreshToken, fetchImpl) {
   return (await res.json()).access_token;
 }
 
-export async function googleBusy(env, calendarIds, refreshToken, from, to, fetchImpl) {
+export async function googleBusy(env, calendarIds, refreshToken, from, to, fetchImpl, skipAllDay = []) {
   const token = await googleAccessToken(env, refreshToken, fetchImpl);
   const res = await fetchImpl('https://www.googleapis.com/calendar/v3/freeBusy', {
     method: 'POST',
@@ -56,7 +60,8 @@ export async function googleBusy(env, calendarIds, refreshToken, from, to, fetch
   return calendarIds.flatMap((id) => {
     const cal = calendars?.[id];
     if (!cal || cal.errors?.length) throw new Error(`google freeBusy calendar error ${cal?.errors?.[0]?.reason}`);
-    return cal.busy.map((b) => ({ start: Date.parse(b.start), end: Date.parse(b.end) }));
+    const busy = cal.busy.map((b) => ({ start: Date.parse(b.start), end: Date.parse(b.end) }));
+    return skipAllDay.includes(id) ? busy.filter((b) => b.end - b.start < ALL_DAY_MS) : busy;
   });
 }
 
@@ -129,7 +134,7 @@ export function createHandler({ fetchImpl = fetch, now = Date.now, cache = null 
     const to = from + WINDOW_DAYS * 86400_000;
     const sources = [
       () => googleBusy(env, calendarList(env.GOOGLE_CALENDARS_PERSONAL), env.GOOGLE_REFRESH_PERSONAL, from, to, fetchImpl),
-      () => googleBusy(env, calendarList(env.GOOGLE_CALENDARS_ACTS2), env.GOOGLE_REFRESH_ACTS2, from, to, fetchImpl),
+      () => googleBusy(env, calendarList(env.GOOGLE_CALENDARS_ACTS2), env.GOOGLE_REFRESH_ACTS2, from, to, fetchImpl, calendarList(env.GOOGLE_SKIP_ALL_DAY ?? '')),
       async () => {
         const res = await fetchImpl(env.OUTLOOK_ICS_URL);
         if (!res.ok) throw new Error(`outlook ics ${res.status}`);
