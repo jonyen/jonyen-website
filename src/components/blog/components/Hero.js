@@ -10,20 +10,42 @@ import irisLeft from '../../../assets/memoji-iris-left.png';
 import irisRight from '../../../assets/memoji-iris-right.png';
 import eyesMask from '../../../assets/memoji-eyes-mask.png';
 
-// Said by the memoji when it's clicked. Edit freely.
+// Said by the memoji when it's clicked. Edit freely. An entry is a string, or
+// { text, linkText, href } where linkText is the part of text that links.
 const SAYINGS = [
   'Jesus is my single source of truth.',
   "I'd tell you a UDP joke, but you might not get it.",
-  "My code works and I don't know why. Please don't touch it.",
-  'Moses dropped v1 of the tablets. Even the Ten Commandments needed a re-release.',
-  'Faith is trusting the build will pass. Wisdom is running the tests anyway.',
   "It's not a bug, it's an undocumented feature.",
   "There are 10 kinds of people: those who read binary and those who don't.",
   'I have a joke about recursion. I have a joke about recursion. I have a joke…',
   "Debugging: being the detective in a crime movie where you're also the murderer.",
   'Weeks of coding can save you hours of planning.',
   'There are two hard problems in computer science: cache invalidation, naming things, and off-by-one errors.',
+  'How do you comfort a JavaScript developer? You console him.',
+  'The best time to plant a tree was 20 years ago. The second best time is now.',
+  { text: 'Want to meet up? Book a time on my schedule.', linkText: 'my schedule', href: '/schedule/' },
 ];
+
+// Renders a saying, turning the linkText part of a linked saying into a link.
+function SayingText({ saying }) {
+  if (typeof saying === 'string') return saying;
+  const { text, linkText, href } = saying;
+  const at = text.indexOf(linkText);
+  if (at < 0) return text;
+  return (
+    <>
+      {text.slice(0, at)}
+      <Box
+        component="a"
+        href={href}
+        sx={{ color: 'inherit', fontWeight: 700, textDecorationColor: 'var(--color-gold)', textUnderlineOffset: '3px' }}
+      >
+        {linkText}
+      </Box>
+      {text.slice(at + linkText.length)}
+    </>
+  );
+}
 
 // Where the eyes sit in the 1000x1000 memoji, from scripts that cut the irises
 // out of src/assets/profile.png. EYES_BOX is the region the eye mask covers;
@@ -50,14 +72,26 @@ export default function Hero() {
   const lastSaying = React.useRef(-1);
   const bubbleTimer = React.useRef(0);
 
+  const startHideTimer = () => {
+    clearTimeout(bubbleTimer.current);
+    bubbleTimer.current = setTimeout(() => setSaying(null), BUBBLE_MS);
+  };
+  // Hold the bubble open while the pointer or keyboard focus is on it, so its
+  // link can be reached; the 4s countdown restarts on leave or blur.
+  const holdBubble = () => clearTimeout(bubbleTimer.current);
+  const releaseBubble = (e) => {
+    if (e.type === 'blur' && e.currentTarget.contains(e.relatedTarget)) return;
+    if (e.type === 'mouseleave' && e.currentTarget.contains(document.activeElement)) return;
+    startHideTimer();
+  };
+
   const speak = () => {
     let i = Math.floor(Math.random() * (SAYINGS.length - 1));
     if (i >= lastSaying.current && lastSaying.current >= 0) i += 1;
     lastSaying.current = i;
     // A fresh key restarts the pop-in animation when one saying replaces another.
-    setSaying({ text: SAYINGS[i], key: Date.now() });
-    clearTimeout(bubbleTimer.current);
-    bubbleTimer.current = setTimeout(() => setSaying(null), BUBBLE_MS);
+    setSaying({ item: SAYINGS[i], key: Date.now() });
+    startHideTimer();
   };
   React.useEffect(() => () => clearTimeout(bubbleTimer.current), []);
 
@@ -329,8 +363,13 @@ export default function Hero() {
                 {saying && (
                   <Box
                     key={saying.key}
+                    onMouseEnter={holdBubble}
+                    onMouseLeave={releaseBubble}
+                    onFocus={holdBubble}
+                    onBlur={releaseBubble}
                     sx={{
                       position: 'relative',
+                      pointerEvents: 'auto',
                       px: 2,
                       py: 1.25,
                       borderRadius: '16px',
@@ -363,7 +402,7 @@ export default function Hero() {
                       },
                     }}
                   >
-                    {saying.text}
+                    <SayingText saying={saying.item} />
                   </Box>
                 )}
               </Box>
