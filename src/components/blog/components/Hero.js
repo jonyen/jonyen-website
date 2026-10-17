@@ -12,6 +12,7 @@ import eyesMask from '../../../assets/memoji-eyes-mask.png';
 import { takeModelLine, warmUp } from './memojiVoice';
 import { visitorLine } from './visitorCount';
 import { createBag, VISITOR_ID } from './sayingsBag';
+import { track, trackOnce } from './track';
 
 // Said by the memoji when it's clicked. Edit freely. An entry is a string, or
 // { text, linkText, href } where linkText is the part of text that links.
@@ -46,6 +47,7 @@ function SayingText({ saying }) {
       <Box
         component="a"
         href={href}
+        onClick={() => track('memoji-schedule-link', 'Memoji: schedule link')}
         sx={{ color: 'inherit', fontWeight: 700, textDecorationColor: 'var(--color-gold)', textUnderlineOffset: '3px' }}
       >
         {linkText}
@@ -130,17 +132,25 @@ export default function Hero() {
     prepare();
     let item = null;
     let credit = null;
+    let source = 'fixed';
     if (Math.random() < 0.5) {
       const line = takeModelLine();
       if (line && line.text !== lastText.current) {
         item = line.text;
         credit = line.credit;
+        source = line.source;
       }
     }
     if (!item) {
       const id = bag.deal((x) => x === VISITOR_ID && !visitorText.current);
       item = id === VISITOR_ID ? visitorText.current : SAYINGS[id ?? 0];
+      if (id === VISITOR_ID) source = 'visitor-count';
     }
+    // GoatCounter events: was the easter egg found, how often is it clicked,
+    // and where do the lines people see come from.
+    trackOnce('memoji-open', 'Memoji: first bubble');
+    track('memoji-click', 'Memoji: bubble shown');
+    track(`memoji-line-${source}`, `Memoji line: ${source}`);
     lastText.current = textOf(item);
     // A fresh key restarts the pop-in, which also cancels a fade-out under way.
     clearTimeout(leaveTimer.current);
@@ -207,6 +217,8 @@ export default function Hero() {
       // tanh eases the response off with distance, so far-away movement barely registers.
       const scale = Math.tanh(dist / GAZE_REACH_PX) / dist;
       lookAt(dx * scale, dy * scale);
+      // Once per page view: the eyes moved, the baseline for "could have noticed".
+      trackOnce('memoji-eyes', 'Memoji: eyes moved');
       clearTimeout(idleTimer);
       idleTimer = setTimeout(() => lookAt(0, 0), IDLE_MS);
     };
