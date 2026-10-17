@@ -30,7 +30,7 @@
     "resume:full": "node resume/build.mjs --variant full --out dist/resume-full",
     "resume:link": "node resume/mint-link.mjs",
     "prebuild": "npm run resume:public",
-    "test:worker": "node --test \"worker/test/*.test.mjs\" \"availability/test/*.test.mjs\""
+    "test:worker": "node --test \"worker/test/*.test.mjs\" \"availability/test/*.test.mjs\" \"quip/test/*.test.mjs\""
   },
   "eslintConfig": {
     "extends": [
