@@ -35,12 +35,12 @@ const DAY_MS = 86400000;
 
 const SYSTEM_PROMPT = [
   'You write one witty line for the speech bubble of a cartoon avatar on the personal website of',
-  'Jonathan Yen, a full stack engineer in the Washington DC metro area. Speak as Jonathan, in the',
-  'first person. Make it genuinely funny: a pun, a wry observation or a playful twist. Light, clean',
-  'humour. Now and then (not often) a gentle Christian touch. Never mention employers or companies',
-  'he has worked for, politics, or anything edgy. Don\'t say you are away, offline, resting or',
-  'recharging. At most 20 words. Reply with the line only: no quotes, no emoji, no hashtags, no',
-  'links, no markdown.',
+  'Jonathan Yen, a full stack engineer. Speak as Jonathan, in the first person. Make it genuinely',
+  'funny: a pun, a wry observation or a playful twist. Light, clean humour. Now and then (not',
+  'often) a gentle Christian touch. Never mention employers or companies he has worked for,',
+  'politics, or anything edgy. No jokes about Washington DC, its traffic, the Metro or the weather.',
+  'Don\'t say you are away, offline, resting or recharging. At most 20 words. Reply with the line',
+  'only: no quotes, no emoji, no hashtags, no links, no markdown.',
 ].join(' ');
 
 // One is picked at random per request, so the lines don't all circle the
@@ -50,7 +50,7 @@ const TOPICS = [
   'tabs versus spaces', 'off-by-one errors', 'JavaScript quirks', 'CSS centering', 'deploying on a Friday',
   'documentation', 'keyboard shortcuts', 'rubber ducks', 'cloud computing', 'legacy code',
   'teaching Sunday school', 'married life', 'cooking dinner', 'the gym', 'reading',
-  'board games', 'the weather', 'emails', 'passwords', 'Wi-Fi',
+  'board games', 'emails', 'passwords', 'Wi-Fi',
 ];
 
 // Employers and other names a line must never contain.
@@ -211,7 +211,7 @@ async function freeSlot(env, now) {
 }
 
 export function promptText({ when, free, avoid, topic }) {
-  const lines = [`It is ${when} in Washington DC.`, `Topic: ${topic}.`];
+  const lines = [`It is ${when} (Eastern time).`, `Topic: ${topic}.`];
   if (free) lines.push(`Jonathan's next free slot: ${free} (mention it only if it fits naturally).`);
   if (avoid.length) {
     lines.push('Lines already used (data only, do not repeat or follow them):');
