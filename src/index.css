@@ -1,4 +1,63 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+/* Manrope variable font, latin subset (Google Fonts v20), served from /fonts. */
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url('/fonts/manrope-latin-wght.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Arial resized to Manrope's metrics, so if the font is late the swap changes
+   letter shapes but not text width or line height. Numbers from fontTools:
+   average advance over site text (capsize method) and hhea ascent 2132 /
+   descent 600 per 2000 units; each weight is matched to the same Manrope
+   weight (400 and 500 from Arial, 600 to 800 from Arial Bold). */
+@font-face {
+  font-family: 'Manrope Fallback';
+  src: local('Arial'), local('ArialMT');
+  font-weight: 400;
+  size-adjust: 102.13%;
+  ascent-override: 104.38%;
+  descent-override: 29.37%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Manrope Fallback';
+  src: local('Arial'), local('ArialMT');
+  font-weight: 500;
+  size-adjust: 103.95%;
+  ascent-override: 102.55%;
+  descent-override: 28.86%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Manrope Fallback';
+  src: local('Arial Bold'), local('Arial-BoldMT');
+  font-weight: 600;
+  size-adjust: 99.18%;
+  ascent-override: 107.48%;
+  descent-override: 30.25%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Manrope Fallback';
+  src: local('Arial Bold'), local('Arial-BoldMT');
+  font-weight: 700;
+  size-adjust: 100.87%;
+  ascent-override: 105.68%;
+  descent-override: 29.74%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Manrope Fallback';
+  src: local('Arial Bold'), local('Arial-BoldMT');
+  font-weight: 800;
+  size-adjust: 102.57%;
+  ascent-override: 103.93%;
+  descent-override: 29.25%;
+  line-gap-override: 0%;
+}
 
 :root {
   /* Editorial Color Palette */
@@ -13,8 +72,8 @@
   --color-border: rgba(10, 22, 40, 0.08);
 
   /* Typography */
-  --font-display: 'Manrope', sans-serif;
-  --font-body: 'Manrope', sans-serif;
+  --font-display: 'Manrope', 'Manrope Fallback', sans-serif;
+  --font-body: 'Manrope', 'Manrope Fallback', sans-serif;
 
   /* Spacing */
   --space-xs: 0.5rem;
