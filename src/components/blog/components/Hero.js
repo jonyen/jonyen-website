@@ -10,6 +10,7 @@ import irisLeft from '../../../assets/memoji-iris-left.png';
 import irisRight from '../../../assets/memoji-iris-right.png';
 import eyesMask from '../../../assets/memoji-eyes-mask.png';
 import { MODEL_CREDIT, takeModelLine, warmUp } from './memojiVoice';
+import { visitorLine } from './visitorCount';
 
 // Said by the memoji when it's clicked. Edit freely. An entry is a string, or
 // { text, linkText, href } where linkText is the part of text that links.
@@ -75,6 +76,15 @@ export default function Hero() {
   const avatarRef = React.useRef(null);
   const [saying, setSaying] = React.useState(null);
   const lastText = React.useRef('');
+  // "You're visitor #N today!" once GoatCounter answers; it then joins the
+  // fixed sayings.
+  const visitorText = React.useRef(null);
+  const prepare = () => {
+    warmUp();
+    visitorLine().then((line) => {
+      visitorText.current = line;
+    });
+  };
   const bubbleTimer = React.useRef(0);
   const leaveTimer = React.useRef(0);
 
@@ -111,7 +121,7 @@ export default function Hero() {
   // About half the time, use a line Chrome's on-device model made up, when one
   // is ready; otherwise a fixed saying. Never the same line twice in a row.
   const speak = () => {
-    warmUp();
+    prepare();
     let item = null;
     let credit = null;
     if (Math.random() < 0.5) {
@@ -122,7 +132,8 @@ export default function Hero() {
       }
     }
     if (!item) {
-      const choices = SAYINGS.filter((x) => textOf(x) !== lastText.current);
+      const pool = visitorText.current ? [...SAYINGS, visitorText.current] : SAYINGS;
+      const choices = pool.filter((x) => textOf(x) !== lastText.current);
       item = choices[Math.floor(Math.random() * choices.length)];
     }
     lastText.current = textOf(item);
@@ -332,8 +343,8 @@ export default function Hero() {
                 type="button"
                 ref={avatarRef}
                 onClick={speak}
-                onPointerEnter={warmUp}
-                onFocus={warmUp}
+                onPointerEnter={prepare}
+                onFocus={prepare}
                 aria-label="Say something"
                 sx={{
                   display: 'block',
