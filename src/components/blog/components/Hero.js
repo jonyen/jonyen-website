@@ -9,6 +9,7 @@ import profileNoIris from '../../../assets/profile-noiris.jpg';
 import irisLeft from '../../../assets/memoji-iris-left.png';
 import irisRight from '../../../assets/memoji-iris-right.png';
 import eyesMask from '../../../assets/memoji-eyes-mask.png';
+import { MODEL_CREDIT, takeModelLine, warmUp } from './memojiVoice';
 
 // Said by the memoji when it's clicked. Edit freely. An entry is a string, or
 // { text, linkText, href } where linkText is the part of text that links.
@@ -25,6 +26,8 @@ const SAYINGS = [
   'The best time to plant a tree was 20 years ago. The second best time is now.',
   { text: 'Want to meet up? Book a time on my schedule.', linkText: 'my schedule', href: '/schedule/' },
 ];
+
+const textOf = (saying) => (typeof saying === 'string' ? saying : saying.text);
 
 // Renders a saying, turning the linkText part of a linked saying into a link.
 function SayingText({ saying }) {
@@ -65,16 +68,36 @@ const EASE_MS = 150;
 const GAZE_REACH_PX = 320;
 const IDLE_MS = 2000;
 const BUBBLE_MS = 4000;
+// The bubble's pop-in; the exit plays it backwards over the same time.
+const BUBBLE_ANIM_MS = 220;
 
 export default function Hero() {
   const avatarRef = React.useRef(null);
   const [saying, setSaying] = React.useState(null);
-  const lastSaying = React.useRef(-1);
+  const lastText = React.useRef('');
   const bubbleTimer = React.useRef(0);
+  const leaveTimer = React.useRef(0);
 
+  // Fade the bubble out the way it came in, then unmount it. The timeout backs
+  // up animationend; reduced-motion users get an instant hide.
+  const hideBubble = () => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      setSaying(null);
+      return;
+    }
+    setSaying((cur) => {
+      if (!cur) return cur;
+      clearTimeout(leaveTimer.current);
+      leaveTimer.current = setTimeout(
+        () => setSaying((now) => (now?.key === cur.key ? null : now)),
+        BUBBLE_ANIM_MS + 100,
+      );
+      return { ...cur, leaving: true };
+    });
+  };
   const startHideTimer = () => {
     clearTimeout(bubbleTimer.current);
-    bubbleTimer.current = setTimeout(() => setSaying(null), BUBBLE_MS);
+    bubbleTimer.current = setTimeout(hideBubble, BUBBLE_MS);
   };
   // Hold the bubble open while the pointer or keyboard focus is on it, so its
   // link can be reached; the 4s countdown restarts on leave or blur.
@@ -85,15 +108,36 @@ export default function Hero() {
     startHideTimer();
   };
 
+  // About half the time, use a line Chrome's on-device model made up, when one
+  // is ready; otherwise a fixed saying. Never the same line twice in a row.
   const speak = () => {
-    let i = Math.floor(Math.random() * (SAYINGS.length - 1));
-    if (i >= lastSaying.current && lastSaying.current >= 0) i += 1;
-    lastSaying.current = i;
-    // A fresh key restarts the pop-in animation when one saying replaces another.
-    setSaying({ item: SAYINGS[i], key: Date.now() });
+    warmUp();
+    let item = null;
+    let credit = null;
+    if (Math.random() < 0.5) {
+      const line = takeModelLine();
+      if (line && line !== lastText.current) {
+        item = line;
+        credit = MODEL_CREDIT;
+      }
+    }
+    if (!item) {
+      const choices = SAYINGS.filter((x) => textOf(x) !== lastText.current);
+      item = choices[Math.floor(Math.random() * choices.length)];
+    }
+    lastText.current = textOf(item);
+    // A fresh key restarts the pop-in, which also cancels a fade-out under way.
+    clearTimeout(leaveTimer.current);
+    setSaying({ item, credit, key: Date.now(), leaving: false });
     startHideTimer();
   };
-  React.useEffect(() => () => clearTimeout(bubbleTimer.current), []);
+  React.useEffect(
+    () => () => {
+      clearTimeout(bubbleTimer.current);
+      clearTimeout(leaveTimer.current);
+    },
+    [],
+  );
 
   // Let the eyes follow the pointer. A requestAnimationFrame loop eases them
   // toward the target and writes CSS variables, so React never re-renders per
@@ -288,6 +332,8 @@ export default function Hero() {
                 type="button"
                 ref={avatarRef}
                 onClick={speak}
+                onPointerEnter={warmUp}
+                onFocus={warmUp}
                 aria-label="Say something"
                 sx={{
                   display: 'block',
@@ -367,9 +413,13 @@ export default function Hero() {
                     onMouseLeave={releaseBubble}
                     onFocus={holdBubble}
                     onBlur={releaseBubble}
+                    onAnimationEnd={() => {
+                      if (saying.leaving) setSaying((now) => (now?.key === saying.key ? null : now));
+                    }}
+                    aria-hidden={saying.leaving || undefined}
                     sx={{
                       position: 'relative',
-                      pointerEvents: 'auto',
+                      pointerEvents: saying.leaving ? 'none' : 'auto',
                       px: 2,
                       py: 1.25,
                       borderRadius: '16px',
@@ -382,10 +432,18 @@ export default function Hero() {
                       lineHeight: 1.4,
                       boxShadow: '0 8px 24px rgba(10, 22, 40, 0.12)',
                       transformOrigin: 'left center',
-                      animation: 'bubbleIn 0.22s var(--ease-out-quart) both',
+                      // bubbleOut is bubbleIn reversed: mirrored keyframes, and
+                      // cubic-bezier(0.5, 0, 0.75, 0) is --ease-out-quart reversed.
+                      animation: saying.leaving
+                        ? `bubbleOut ${BUBBLE_ANIM_MS}ms cubic-bezier(0.5, 0, 0.75, 0) both`
+                        : `bubbleIn ${BUBBLE_ANIM_MS}ms var(--ease-out-quart) both`,
                       '@keyframes bubbleIn': {
                         from: { opacity: 0, transform: 'scale(0.85) translateX(-6px)' },
                         to: { opacity: 1, transform: 'none' },
+                      },
+                      '@keyframes bubbleOut': {
+                        from: { opacity: 1, transform: 'none' },
+                        to: { opacity: 0, transform: 'scale(0.85) translateX(-6px)' },
                       },
                       // Tail on the left, pointing at the memoji.
                       '&::after': {
@@ -403,6 +461,20 @@ export default function Hero() {
                     }}
                   >
                     <SayingText saying={saying.item} />
+                    {saying.credit && (
+                      <Box
+                        component="span"
+                        sx={{
+                          display: 'block',
+                          mt: 0.5,
+                          fontSize: '0.72rem',
+                          fontWeight: 500,
+                          color: 'var(--color-text-secondary)',
+                        }}
+                      >
+                        {saying.credit}
+                      </Box>
+                    )}
                   </Box>
                 )}
               </Box>
