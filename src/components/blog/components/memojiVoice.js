@@ -23,20 +23,42 @@ const LM_OPTIONS = {
   expectedOutputs: [{ type: 'text', languages: ['en'] }],
 };
 
+// Same rules as the Workers AI prompt in quip/src/handler.js.
 const SYSTEM_PROMPT = [
   'You write one witty line for the speech bubble of a cartoon avatar on the personal website of',
-  'Jonathan Yen, a full stack engineer in the Washington DC metro area. Speak as Jonathan, in the',
-  'first person. Light, clean humour; puns welcome. Now and then (not often) a gentle Christian',
-  'touch. Never mention employers or companies he has worked for, politics, or anything edgy.',
-  'At most 20 words. Reply with the line only: no quotes, no emoji, no hashtags, no links, no markdown.',
+  'Jonathan Yen, a full stack engineer. Speak as Jonathan, in the first person. Make it genuinely',
+  'funny: general wit, an everyday observation, a pun or engineering humour. Light, clean humour.',
+  'Don\'t reference faith, prayer, church or God unless it is a genuinely clever programming pun,',
+  'and keep that rare. Never mention employers or companies he has worked for, politics, or',
+  'anything edgy. No jokes about Washington DC, its traffic, the Metro or the weather.',
+  'Don\'t say you are away, offline, resting or recharging. Don\'t start with "I have", "I\'m",',
+  '"I am", "I\'m currently" or "I once"; vary the form: questions, observations, one-line',
+  'stories, pun setups, imperatives. At most 20 words. Reply with the line only: no quotes, no',
+  'emoji, no hashtags, no links, no markdown.',
 ].join(' ');
+
+// One opening style is picked at random per line, so the lines don't all
+// start the same way.
+const OPENINGS = [
+  'Open with a question.',
+  'Make it an everyday observation that starts with "Nothing".',
+  'Tell a one-line story that starts with "Today".',
+  'Set up a pun and land it.',
+  'Start with an imperative, like a tip or a warning.',
+  'Start with "Fun fact:".',
+  'Start with "Pro tip:".',
+  'Write it as a definition: "X: the ...".',
+  'Start with "My" and something Jonathan owns or does.',
+  'Start with "Somewhere" or "Someday".',
+];
+
+// A line that opens like this gets one retry, then the fixed sayings.
+const TIRED_OPENING = /^(i have a|i['’]m currently)\b/i;
 
 // Employers and other names the line must never contain.
 const BLOCKLIST = /datavault|dvlt|atlassian|mercor|medallia|\bibm\b|aspera|cvent|employer/i;
 const MAX_CHARS = 140;
 
-const HOME_TZ = 'America/New_York';
-const DAY_MS = 86400000;
 
 let session = null; // Promise of a LanguageModel session (or null), created once per page view.
 let pending = null; // Promise of the next generated line.
@@ -44,7 +66,6 @@ let ready = null; // The next generated line, { text, credit }, once it has arri
 let off = false; // Chrome's model isn't usable on this device; stop trying it.
 let quipFailures = 0;
 let quipOff = false; // /quip said no (rate limit, cap, missing); stop asking.
-let nextFreePhrase; // undefined: not fetched yet; null: unknown.
 const recent = [];
 
 async function modelAvailable() {
@@ -111,13 +132,17 @@ async function generate() {
   const base = await session;
   if (!base) return quipOff ? null : fetchQuip();
   // Each line comes from a fresh clone, so the conversation never grows.
-  const s = await base.clone();
-  try {
-    const text = clean(await s.prompt(await promptText()));
-    return text && { text, credit: MODEL_CREDIT };
-  } finally {
-    s.destroy();
-  }
+  const once = async () => {
+    const s = await base.clone();
+    try {
+      return clean(await s.prompt(promptText()));
+    } finally {
+      s.destroy();
+    }
+  };
+  let text = await once();
+  if (text && TIRED_OPENING.test(text)) text = await once();
+  return text && !TIRED_OPENING.test(text) ? { text, credit: MODEL_CREDIT } : null;
 }
 
 // One line from the Workers AI Worker. A 429 (rate limit or daily cap) or a
@@ -145,14 +170,13 @@ async function fetchQuip() {
   }
 }
 
-async function promptText() {
+function promptText() {
   const now = new Date();
   const weekday = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(now);
   const hour = now.getHours();
   const part = hour < 5 ? 'late night' : hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : hour < 21 ? 'evening' : 'night';
   const lines = [`It is ${weekday} ${part} for the visitor.`];
-  const free = await nextFree();
-  if (free) lines.push(`Jonathan's next free slot: ${free}.`);
+  lines.push(`Style: ${OPENINGS[Math.floor(Math.random() * OPENINGS.length)]}`);
   if (recent.length) lines.push(`Don't repeat these: ${recent.join(' / ')}`);
   lines.push('Write one new line.');
   return lines.join('\n');
@@ -172,77 +196,4 @@ export function clean(raw) {
   if (/https?:|www\.|\]\(|\.(com|org|net)\b/i.test(line)) return null;
   if (BLOCKLIST.test(line)) return null;
   return line;
-}
-
-// "Tue 2pm ET" for Jonathan's next 30+ minute gap, weekdays 8am to 9pm
-// Eastern, worked out from /schedule/busy.json the way the schedule page does.
-async function nextFree() {
-  if (nextFreePhrase !== undefined) return nextFreePhrase;
-  nextFreePhrase = null;
-  try {
-    const res = await fetch('/schedule/busy.json');
-    if (!res.ok) return null;
-    const data = await res.json();
-    nextFreePhrase = firstGap(
-      data.busy.map((b) => [Date.parse(b.start), Date.parse(b.end)]),
-      Date.parse(data.to),
-    );
-  } catch {
-    // Leave it out of the prompt.
-  }
-  return nextFreePhrase;
-}
-
-function firstGap(busy, dataEnd) {
-  const now = Date.now();
-  const parts = (ms) =>
-    Object.fromEntries(
-      new Intl.DateTimeFormat('en-US', { timeZone: HOME_TZ, year: 'numeric', month: 'numeric', day: 'numeric' })
-        .formatToParts(ms)
-        .map((x) => [x.type, x.value]),
-    );
-  const p = parts(now);
-  const today = Date.UTC(+p.year, p.month - 1, +p.day);
-  for (let i = 0; i < 14; i++) {
-    const day = new Date(today + i * DAY_MS);
-    if (day.getUTCDay() % 6 === 0) continue;
-    const start = Math.max(zoned(day, 8), now);
-    const end = Math.min(zoned(day, 21), dataEnd);
-    let cursor = start;
-    for (const [s, e] of busy.filter(([s, e]) => e > start && s < end).sort((a, b) => a[0] - b[0])) {
-      if (s - cursor >= 30 * 60000) break;
-      cursor = Math.max(cursor, e);
-    }
-    if (end - cursor >= 30 * 60000) return label(cursor, i === 0);
-  }
-  return null;
-}
-
-// UTC instant of wall-clock h:00 Eastern on the given UTC-midnight day.
-function zoned(day, h) {
-  const guess = Date.UTC(day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate(), h);
-  const offset = (ms) => {
-    const q = Object.fromEntries(
-      new Intl.DateTimeFormat('en-US', {
-        timeZone: HOME_TZ, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit',
-        hour: '2-digit', minute: '2-digit', second: '2-digit',
-      })
-        .formatToParts(ms)
-        .map((x) => [x.type, x.value]),
-    );
-    return Date.UTC(q.year, q.month - 1, q.day, q.hour, q.minute, q.second) - Math.floor(ms / 1000) * 1000;
-  };
-  return guess - offset(guess - offset(guess));
-}
-
-function label(ms, isToday) {
-  // Round up to the next half hour so the phrase reads like a bookable time.
-  const t = Math.ceil(ms / 1800000) * 1800000;
-  const q = Object.fromEntries(
-    new Intl.DateTimeFormat('en-US', { timeZone: HOME_TZ, weekday: 'short', hour: 'numeric', minute: '2-digit', hour12: true })
-      .formatToParts(t)
-      .map((x) => [x.type, x.value]),
-  );
-  const time = `${q.hour}${q.minute === '00' ? '' : `:${q.minute}`}${q.dayPeriod.toLowerCase()}`;
-  return `${isToday ? 'today' : q.weekday} ${time} ET`;
 }

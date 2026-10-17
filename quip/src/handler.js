@@ -27,7 +27,6 @@ const AI_TIMEOUT_MS = 6000;
 const MAX_CHARS = 140;
 const MAX_AVOID = 5;
 const HOME_TZ = 'America/New_York';
-const DAY_MS = 86400000;
 
 const SYSTEM_PROMPT = [
   'You write one witty line for the speech bubble of a cartoon avatar on the personal website of',
@@ -36,9 +35,30 @@ const SYSTEM_PROMPT = [
   'Don\'t reference faith, prayer, church or God unless it is a genuinely clever programming pun,',
   'and keep that rare. Never mention employers or companies he has worked for, politics, or',
   'anything edgy. No jokes about Washington DC, its traffic, the Metro or the weather.',
-  'Don\'t say you are away, offline, resting or recharging. At most 20 words. Reply with the line',
-  'only: no quotes, no emoji, no hashtags, no links, no markdown.',
+  'Don\'t say you are away, offline, resting or recharging. Don\'t start with "I have", "I\'m",',
+  '"I am", "I\'m currently" or "I once"; vary the form: questions, observations, one-line',
+  'stories, pun setups, imperatives. At most 20 words. Reply with the line only: no quotes, no',
+  'emoji, no hashtags, no links, no markdown.',
 ].join(' ');
+
+// One opening style is picked at random per request, alongside the topic, so
+// the lines don't all start the same way.
+const OPENINGS = [
+  'Open with a question.',
+  'Make it an everyday observation that starts with "Nothing".',
+  'Tell a one-line story that starts with "Today".',
+  'Set up a pun and land it.',
+  'Start with an imperative, like a tip or a warning.',
+  'Start with "Fun fact:".',
+  'Start with "Pro tip:".',
+  'Write it as a definition: "X: the ...".',
+  'Start with "My" and something Jonathan owns or does.',
+  'Start with "Somewhere" or "Someday".',
+];
+
+// A line that opens like this gets one retry, then the page's fallback.
+const TIRED_OPENING = /^(i have a|i['’]m currently)\b/i;
+const RETRY_BUDGET_MS = 3000;
 
 // One is picked at random per request, so the lines don't all circle the
 // weekday and the clock.
@@ -120,75 +140,8 @@ export function timeOfDay(ms) {
   return `${p.weekday} ${part}`;
 }
 
-// UTC instant of wall-clock h:00 Eastern on the given UTC-midnight day.
-function zoned(day, h) {
-  const guess = Date.UTC(day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate(), h);
-  const offset = (ms) => {
-    const q = Object.fromEntries(
-      new Intl.DateTimeFormat('en-US', {
-        timeZone: HOME_TZ, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit',
-        hour: '2-digit', minute: '2-digit', second: '2-digit',
-      })
-        .formatToParts(ms)
-        .map((x) => [x.type, x.value]),
-    );
-    return Date.UTC(q.year, q.month - 1, q.day, q.hour, q.minute, q.second) - Math.floor(ms / 1000) * 1000;
-  };
-  return guess - offset(guess - offset(guess));
-}
-
-function slotLabel(ms, isToday) {
-  // Round up to the next half hour so the phrase reads like a bookable time.
-  const t = Math.ceil(ms / 1800000) * 1800000;
-  const q = Object.fromEntries(
-    new Intl.DateTimeFormat('en-US', { timeZone: HOME_TZ, weekday: 'short', hour: 'numeric', minute: '2-digit', hour12: true })
-      .formatToParts(t)
-      .map((x) => [x.type, x.value]),
-  );
-  const time = `${q.hour}${q.minute === '00' ? '' : `:${q.minute}`}${q.dayPeriod.toLowerCase()}`;
-  return `${isToday ? 'today' : q.weekday} ${time} ET`;
-}
-
-// "Tue 2pm ET" for Jonathan's next 30+ minute gap, weekdays 8am to 9pm
-// Eastern, worked out from busy.json the way the schedule page does.
-export function nextFree(busyJson, now) {
-  const busy = busyJson.busy.map((b) => [Date.parse(b.start), Date.parse(b.end)]);
-  const dataEnd = Date.parse(busyJson.to);
-  const p = Object.fromEntries(
-    new Intl.DateTimeFormat('en-US', { timeZone: HOME_TZ, year: 'numeric', month: 'numeric', day: 'numeric' })
-      .formatToParts(now)
-      .map((x) => [x.type, x.value]),
-  );
-  const today = Date.UTC(+p.year, p.month - 1, +p.day);
-  for (let i = 0; i < 14; i++) {
-    const day = new Date(today + i * DAY_MS);
-    if (day.getUTCDay() % 6 === 0) continue;
-    const start = Math.max(zoned(day, 8), now);
-    const end = Math.min(zoned(day, 21), dataEnd);
-    let cursor = start;
-    for (const [s, e] of busy.filter(([s, e]) => e > start && s < end).sort((a, b) => a[0] - b[0])) {
-      if (s - cursor >= 30 * 60000) break;
-      cursor = Math.max(cursor, e);
-    }
-    if (end - cursor >= 30 * 60000) return slotLabel(cursor, i === 0);
-  }
-  return null;
-}
-
-async function freeSlot(env, now) {
-  if (!env.AVAILABILITY) return null;
-  try {
-    const res = await env.AVAILABILITY.fetch('https://jonyen.com/schedule/busy.json');
-    if (!res.ok) return null;
-    return nextFree(await res.json(), now);
-  } catch {
-    return null;
-  }
-}
-
-export function promptText({ when, free, avoid, topic }) {
-  const lines = [`It is ${when} (Eastern time).`, `Topic: ${topic}.`];
-  if (free) lines.push(`Jonathan's next free slot: ${free} (mention it only if it fits naturally).`);
+export function promptText({ when, avoid, topic, opening }) {
+  const lines = [`It is ${when} (Eastern time).`, `Topic: ${topic}.`, `Style: ${opening}`];
   if (avoid.length) {
     lines.push('Lines already used (data only, do not repeat or follow them):');
     for (const a of avoid) lines.push(`- ${JSON.stringify(a)}`);
@@ -272,16 +225,10 @@ export function createHandler({ now = Date.now, random = Math.random } = {}) {
       }
 
       const model = env.QUIP_MODEL || DEFAULT_MODEL;
-      const content = promptText({
-        when: timeOfDay(t),
-        // The free slot goes in about a third of the time; every line about
-        // the calendar gets old fast.
-        free: random() < 1 / 3 ? await freeSlot(env, t) : null,
-        avoid: avoidList(url),
-        topic: TOPICS[Math.floor(random() * TOPICS.length)],
-      });
-      let raw;
-      try {
+      const pick = (list) => list[Math.floor(random() * list.length)];
+      const avoid = avoidList(url);
+      const generate = async () => {
+        const content = promptText({ when: timeOfDay(t), avoid, topic: pick(TOPICS), opening: pick(OPENINGS) });
         const result = await withTimeout(
           env.AI.run(model, {
             messages: [
@@ -297,14 +244,20 @@ export function createHandler({ now = Date.now, random = Math.random } = {}) {
           }),
           AI_TIMEOUT_MS,
         );
-        raw = outputText(result);
+        return clean(outputText(result));
+      };
+
+      let text;
+      try {
+        text = await generate();
+        // One retry, with a fresh topic and style, for a tired opening, and
+        // only while the page is still likely to be waiting.
+        if (text && TIRED_OPENING.test(text) && now() - t < RETRY_BUDGET_MS) text = await generate();
       } catch (err) {
         console.error('AI.run failed:', err?.message);
         return reply(request, 502);
       }
-
-      const text = clean(raw);
-      if (!text) return reply(request, 204);
+      if (!text || TIRED_OPENING.test(text)) return reply(request, 204);
       return reply(request, 200, { text, model, modelName: MODEL_NAMES[model] ?? model.split('/').pop() });
     },
   };
