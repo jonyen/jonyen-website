@@ -4,7 +4,7 @@
  * visitor's browser has no on-device model (Chrome's Gemini Nano), so iPhone,
  * Safari and Firefox visitors get made-up lines too.
  *
- * GET /quip[?avoid=...&avoid=...] -> { text, model, modelName, colo, location }
+ * GET /quip[?avoid=...&avoid=...] -> { text, model, modelName }
  *
  * avoid carries the last few lines the visitor saw, so the model can steer
  * clear of them. They are quoted to the model as data, never as instructions.
@@ -12,10 +12,6 @@
  * Anything that fails (rate limit, daily cap, model error, a line that doesn't
  * pass the filters) answers with an error status and no body worth reading, so
  * the page falls back to its fixed sayings.
- *
- * location is the city of the Cloudflare data centre that ran this Worker
- * (request.cf.colo). Workers AI doesn't say where inference itself ran, so the
- * page words it as "via Cloudflare in <city>".
  */
 
 const DEFAULT_MODEL = '@cf/google/gemma-4-26b-a4b-it';
@@ -36,9 +32,10 @@ const DAY_MS = 86400000;
 const SYSTEM_PROMPT = [
   'You write one witty line for the speech bubble of a cartoon avatar on the personal website of',
   'Jonathan Yen, a full stack engineer. Speak as Jonathan, in the first person. Make it genuinely',
-  'funny: a pun, a wry observation or a playful twist. Light, clean humour. Now and then (not',
-  'often) a gentle Christian touch. Never mention employers or companies he has worked for,',
-  'politics, or anything edgy. No jokes about Washington DC, its traffic, the Metro or the weather.',
+  'funny: general wit, an everyday observation, a pun or engineering humour. Light, clean humour.',
+  'Don\'t reference faith, prayer, church or God unless it is a genuinely clever programming pun,',
+  'and keep that rare. Never mention employers or companies he has worked for, politics, or',
+  'anything edgy. No jokes about Washington DC, its traffic, the Metro or the weather.',
   'Don\'t say you are away, offline, resting or recharging. At most 20 words. Reply with the line',
   'only: no quotes, no emoji, no hashtags, no links, no markdown.',
 ].join(' ');
@@ -49,33 +46,12 @@ const TOPICS = [
   'debugging', 'naming variables', 'coffee', 'code review', 'meetings that could be emails',
   'tabs versus spaces', 'off-by-one errors', 'JavaScript quirks', 'CSS centering', 'deploying on a Friday',
   'documentation', 'keyboard shortcuts', 'rubber ducks', 'cloud computing', 'legacy code',
-  'teaching Sunday school', 'married life', 'cooking dinner', 'the gym', 'reading',
+  'grocery shopping', 'married life', 'cooking dinner', 'the gym', 'reading',
   'board games', 'emails', 'passwords', 'Wi-Fi',
 ];
 
 // Employers and other names a line must never contain.
 const BLOCKLIST = /datavault|dvlt|atlassian|mercor|medallia|\bibm\b|aspera|cvent|employer/i;
-
-// Cloudflare data centre codes (IATA) for the places most visitors come through.
-// Anything else shows the raw code.
-const COLO_CITIES = {
-  IAD: 'Ashburn, VA', EWR: 'Newark, NJ', PHL: 'Philadelphia, PA', BOS: 'Boston, MA',
-  ATL: 'Atlanta, GA', CLT: 'Charlotte, NC', RIC: 'Richmond, VA', ORF: 'Norfolk, VA',
-  PIT: 'Pittsburgh, PA', MIA: 'Miami, FL', TPA: 'Tampa, FL', JAX: 'Jacksonville, FL',
-  ORD: 'Chicago, IL', DTW: 'Detroit, MI', CMH: 'Columbus, OH', IND: 'Indianapolis, IN',
-  MSP: 'Minneapolis, MN', STL: 'St. Louis, MO', MCI: 'Kansas City, MO', DFW: 'Dallas, TX',
-  IAH: 'Houston, TX', AUS: 'Austin, TX', DEN: 'Denver, CO', SLC: 'Salt Lake City, UT',
-  PHX: 'Phoenix, AZ', LAS: 'Las Vegas, NV', LAX: 'Los Angeles, CA', SJC: 'San Jose, CA',
-  SFO: 'San Francisco, CA', SEA: 'Seattle, WA', PDX: 'Portland, OR', HNL: 'Honolulu, HI',
-  YYZ: 'Toronto', YUL: 'Montréal', YVR: 'Vancouver', LHR: 'London', MAN: 'Manchester',
-  DUB: 'Dublin', AMS: 'Amsterdam', FRA: 'Frankfurt', CDG: 'Paris', MAD: 'Madrid',
-  BCN: 'Barcelona', LIS: 'Lisbon', MXP: 'Milan', FCO: 'Rome', ZRH: 'Zurich', VIE: 'Vienna',
-  BRU: 'Brussels', CPH: 'Copenhagen', ARN: 'Stockholm', OSL: 'Oslo', HEL: 'Helsinki',
-  WAW: 'Warsaw', PRG: 'Prague', NRT: 'Tokyo', HKG: 'Hong Kong', SIN: 'Singapore',
-  SYD: 'Sydney', BOM: 'Mumbai', GRU: 'São Paulo',
-};
-
-export const cityFor = (colo) => (colo ? COLO_CITIES[colo] ?? colo : null);
 
 const ALLOWED_ORIGIN = /^(https:\/\/jonyen\.com|http:\/\/localhost(:\d+)?|http:\/\/127\.0\.0\.1(:\d+)?)$/;
 
@@ -329,14 +305,7 @@ export function createHandler({ now = Date.now, random = Math.random } = {}) {
 
       const text = clean(raw);
       if (!text) return reply(request, 204);
-      const colo = request.cf?.colo ?? null;
-      return reply(request, 200, {
-        text,
-        model,
-        modelName: MODEL_NAMES[model] ?? model.split('/').pop(),
-        colo,
-        location: cityFor(colo),
-      });
+      return reply(request, 200, { text, model, modelName: MODEL_NAMES[model] ?? model.split('/').pop() });
     },
   };
 }

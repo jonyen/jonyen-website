@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { avoidList, cityFor, clean, createHandler, nextFree, outputText, promptText, timeOfDay } from '../src/handler.js';
+import { avoidList, clean, createHandler, nextFree, outputText, promptText, timeOfDay } from '../src/handler.js';
 
 const NOW = Date.parse('2026-10-17T18:00:00Z'); // Saturday 2pm Eastern
 
@@ -50,11 +50,9 @@ function fakeEnv({ line = 'Debugging is just arguing with past me.', ok = true, 
 }
 
 const req = (qs = '', headers = {}) =>
-  Object.assign(new Request(`https://jonyen.com/quip${qs}`, { headers: { 'CF-Connecting-IP': '203.0.113.9', ...headers } }), {
-    cf: { colo: 'IAD' },
-  });
+  new Request(`https://jonyen.com/quip${qs}`, { headers: { 'CF-Connecting-IP': '203.0.113.9', ...headers } });
 
-test('serves a quip with model, colo and city', async () => {
+test('serves a quip with its model', async () => {
   const { env, calls } = fakeEnv();
   const res = await createHandler({ now: () => NOW }).fetch(req(), env);
   assert.equal(res.status, 200);
@@ -63,17 +61,10 @@ test('serves a quip with model, colo and city', async () => {
     text: 'Debugging is just arguing with past me.',
     model: '@cf/google/gemma-4-26b-a4b-it',
     modelName: 'Gemma 4',
-    colo: 'IAD',
-    location: 'Ashburn, VA',
   });
   assert.equal(calls.limit[0].key, '203.0.113.9');
   assert.deepEqual(calls.ai[0].input.chat_template_kwargs, { enable_thinking: false });
   assert.match(calls.ai[0].input.messages[1].content, /Saturday afternoon/);
-});
-
-test('unknown colo falls back to its code', () => {
-  assert.equal(cityFor('XYZ'), 'XYZ');
-  assert.equal(cityFor(null), null);
 });
 
 test('rate-limited requests never reach the model', async () => {
