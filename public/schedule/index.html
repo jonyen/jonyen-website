@@ -68,7 +68,7 @@
         a { color: inherit; }
         main { max-width: 76rem; margin: 0 auto; padding: 1.25rem 16px 1.5rem; }
         .home {
-            display: inline-block; margin-bottom: 1.25rem; font: 600 1.5rem var(--font-display);
+            display: inline-block; margin-bottom: 1.25rem; font: 600 1.5rem/1.2 var(--font-display);
             letter-spacing: -0.02em; text-decoration: none; transition: opacity .2s ease;
         }
         .home:hover { opacity: .7; }
@@ -80,7 +80,7 @@
         .warn { color: #b25e00; }
 
         .pill {
-            font: 500 .95rem var(--font-body); display: inline-flex; align-items: center; gap: .4rem;
+            font: 500 .95rem/1.3 var(--font-body); display: inline-flex; align-items: center; gap: .4rem;
             padding: .6rem 1.4rem; border-radius: 999px; cursor: pointer; text-decoration: none;
             border: 1.5px solid var(--fg); background: transparent; color: var(--fg); transition: all .2s ease;
         }
@@ -89,7 +89,7 @@
         .pill.solid:hover { opacity: .85; }
 
         .weeknav { display: flex; align-items: center; justify-content: space-between; margin-bottom: .75rem; }
-        .weeknav h2 { font: 600 1.15rem var(--font-display); margin: 0; }
+        .weeknav h2 { font: 600 1.15rem/1.3 var(--font-display); margin: 0; }
         .weeknav button {
             font: inherit; font-size: 1.1rem; line-height: 1; width: 2.25rem; height: 2.25rem;
             border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--fg); cursor: pointer;
@@ -99,9 +99,15 @@
         .weeknav .navbtns { display: flex; gap: .4rem; }
         .weeknav #today { width: auto; padding: 0 .9rem; font-size: .85rem; }
 
-        .week { --hour: 36px; display: grid; grid-template-columns: 3.25rem repeat(5, 1fr); }
+        /* min-height is the head row (.8rem text + 1.15rem day + .4rem padding + 1px
+           border) plus 13 hours, so the legend sits in place before the grid is drawn. */
+        .week {
+            --hour: 36px; --head: calc(.8rem * 1.5 + 1.15rem * 1.3 + .4rem + 1px);
+            display: grid; grid-template-columns: 3.25rem repeat(5, 1fr);
+            min-height: calc(var(--head) + var(--hour) * 13);
+        }
         .week .head { text-align: center; font-size: .8rem; color: var(--muted); padding-bottom: .4rem; border-bottom: 1px solid var(--line); }
-        .week .head b { display: block; font: 600 1.15rem var(--font-display); color: var(--fg); }
+        .week .head b { display: block; font: 600 1.15rem/1.3 var(--font-display); color: var(--fg); }
         .week .head.today b { color: var(--gold); }
         .hours, .col { position: relative; height: calc(var(--hour) * 13); }
         .hours span { position: absolute; right: .5rem; margin-top: 1px; font-size: .7rem; line-height: 1.2; color: var(--muted); white-space: nowrap; }
@@ -128,7 +134,7 @@
             .week { --hour: clamp(22px, calc((100dvh - 356px) / 13), 36px); }
         }
         aside section + section { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
-        aside h3 { font: 600 1.05rem var(--font-display); margin: 0 0 .75rem; }
+        aside h3 { font: 600 1.05rem/1.3 var(--font-display); margin: 0 0 .75rem; }
         .durations { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
         .durations .pill { justify-content: center; padding: .6rem .5rem; }
         .copyhead { display: flex; align-items: center; gap: .5rem; margin-bottom: .5rem; }
@@ -151,7 +157,7 @@
         dialog[open] { display: flex; flex-direction: column; }
         dialog::backdrop { background: rgba(10, 22, 40, .45); }
         .dialoghead { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .75rem .75rem .75rem 1.25rem; border-bottom: 1px solid var(--line); }
-        .dialoghead h2 { font: 600 1.15rem var(--font-display); margin: 0; }
+        .dialoghead h2 { font: 600 1.15rem/1.3 var(--font-display); margin: 0; }
         .dialoghead .actions { display: flex; align-items: center; gap: .75rem; font-size: .85rem; }
         .dialoghead .actions a { color: var(--muted); }
         .dialoghead button {
@@ -164,7 +170,7 @@
         .blocked p { margin: 0 0 .75rem; }
         .blocked p:last-child { margin: 0; }
         @media (max-width: 30rem) {
-            .week { --hour: 30px; grid-template-columns: 2.75rem repeat(5, 1fr); }
+            .week { --hour: 30px; --head: calc(.7rem * 1.5 + 1.15rem * 1.3 + .4rem + 1px); grid-template-columns: 2.75rem repeat(5, 1fr); }
             .week .head { font-size: .7rem; }
             .dialoghead .actions a { display: none; }
         }
