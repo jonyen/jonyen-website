@@ -64,15 +64,15 @@
             -webkit-font-smoothing: antialiased;
         }
         a { color: inherit; }
-        main { max-width: 56rem; margin: 0 auto; padding: 1.5rem 16px 4rem; }
+        main { max-width: 76rem; margin: 0 auto; padding: 1.25rem 16px 1.5rem; }
         .home {
-            display: inline-block; margin-bottom: 2.5rem; font: 600 1.5rem var(--font-display);
+            display: inline-block; margin-bottom: 1.25rem; font: 600 1.5rem var(--font-display);
             letter-spacing: -0.02em; text-decoration: none; transition: opacity .2s ease;
         }
         .home:hover { opacity: .7; }
-        .hero { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem 2rem; margin-bottom: 2rem; }
+        .hero { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem 2rem; margin-bottom: 1.25rem; }
         .eyebrow { margin: 0 0 .5rem; font-size: .8rem; font-weight: 500; letter-spacing: .15em; text-transform: uppercase; color: var(--gold); }
-        h1 { font: 600 clamp(2rem, 6vw, 3rem)/1.05 var(--font-display); letter-spacing: -0.02em; margin: 0 0 .5rem; }
+        h1 { font: 600 clamp(2rem, 4vw, 2.75rem)/1.05 var(--font-display); letter-spacing: -0.02em; margin: 0 0 .5rem; }
         .lede { margin: 0; color: var(--muted); }
         .note { color: var(--muted); font-size: .9rem; margin: 0 0 1rem; }
         .warn { color: #b25e00; }
@@ -117,16 +117,28 @@
         }
         .legend span.busy::before { background: var(--busy); border-color: var(--busy); }
 
-        .copybox { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+        .layout { display: grid; gap: 2.5rem; align-items: start; }
+        @media (min-width: 64rem) {
+            .layout { grid-template-columns: minmax(0, 1fr) 21rem; gap: 3rem; }
+            /* Size the 13 hour rows so the whole page fits the window height;
+               350px is everything above and below the grid. */
+            .week { --hour: clamp(22px, calc((100dvh - 350px) / 13), 36px); }
+        }
+        aside section + section { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+        aside h3 { font: 600 1.05rem var(--font-display); margin: 0 0 .75rem; }
+        .durations { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+        .durations .pill { justify-content: center; padding: .6rem .5rem; }
         .copyhead { display: flex; align-items: center; gap: .5rem; margin-bottom: .5rem; }
-        .copyhead h3 { font: 600 1.05rem var(--font-display); margin: 0; }
+        .copyhead h3 { margin: 0; }
         .copyhead button {
             display: grid; place-items: center; width: 1.9rem; height: 1.9rem; padding: 0; border-radius: 999px; cursor: pointer;
             border: 1px solid var(--line); background: transparent; color: var(--muted);
         }
         .copyhead button:hover { color: var(--fg); background: var(--gold-dim); }
         .copyhead button.done { color: var(--gold); }
-        .copybox pre { margin: 0; font: .95rem/1.7 var(--font-body); white-space: pre-wrap; }
+        #freetext { font-size: .95rem; line-height: 1.5; }
+        #freetext div + div { margin-top: .6rem; }
+        #freetext b { display: block; font-weight: 700; }
 
         dialog {
             width: min(760px, calc(100vw - 32px)); height: min(860px, calc(100dvh - 32px)); max-width: none; max-height: none;
@@ -164,9 +176,9 @@
             <h1>When I'm free</h1>
             <p class="lede">Weekdays, 8am to 9pm Eastern, over the next month.</p>
         </div>
-        <button type="button" class="pill solid" id="openbook">Book a time</button>
     </div>
     <p class="note" id="status">Loading…</p>
+    <div class="layout">
     <div id="calendar" hidden>
         <div class="weeknav">
             <h2 id="weeklabel"></h2>
@@ -178,13 +190,26 @@
         </div>
         <div class="week" id="week"></div>
         <div class="legend" aria-hidden="true"><span>Free</span><span class="busy">Busy</span></div>
-        <div class="copybox">
+    </div>
+    <aside>
+        <section>
+            <h3>Book a time</h3>
+            <!-- The four schedules on the Google booking page; data-url is the embeddable link. -->
+            <div class="durations">
+                <button type="button" class="pill" data-min="15" data-url="https://calendar.google.com/calendar/appointments/schedules/AcZssZ0InlPJJ02krS2cF9ITLaaIk9jfdtWYciKrl_-I7v1jh5PQ2rd-pSDy-ismyQgpP-F5dgI9Q5SF">15 min</button>
+                <button type="button" class="pill" data-min="30" data-url="https://calendar.google.com/calendar/appointments/schedules/AcZssZ3K08PRdRO8C-xNIIDX8mDdF0KP9Fbkg7ro8ihenbaoEXyRI06f_FEb5gFNmVF5kaTadt-d5vg4">30 min</button>
+                <button type="button" class="pill" data-min="45" data-url="https://calendar.google.com/calendar/appointments/schedules/AcZssZ0tzYOcAtLJv6hqxV9k_oD_C0UfN2PyEol1MG1R8P6T1tIy2vCsCBM1XqMGVD4vncvYHH9wuh0v">45 min</button>
+                <button type="button" class="pill" data-min="60" data-url="https://calendar.google.com/calendar/appointments/schedules/AcZssZ0BAbkwcR4Tkax5r9aib_be8SJaWMxmsceGYjZkWueTKfF5Tgx3x_zw1IbUWOOxQ6xvbPNckOga">60 min</button>
+            </div>
+        </section>
+        <section class="copybox" id="freebox" hidden>
             <div class="copyhead">
                 <h3>Free times (Eastern)</h3>
                 <button type="button" id="copy" aria-label="Copy free times" title="Copy"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
             </div>
-            <pre id="freetext"></pre>
-        </div>
+            <div id="freetext"></div>
+        </section>
+    </aside>
     </div>
     <dialog id="book" aria-labelledby="booktitle">
         <div class="dialoghead">
@@ -213,7 +238,8 @@
 
     const $ = (id) => document.getElementById(id);
     // The list as copied or emailed: the page's heading becomes its first line.
-    const freeText = () => `Free times (Eastern):\n${$('freetext').textContent}`;
+    let freeLines = [];
+    const freeText = () => `Free times (Eastern):\n${freeLines.join('\n')}`;
 
     // The address is assembled here rather than written into the HTML, to keep
     // it away from simple scrapers.
@@ -243,13 +269,17 @@
         probe.src = `https://calendar.google.com/googlecalendar/images/favicons_2020q4/calendar_31.ico?t=${Date.now()}`;
     })();
 
-    const BOOK_URL = 'https://calendar.google.com/calendar/appointments/AcZssZ0ErAD3_ySrke5VN5jq51fzheAJUb2TH8HMOQQ=?gv=true';
     const dialog = $('book');
-    $('openbook').addEventListener('click', () => {
-        const frame = $('bookframe');
-        if (frame && !frame.src) frame.src = BOOK_URL;
-        dialog.showModal();
-    });
+    for (const btn of document.querySelectorAll('.durations button')) {
+        btn.addEventListener('click', () => {
+            $('booktitle').textContent = `Book ${btn.dataset.min} minutes`;
+            const frame = $('bookframe');
+            const embed = `${btn.dataset.url}?gv=true`;
+            if (frame && frame.src !== embed) frame.src = embed;
+            if ($('booknote')) $('booknote').href = btn.dataset.url;
+            dialog.showModal();
+        });
+    }
     $('closebook').addEventListener('click', () => dialog.close());
     // A click on the backdrop lands on the dialog element itself.
     dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
@@ -388,14 +418,19 @@
             for (const [s, e] of free) place(s, e, 'free', `Free ${range(s, e)}`);
             const open = free.filter(([s, e]) => e - s >= 30 * 60000);
             if (winEnd > now && winStart < dataEnd) {
-                textLines.push(`${fmtDow.format(day)}, ${fmtDate.format(day)}: ${open.length ? open.map(([s, e]) => shortRange(s, e)).join(', ') : 'no open time'}`);
+                textLines.push([`${fmtDow.format(day)}, ${fmtDate.format(day)}`, open.length ? open.map(([s, e]) => shortRange(s, e)).join(', ') : 'no open time']);
             }
             grid.append(col);
         }
 
-        $('freetext').textContent = textLines.length
-            ? textLines.join('\n')
-            : 'No open weekday time left this week.';
+        // Shown as a day heading over its times; copied as one "Day: times" line each.
+        freeLines = textLines.length ? textLines.map(([d, t]) => `${d}: ${t}`) : ['No open weekday time left this week.'];
+        $('freetext').replaceChildren(...(textLines.length ? textLines : [['', freeLines[0]]]).map(([d, t]) => {
+            const row = document.createElement('div');
+            if (d) row.append(Object.assign(document.createElement('b'), { textContent: d }));
+            row.append(t);
+            return row;
+        }));
         setCopyState('', 'Copy');
 
         // Only a partial feed needs a note; otherwise the status line goes away.
@@ -439,11 +474,12 @@
             const last = homeDay(Date.parse(json.to));
             for (; monday <= last; monday += 7 * DAY) weeks.push(monday);
             $('calendar').hidden = false;
+            $('freebox').hidden = false;
             render();
         })
         .catch(() => {
             statusEl.className = 'note warn';
-            statusEl.textContent = "Availability couldn't load right now. Use the booking calendar to see open slots.";
+            statusEl.textContent = "Availability couldn't load right now. Pick a length under Book a time to see open slots.";
         });
 })();
 </script>
