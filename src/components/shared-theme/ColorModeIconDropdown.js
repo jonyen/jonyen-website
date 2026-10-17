@@ -62,6 +62,9 @@ export default function ColorModeIconDropdown(props) {
         open={open}
         onClose={handleClose}
         onClick={handleClose}
+        // MUI's scroll lock swaps the scrollbar for body padding, which the
+        // fixed header doesn't get, so the header icons jumped sideways.
+        disableScrollLock
         slotProps={{
           paper: {
             variant: 'outlined',
