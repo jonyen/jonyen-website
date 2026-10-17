@@ -9,7 +9,7 @@ import profileNoIris from '../../../assets/profile-noiris.jpg';
 import irisLeft from '../../../assets/memoji-iris-left.png';
 import irisRight from '../../../assets/memoji-iris-right.png';
 import eyesMask from '../../../assets/memoji-eyes-mask.png';
-import { MODEL_CREDIT, takeModelLine, warmUp } from './memojiVoice';
+import { takeModelLine, warmUp } from './memojiVoice';
 import { visitorLine } from './visitorCount';
 import { createBag, VISITOR_ID } from './sayingsBag';
 
@@ -123,18 +123,18 @@ export default function Hero() {
     startHideTimer();
   };
 
-  // About half the time, use a line Chrome's on-device model made up, when one
-  // is ready; otherwise the next fixed saying from the shuffled deck. Never the
-  // same line twice in a row.
+  // About half the time, use a made-up line when one is ready (Chrome's
+  // on-device model, or Workers AI via /quip); otherwise the next fixed saying
+  // from the shuffled deck. Never the same line twice in a row.
   const speak = () => {
     prepare();
     let item = null;
     let credit = null;
     if (Math.random() < 0.5) {
       const line = takeModelLine();
-      if (line && line !== lastText.current) {
-        item = line;
-        credit = MODEL_CREDIT;
+      if (line && line.text !== lastText.current) {
+        item = line.text;
+        credit = line.credit;
       }
     }
     if (!item) {

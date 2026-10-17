@@ -1,0 +1,43 @@
+name = "jonyen-quip"
+main = "src/index.js"
+compatibility_date = "2026-08-01"
+workers_dev = false
+
+# The jonyen.com/quip route is managed outside this file, like the schedule
+# Worker's: the deploy token has no Workers Routes permission. It was created
+# once with the Cloudflare API, after which every deploy just replaces the
+# script behind it.
+
+[ai]
+binding = "AI"
+
+# The schedule Worker, called directly for busy.json (a fetch to the same zone
+# from one Worker to another needs a service binding).
+[[services]]
+binding = "AVAILABILITY"
+service = "schedule-availability"
+
+# About 10 quips a minute per IP. This binding is cheap but approximate (its
+# counters live per machine and sync later), so the exact limit, QUIP_PER_MINUTE,
+# is also enforced in D1 below.
+[[ratelimits]]
+name = "RATE_LIMIT"
+namespace_id = "7301"
+
+  [ratelimits.simple]
+  limit = 10
+  period = 60
+
+# Exact counters: quips per visitor per minute and per UTC day; tables in
+# schema.sql.
+[[d1_databases]]
+binding = "DB"
+database_name = "jonyen-quip"
+database_id = "a3197c81-930d-412a-92b5-14d3d179b015"
+
+[vars]
+QUIP_MODEL = "@cf/google/gemma-4-26b-a4b-it"
+# Each quip costs about 2 Neurons, so 2,000 a day stays well inside Workers
+# AI's free 10,000 Neurons a day.
+QUIP_DAILY_CAP = "2000"
+QUIP_PER_MINUTE = "10"
