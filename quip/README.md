@@ -1,0 +1,54 @@
+# jonyen-quip
+
+A Cloudflare Worker that serves `GET jonyen.com/quip`: one-line quips for the memoji's speech bubble on the homepage, written by Gemma 4 on Workers AI. The page uses it when the visitor's browser has no on-device model.
+
+- **Code:** `src/handler.js`
+- **Tests:** `test/quip.test.mjs`, run with `npm run test:worker` from the repo root.
+- **Bindings and limits:** `wrangler.toml`.
+
+## Deploy
+
+CI deploys on every push to `main` (job `deploy-quip`). To deploy by hand, run this from the repo root:
+
+```sh
+npx wrangler deploy --config quip/wrangler.toml
+```
+
+Always pass `--config quip/wrangler.toml`. Run without it from the repo root, wrangler's auto-setup rewrites the site's `package.json`, `.gitignore` and lockfile.
+
+The `jonyen.com/quip*` route lives outside `wrangler.toml`; it was created once with the Cloudflare API. The `*` is needed: a pattern without it doesn't match requests that have a query string.
+
+## The quip log
+
+Every line the model generates goes into the D1 table `quips` (database `jonyen-quip`). That includes lines that were rejected and retried. Each row records:
+
+| Column | Meaning |
+|---|---|
+| `ts` | When generation started (UTC, ISO 8601) |
+| `source` | `workers-ai` |
+| `model` | Workers AI model ID |
+| `text` | The line after whitespace and markdown clean-up; null on a timeout or error |
+| `accepted` | 1 if it was returned to the page |
+| `reject_reason` | null, or `empty`, `too_long`, `link`, `blocklist`, `starts_with_i`, `timeout` or `error` |
+| `latency_ms` | Model call time |
+| `topic_hint`, `style_hint` | The random topic and opening style in the prompt |
+
+No visitor data is logged: no IPs, user agents or the visitor's recent lines. Logging runs after the response is sent (`ctx.waitUntil`), and a failed write is swallowed, so the log can never break a quip.
+
+**Retention:** rows older than 180 days are deleted. There's no cron. About one log write in 50 also runs `DELETE FROM quips WHERE ts < <now − 180 days>`. That's plenty at a few hundred rows a day, and needs no extra trigger.
+
+### Reading it
+
+There's no public read endpoint. Use wrangler with the laptop's Cloudflare login, from the repo root:
+
+```sh
+# Latest 50 lines
+npx wrangler d1 execute jonyen-quip --remote --config quip/wrangler.toml \
+  --command "select ts, accepted, reject_reason, latency_ms, text from quips order by ts desc limit 50"
+
+# Rejections by reason, last 7 days
+npx wrangler d1 execute jonyen-quip --remote --config quip/wrangler.toml \
+  --command "select reject_reason, count(*) n from quips where ts > strftime('%Y-%m-%dT%H:%M:%fZ','now','-7 days') group by 1 order by n desc"
+```
+
+`npm run quip:log` runs the first query.
