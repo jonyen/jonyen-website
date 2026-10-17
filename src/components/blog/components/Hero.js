@@ -5,50 +5,130 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import profileImage from '../../../assets/profile.png';
+import profileNoIris from '../../../assets/profile-noiris.jpg';
+import irisLeft from '../../../assets/memoji-iris-left.png';
+import irisRight from '../../../assets/memoji-iris-right.png';
+import eyesMask from '../../../assets/memoji-eyes-mask.png';
 
-// Furthest the memoji turns toward the cursor, at the edge of the window.
-const MAX_TILT_DEG = 18;
-const MAX_SHIFT_PX = 6;
+// Said by the memoji when it's clicked. Edit freely.
+const SAYINGS = [
+  "I'd tell you a UDP joke, but you might not get it.",
+  "My code works and I don't know why. Please don't touch it.",
+  'Beltway traffic is a distributed system with no consensus.',
+  'Metro tip: the escalator is just stairs with commitment issues.',
+  "DC in August: you don't walk outside, you wade.",
+  "It's not a bug, it's an undocumented feature.",
+  'Why do developers like dark mode? Light attracts bugs.',
+  'Rubber-duck debugging works. The duck never interrupts.',
+  'Teaching Sunday school: the only crowd tougher than code review.',
+  "Married life: we merge without conflicts. Mostly.",
+  "I'm not procrastinating, I'm caching my energy.",
+  'There are 10 kinds of people: those who read binary and those who don\'t.',
+];
+
+// Where the eyes sit in the 1000x1000 memoji, from scripts that cut the irises
+// out of src/assets/profile.png. EYES_BOX is the region the eye mask covers;
+// each iris is placed in % of that box.
+const EYES_BOX = { left: '30.7%', top: '49.7%', width: '33.6%', height: '5.9%' };
+const IRISES = [
+  { src: irisLeft, left: '7.44%', top: '-16.949%', width: '23.512%', height: '133.898%' },
+  { src: irisRight, left: '69.345%', top: '-8.475%', width: '24.107%', height: '137.288%' },
+];
+// Iris travel at full gaze, as % of the iris's own size (about 14px and 5px
+// of the 1000px source), so it stays mostly inside the eye.
+const MAX_LOOK_X = 17;
+const MAX_LOOK_Y = 6;
+// Easing time constant: the eyes cover ~63% of the way to the target in this time.
+const EASE_MS = 150;
+// Pointer distance (px) at which the gaze is ~76% of the way to full.
+const GAZE_REACH_PX = 320;
+const IDLE_MS = 2000;
+const BUBBLE_MS = 4000;
 
 export default function Hero() {
   const avatarRef = React.useRef(null);
+  const [saying, setSaying] = React.useState(null);
+  const lastSaying = React.useRef(-1);
+  const bubbleTimer = React.useRef(0);
 
-  // Turn the memoji toward the pointer. The values go into CSS variables so
-  // the motion never re-renders React. Touch screens and reduced-motion users
-  // get the still image.
+  const speak = () => {
+    let i = Math.floor(Math.random() * (SAYINGS.length - 1));
+    if (i >= lastSaying.current && lastSaying.current >= 0) i += 1;
+    lastSaying.current = i;
+    // A fresh key restarts the pop-in animation when one saying replaces another.
+    setSaying({ text: SAYINGS[i], key: Date.now() });
+    clearTimeout(bubbleTimer.current);
+    bubbleTimer.current = setTimeout(() => setSaying(null), BUBBLE_MS);
+  };
+  React.useEffect(() => () => clearTimeout(bubbleTimer.current), []);
+
+  // Let the eyes follow the pointer. A requestAnimationFrame loop eases them
+  // toward the target and writes CSS variables, so React never re-renders per
+  // frame; the loop stops once they settle or the hero is off screen. Touch
+  // screens and reduced-motion users keep the eyes centred.
   React.useEffect(() => {
     const el = avatarRef.current;
     if (!el) return undefined;
-    if (!window.matchMedia('(pointer: fine)').matches) return undefined;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    // matchMedia is missing in jsdom (tests); treat that as "no fine pointer".
+    const matches = (query) => window.matchMedia?.(query).matches ?? false;
+    if (!matches('(pointer: fine)') || matches('(prefers-reduced-motion: reduce)')) return undefined;
 
     let frame = 0;
-    const setTilt = (x, y) => {
-      el.style.setProperty('--ry', `${x * MAX_TILT_DEG}deg`);
-      el.style.setProperty('--rx', `${-y * MAX_TILT_DEG}deg`);
-      el.style.setProperty('--tx', `${x * MAX_SHIFT_PX}px`);
-      el.style.setProperty('--ty', `${y * MAX_SHIFT_PX}px`);
+    let last = 0;
+    let visible = true;
+    let idleTimer = 0;
+    const cur = { x: 0, y: 0 };
+    const target = { x: 0, y: 0 };
+
+    const step = (now) => {
+      const dt = last ? Math.min(now - last, 100) : 16;
+      last = now;
+      const k = 1 - Math.exp(-dt / EASE_MS);
+      cur.x += (target.x - cur.x) * k;
+      cur.y += (target.y - cur.y) * k;
+      el.style.setProperty('--look-x', cur.x.toFixed(4));
+      el.style.setProperty('--look-y', cur.y.toFixed(4));
+      if (Math.abs(target.x - cur.x) + Math.abs(target.y - cur.y) > 0.002) {
+        frame = requestAnimationFrame(step);
+      } else {
+        frame = 0;
+      }
     };
-    const clamp = (v) => Math.max(-1, Math.min(1, v));
+    const run = () => {
+      if (!frame) {
+        last = 0;
+        frame = requestAnimationFrame(step);
+      }
+    };
+    const lookAt = (x, y) => {
+      target.x = x;
+      target.y = y;
+      run();
+    };
     const onMove = (e) => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const r = el.getBoundingClientRect();
-        setTilt(
-          clamp((e.clientX - (r.left + r.width / 2)) / (window.innerWidth / 2)),
-          clamp((e.clientY - (r.top + r.height / 2)) / (window.innerHeight / 2)),
-        );
-      });
+      if (!visible) return;
+      const r = el.getBoundingClientRect();
+      const dx = e.clientX - (r.left + r.width / 2);
+      const dy = e.clientY - (r.top + r.height / 2);
+      const dist = Math.hypot(dx, dy) || 1;
+      // tanh eases the response off with distance, so far-away movement barely registers.
+      const scale = Math.tanh(dist / GAZE_REACH_PX) / dist;
+      lookAt(dx * scale, dy * scale);
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => lookAt(0, 0), IDLE_MS);
     };
-    const onLeave = () => {
-      cancelAnimationFrame(frame);
-      setTilt(0, 0);
-    };
+    const onLeave = () => lookAt(0, 0);
+    const io = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (!visible) lookAt(0, 0);
+    });
+    io.observe(el);
     window.addEventListener('pointermove', onMove, { passive: true });
     document.documentElement.addEventListener('mouseleave', onLeave);
     return () => {
       cancelAnimationFrame(frame);
+      clearTimeout(idleTimer);
+      io.disconnect();
       window.removeEventListener('pointermove', onMove);
       document.documentElement.removeEventListener('mouseleave', onLeave);
     };
@@ -169,34 +249,118 @@ export default function Hero() {
               flexWrap: 'wrap',
             }}
           >
-            <Box
-              ref={avatarRef}
-              sx={{
-                flex: 'none',
-                width: { xs: 100, sm: 120, md: 150 },
-                height: { xs: 100, sm: 120, md: 150 },
-                borderRadius: '50%',
-                overflow: 'hidden',
-                border: '3px solid var(--color-ink)',
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-                perspective: '400px',
-              }}
-            >
-              {/* Scaled up slightly so the frame never shows an edge while it turns. */}
+            <Box sx={{ position: 'relative', flex: 'none' }}>
               <Box
-                component="img"
-                src={profileImage}
-                alt="Jonathan Yen"
+                component="button"
+                type="button"
+                ref={avatarRef}
+                onClick={speak}
+                aria-label="Say something"
                 sx={{
                   display: 'block',
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  transform:
-                    'translate(var(--tx, 0px), var(--ty, 0px)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.1)',
-                  transition: 'transform 0.25s ease-out',
+                  position: 'relative',
+                  p: 0,
+                  width: { xs: 100, sm: 120, md: 150 },
+                  height: { xs: 100, sm: 120, md: 150 },
+                  borderRadius: '50%',
+                  overflow: 'hidden',
+                  border: '3px solid var(--color-ink)',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                  background: 'none',
+                  cursor: 'pointer',
+                  '&:focus-visible': { outline: '3px solid var(--color-gold)', outlineOffset: '3px' },
                 }}
-              />
+              >
+                {/* The memoji with its irises painted out; the irises sit on top. */}
+                <Box
+                  component="img"
+                  src={profileNoIris}
+                  alt="Jonathan Yen"
+                  sx={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+                <Box
+                  aria-hidden="true"
+                  sx={{
+                    position: 'absolute',
+                    ...EYES_BOX,
+                    maskImage: `url(${eyesMask})`,
+                    WebkitMaskImage: `url(${eyesMask})`,
+                    maskSize: '100% 100%',
+                    WebkitMaskSize: '100% 100%',
+                  }}
+                >
+                  {IRISES.map(({ src, ...pos }) => (
+                    <Box
+                      key={src}
+                      component="img"
+                      src={src}
+                      alt=""
+                      sx={{
+                        position: 'absolute',
+                        ...pos,
+                        maxWidth: 'none',
+                        transform: `translate(calc(var(--look-x, 0) * ${MAX_LOOK_X}%), calc(var(--look-y, 0) * ${MAX_LOOK_Y}%))`,
+                        willChange: 'transform',
+                      }}
+                    />
+                  ))}
+                </Box>
+              </Box>
+              {/* Speech bubble; absolutely placed so it never moves the layout. */}
+              <Box
+                role="status"
+                aria-live="polite"
+                sx={{
+                  position: 'absolute',
+                  bottom: 'calc(100% + 12px)',
+                  left: '35%',
+                  zIndex: 2,
+                  width: 'max-content',
+                  maxWidth: { xs: 240, md: 280 },
+                  pointerEvents: 'none',
+                }}
+              >
+                {saying && (
+                  <Box
+                    key={saying.key}
+                    sx={{
+                      position: 'relative',
+                      px: 2,
+                      py: 1.25,
+                      borderRadius: '16px',
+                      border: '1.5px solid var(--color-ink)',
+                      backgroundColor: 'var(--color-paper)',
+                      color: 'var(--color-ink)',
+                      fontFamily: 'var(--font-body)',
+                      fontSize: '0.95rem',
+                      fontWeight: 500,
+                      lineHeight: 1.4,
+                      boxShadow: '0 8px 24px rgba(10, 22, 40, 0.12)',
+                      transformOrigin: 'bottom left',
+                      animation: 'bubbleIn 0.22s var(--ease-out-quart) both',
+                      '@keyframes bubbleIn': {
+                        from: { opacity: 0, transform: 'scale(0.85) translateY(6px)' },
+                        to: { opacity: 1, transform: 'none' },
+                      },
+                      // Tail pointing down at the memoji.
+                      '&::after': {
+                        content: '""',
+                        position: 'absolute',
+                        left: 18,
+                        bottom: -8,
+                        width: 14,
+                        height: 14,
+                        backgroundColor: 'var(--color-paper)',
+                        borderRight: '1.5px solid var(--color-ink)',
+                        borderBottom: '1.5px solid var(--color-ink)',
+                        transform: 'rotate(45deg)',
+                      },
+                    }}
+                  >
+                    {saying.text}
+                  </Box>
+                )}
+              </Box>
             </Box>
             {/* Main heading */}
             <Typography
