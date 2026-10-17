@@ -13,19 +13,16 @@ import eyesMask from '../../../assets/memoji-eyes-mask.png';
 // Said by the memoji when it's clicked. Edit freely.
 const SAYINGS = [
   'Jesus is my single source of truth.',
-  'Jesus saves. I should press Ctrl+S more often.',
   "I'd tell you a UDP joke, but you might not get it.",
   "My code works and I don't know why. Please don't touch it.",
-  'Noah shipped on time: fixed scope, two of everything.',
-  'The Tower of Babel: the first project sunk by a communication breakdown.',
   'Moses dropped v1 of the tablets. Even the Ten Commandments needed a re-release.',
   'Faith is trusting the build will pass. Wisdom is running the tests anyway.',
   "It's not a bug, it's an undocumented feature.",
-  'Why do developers like dark mode? Light attracts bugs.',
-  'Rubber-duck debugging works. The duck never interrupts.',
-  'Teaching Sunday school: the only crowd tougher than code review.',
-  'Married life: we merge without conflicts. Mostly.',
   "There are 10 kinds of people: those who read binary and those who don't.",
+  'I have a joke about recursion. I have a joke about recursion. I have a joke…',
+  "Debugging: being the detective in a crime movie where you're also the murderer.",
+  'Weeks of coding can save you hours of planning.',
+  'There are two hard problems in computer science: cache invalidation, naming things, and off-by-one errors.',
 ];
 
 // Where the eyes sit in the 1000x1000 memoji, from scripts that cut the irises
