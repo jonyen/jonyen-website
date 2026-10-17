@@ -190,12 +190,14 @@
 
     // Favicon: a calendar page showing today's date in Eastern time.
     const todayNum = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TZ, day: 'numeric' }).format(Date.now());
+    // Digits are ~0.72em tall, so a baseline 0.36em below the page's centre (y=19.25) centres them.
+    const iconSize = todayNum.length > 1 ? 16 : 18;
     $('favicon').href = 'data:image/svg+xml,' + encodeURIComponent(
         `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">` +
         `<rect x="1.5" y="1.5" width="29" height="29" rx="6" fill="#fff" stroke="#0b5fff" stroke-width="3"/>` +
         `<path d="M1.5 7.5a6 6 0 0 1 6-6h17a6 6 0 0 1 6 6v2.5h-29z" fill="#0b5fff"/>` +
-        `<text x="16" y="26.5" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif" ` +
-        `font-weight="700" font-size="${todayNum.length > 1 ? 16 : 18}" fill="#0b5fff">${todayNum}</text></svg>`);
+        `<text x="16" y="${(19.25 + iconSize * 0.36).toFixed(2)}" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif" ` +
+        `font-weight="700" font-size="${iconSize}" fill="#0b5fff">${todayNum}</text></svg>`);
     const statusEl = $('status');
 
     // Offset in ms of `tz` at instant `ms` (positive east of UTC).
