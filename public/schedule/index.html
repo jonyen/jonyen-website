@@ -14,6 +14,8 @@
             if (mode === 'light' || mode === 'dark') document.documentElement.dataset.theme = mode;
         } catch {}
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
     <style>
         /* Palette and type from the main site (src/index.css). */
@@ -110,7 +112,8 @@
         .col i { position: absolute; left: 3px; right: 3px; border-radius: 4px; background: var(--busy); }
         .col i.free { background: transparent; }
         .col i.past { left: 0; right: 0; border-radius: 0; background: var(--past); }
-        .legend { display: flex; gap: 1rem; margin-top: .6rem; font-size: .8rem; color: var(--muted); }
+        .legend { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin-top: .6rem; font-size: .8rem; color: var(--muted); }
+        .legend .note { margin: 0 0 0 auto; font-size: .8rem; }
         .legend span::before {
             content: ""; display: inline-block; width: .7rem; height: .7rem; margin-right: .35rem;
             vertical-align: -1px; border-radius: 2px; background: var(--free); border: 1px solid var(--line);
@@ -177,9 +180,8 @@
             <p class="lede">Weekdays, 8am to 9pm Eastern, over the next month.</p>
         </div>
     </div>
-    <p class="note" id="status">Loading…</p>
     <div class="layout">
-    <div id="calendar" hidden>
+    <div id="calendar">
         <div class="weeknav">
             <h2 id="weeklabel"></h2>
             <div class="navbtns">
@@ -189,7 +191,7 @@
             </div>
         </div>
         <div class="week" id="week"></div>
-        <div class="legend" aria-hidden="true"><span>Free</span><span class="busy">Busy</span></div>
+        <div class="legend"><span aria-hidden="true">Free</span><span class="busy" aria-hidden="true">Busy</span><p class="note" id="status" role="status">Loading…</p></div>
     </div>
     <aside>
         <section>
@@ -328,7 +330,10 @@
         const fmtHour = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric' });
         const fmtDow = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', weekday: 'short' });
         const fmtDate = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' });
-        const busy = data.busy.map(b => [Date.parse(b.start), Date.parse(b.end)]);
+        // Before busy.json arrives the grid is drawn with every day shaded, so
+        // filling it in changes colours but never moves anything.
+        const loaded = data !== null;
+        const busy = loaded ? data.busy.map(b => [Date.parse(b.start), Date.parse(b.end)]) : [];
         const now = Date.now();
         const today = homeDay(now);
         const monday = weeks[weekIndex];
@@ -372,7 +377,7 @@
         };
         const textLines = [];
 
-        const dataEnd = Date.parse(data.to);
+        const dataEnd = loaded ? Date.parse(data.to) : 0;
         for (let i = 0; i < 5; i++) {
             const day = new Date(monday + i * DAY);
             const y = day.getUTCFullYear(), m = day.getUTCMonth(), d = day.getUTCDate();
@@ -433,6 +438,7 @@
         }));
         setCopyState('', 'Copy');
 
+        if (!loaded) return;
         // Only a partial feed needs a note; otherwise the status line goes away.
         statusEl.className = 'note warn';
         statusEl.textContent = "One of my calendars didn't load, so some busy times may be missing.";
@@ -462,18 +468,21 @@
     $('prev').addEventListener('click', () => { if (weekIndex > 0) { weekIndex--; render(); } });
     $('next').addEventListener('click', () => { if (weekIndex < weeks.length - 1) { weekIndex++; render(); } });
 
+    // On a weekend, start with the coming week.
+    const firstMonday = (() => {
+        const today = homeDay(Date.now());
+        return mondayOf(today) + (new Date(today).getUTCDay() % 6 === 0 ? 7 * DAY : 0);
+    })();
+    weeks = [firstMonday];
+    render();
+
     fetch('/schedule/busy.json')
         .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
         .then(json => {
             data = json;
-            const now = Date.now();
-            const today = homeDay(now);
-            let monday = mondayOf(today);
-            // On a weekend, start with the coming week.
-            if (new Date(today).getUTCDay() % 6 === 0) monday += 7 * DAY;
+            weeks = [];
             const last = homeDay(Date.parse(json.to));
-            for (; monday <= last; monday += 7 * DAY) weeks.push(monday);
-            $('calendar').hidden = false;
+            for (let monday = firstMonday; monday <= last; monday += 7 * DAY) weeks.push(monday);
             $('freebox').hidden = false;
             render();
         })
