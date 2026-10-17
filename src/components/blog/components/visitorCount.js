@@ -3,7 +3,9 @@
 // The counter only takes a date, so "today" is the Eastern date; GoatCounter
 // doesn't document which timezone it applies to that date.
 
-const COUNTER_URL = 'https://jonyen-website.goatcounter.com/counter/TOTAL.json';
+// "/" rather than TOTAL: GoatCounter caches TOTAL for ~20 min, and the site
+// reports every page as "/", so the "/" count is the site total.
+const COUNTER_URL = 'https://jonyen-website.goatcounter.com/counter/%2F.json';
 
 let request = null;
 
