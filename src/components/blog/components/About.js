@@ -5,6 +5,7 @@ import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 
 const techStack = [
+  { category: 'AI', items: ['Claude API', 'Claude Code', 'MCP servers', 'Agent workflows', 'LLM evaluation'] },
   { category: 'Frontend', items: ['React', 'TypeScript', 'GraphQL', 'Next.js'] },
   { category: 'Backend', items: ['Node.js', 'Ruby on Rails', 'Python'] },
   { category: 'Mobile', items: ['iOS', 'Android', 'Responsive Web'] },
@@ -135,6 +136,22 @@ export default function About() {
                   fontWeight: 400,
                   color: 'var(--color-text-secondary)',
                   lineHeight: 1.8,
+                  mb: 4,
+                }}
+              >
+                Lately most of my work is in AI. I build LLM-powered products end to end, from agent
+                workflows and classification pipelines to the review tools that keep a person in the
+                loop. At Atlassian I helped ship Rovo, the company&apos;s flagship AI product, and I&apos;ve
+                worked as a software expert improving training data for a top AI lab.
+              </Typography>
+
+              <Typography
+                sx={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: { xs: '1rem', md: '1.125rem' },
+                  fontWeight: 400,
+                  color: 'var(--color-text-secondary)',
+                  lineHeight: 1.8,
                   mb: 6,
                 }}
               >
@@ -147,7 +164,7 @@ export default function About() {
               <Box
                 sx={{
                   display: 'grid',
-                  gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+                  gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)', lg: 'repeat(5, 1fr)' },
                   gap: 3,
                   pt: 4,
                   borderTop: '1px solid var(--color-border)',
