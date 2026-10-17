@@ -12,18 +12,20 @@ import eyesMask from '../../../assets/memoji-eyes-mask.png';
 
 // Said by the memoji when it's clicked. Edit freely.
 const SAYINGS = [
+  'Jesus is my single source of truth.',
+  'Jesus saves. I should press Ctrl+S more often.',
   "I'd tell you a UDP joke, but you might not get it.",
   "My code works and I don't know why. Please don't touch it.",
-  'Beltway traffic is a distributed system with no consensus.',
-  'Metro tip: the escalator is just stairs with commitment issues.',
-  "DC in August: you don't walk outside, you wade.",
+  'Noah shipped on time: fixed scope, two of everything.',
+  'The Tower of Babel: the first project sunk by a communication breakdown.',
+  'Moses dropped v1 of the tablets. Even the Ten Commandments needed a re-release.',
+  'Faith is trusting the build will pass. Wisdom is running the tests anyway.',
   "It's not a bug, it's an undocumented feature.",
   'Why do developers like dark mode? Light attracts bugs.',
   'Rubber-duck debugging works. The duck never interrupts.',
   'Teaching Sunday school: the only crowd tougher than code review.',
-  "Married life: we merge without conflicts. Mostly.",
-  "I'm not procrastinating, I'm caching my energy.",
-  'There are 10 kinds of people: those who read binary and those who don\'t.',
+  'Married life: we merge without conflicts. Mostly.',
+  "There are 10 kinds of people: those who read binary and those who don't.",
 ];
 
 // Where the eyes sit in the 1000x1000 memoji, from scripts that cut the irises
@@ -306,17 +308,24 @@ export default function Hero() {
                   ))}
                 </Box>
               </Box>
-              {/* Speech bubble; absolutely placed so it never moves the layout. */}
+              {/* Speech bubble to the right of the memoji, over the start of the name;
+                  absolutely placed so it never moves the layout. The phone widths
+                  leave the 16px/24px page gutter clear. */}
               <Box
                 role="status"
                 aria-live="polite"
                 sx={{
                   position: 'absolute',
-                  bottom: 'calc(100% + 12px)',
-                  left: '35%',
+                  top: '50%',
+                  left: 'calc(100% + 14px)',
+                  transform: 'translateY(-50%)',
                   zIndex: 2,
                   width: 'max-content',
-                  maxWidth: { xs: 240, md: 280 },
+                  maxWidth: {
+                    xs: 'min(240px, calc(100vw - 146px))',
+                    sm: 'min(280px, calc(100vw - 182px))',
+                    md: 320,
+                  },
                   pointerEvents: 'none',
                 }}
               >
@@ -336,24 +345,24 @@ export default function Hero() {
                       fontWeight: 500,
                       lineHeight: 1.4,
                       boxShadow: '0 8px 24px rgba(10, 22, 40, 0.12)',
-                      transformOrigin: 'bottom left',
+                      transformOrigin: 'left center',
                       animation: 'bubbleIn 0.22s var(--ease-out-quart) both',
                       '@keyframes bubbleIn': {
-                        from: { opacity: 0, transform: 'scale(0.85) translateY(6px)' },
+                        from: { opacity: 0, transform: 'scale(0.85) translateX(-6px)' },
                         to: { opacity: 1, transform: 'none' },
                       },
-                      // Tail pointing down at the memoji.
+                      // Tail on the left, pointing at the memoji.
                       '&::after': {
                         content: '""',
                         position: 'absolute',
-                        left: 18,
-                        bottom: -8,
+                        left: -8,
+                        top: '50%',
                         width: 14,
                         height: 14,
                         backgroundColor: 'var(--color-paper)',
-                        borderRight: '1.5px solid var(--color-ink)',
+                        borderLeft: '1.5px solid var(--color-ink)',
                         borderBottom: '1.5px solid var(--color-ink)',
-                        transform: 'rotate(45deg)',
+                        transform: 'translateY(-50%) rotate(45deg)',
                       },
                     }}
                   >
