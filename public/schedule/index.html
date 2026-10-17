@@ -4,13 +4,484 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Schedule - Jonathan Yen</title>
-    <meta http-equiv="refresh" content="0; url=https://calendar.google.com/calendar/u/0/appointments/AcZssZ0ErAD3_ySrke5VN5jq51fzheAJUb2TH8HMOQQ=">
-    <link rel="canonical" href="https://calendar.google.com/calendar/u/0/appointments/AcZssZ0ErAD3_ySrke5VN5jq51fzheAJUb2TH8HMOQQ=">
+    <link rel="icon" type="image/svg+xml" id="favicon" href="/favicon.svg">
+    <meta name="description" content="When Jonathan Yen is free on weekdays over the next month, and a calendar to book a time.">
+    <script>
+        // Follow the light/dark choice made on the main site (MUI keeps it in
+        // localStorage as "mui-mode"); "system" or nothing falls back to the OS.
+        try {
+            const mode = localStorage.getItem('mui-mode');
+            if (mode === 'light' || mode === 'dark') document.documentElement.dataset.theme = mode;
+        } catch {}
+    </script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
+    <style>
+        /* Palette and type from the main site (src/index.css). */
+        :root {
+            --bg: #faf8f5;
+            --fg: #0a1628;
+            --muted: #5a6478;
+            --line: rgba(10, 22, 40, 0.1);
+            --gold: #c9a227;
+            --gold-dim: rgba(201, 162, 39, 0.15);
+            --free: #f1ede4;
+            --busy: #2d3f5e;
+            --past: rgba(10, 22, 40, 0.05);
+            --raised: #ffffff;
+            --font-display: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg: #0a1628;
+                --fg: #faf8f5;
+                --muted: #9ba3b5;
+                --line: rgba(250, 248, 245, 0.1);
+                --gold-dim: rgba(201, 162, 39, 0.2);
+                --free: #111d32;
+                --busy: #5a6c8c;
+                --past: rgba(250, 248, 245, 0.04);
+                --raised: #111d32;
+            }
+        }
+        :root[data-theme="dark"] {
+            --bg: #0a1628;
+            --fg: #faf8f5;
+            --muted: #9ba3b5;
+            --line: rgba(250, 248, 245, 0.1);
+            --gold-dim: rgba(201, 162, 39, 0.2);
+            --free: #111d32;
+            --busy: #5a6c8c;
+            --past: rgba(250, 248, 245, 0.04);
+            --raised: #111d32;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--fg);
+            font: 16px/1.5 var(--font-body);
+            -webkit-font-smoothing: antialiased;
+        }
+        a { color: inherit; }
+        main { max-width: 76rem; margin: 0 auto; padding: 1.25rem 16px 1.5rem; }
+        .home {
+            display: inline-block; margin-bottom: 1.25rem; font: 600 1.5rem var(--font-display);
+            letter-spacing: -0.02em; text-decoration: none; transition: opacity .2s ease;
+        }
+        .home:hover { opacity: .7; }
+        .hero { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem 2rem; margin-bottom: 1.25rem; }
+        .eyebrow { margin: 0 0 .5rem; font-size: .8rem; font-weight: 500; letter-spacing: .15em; text-transform: uppercase; color: var(--gold); }
+        h1 { font: 600 clamp(2rem, 4vw, 2.75rem)/1.05 var(--font-display); letter-spacing: -0.02em; margin: 0 0 .5rem; }
+        .lede { margin: 0; color: var(--muted); }
+        .note { color: var(--muted); font-size: .9rem; margin: 0 0 1rem; }
+        .warn { color: #b25e00; }
+
+        .pill {
+            font: 500 .95rem var(--font-body); display: inline-flex; align-items: center; gap: .4rem;
+            padding: .6rem 1.4rem; border-radius: 999px; cursor: pointer; text-decoration: none;
+            border: 1.5px solid var(--fg); background: transparent; color: var(--fg); transition: all .2s ease;
+        }
+        .pill:hover { background: var(--gold-dim); }
+        .pill.solid { background: var(--fg); color: var(--bg); }
+        .pill.solid:hover { opacity: .85; }
+
+        .weeknav { display: flex; align-items: center; justify-content: space-between; margin-bottom: .75rem; }
+        .weeknav h2 { font: 600 1.15rem var(--font-display); margin: 0; }
+        .weeknav button {
+            font: inherit; font-size: 1.1rem; line-height: 1; width: 2.25rem; height: 2.25rem;
+            border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--fg); cursor: pointer;
+        }
+        .weeknav button:hover:not(:disabled) { background: var(--gold-dim); }
+        .weeknav button:disabled { opacity: .35; cursor: default; }
+        .weeknav .navbtns { display: flex; gap: .4rem; }
+        .weeknav #today { width: auto; padding: 0 .9rem; font-size: .85rem; }
+
+        .week { --hour: 36px; display: grid; grid-template-columns: 3.25rem repeat(5, 1fr); }
+        .week .head { text-align: center; font-size: .8rem; color: var(--muted); padding-bottom: .4rem; border-bottom: 1px solid var(--line); }
+        .week .head b { display: block; font: 600 1.15rem var(--font-display); color: var(--fg); }
+        .week .head.today b { color: var(--gold); }
+        .hours, .col { position: relative; height: calc(var(--hour) * 13); }
+        .hours span { position: absolute; right: .5rem; margin-top: 1px; font-size: .7rem; line-height: 1.2; color: var(--muted); white-space: nowrap; }
+        .col {
+            background: var(--free); border-left: 1px solid var(--bg);
+            background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--hour) - 1px), var(--line) calc(var(--hour) - 1px), var(--line) var(--hour));
+        }
+        .col i { position: absolute; left: 3px; right: 3px; border-radius: 4px; background: var(--busy); }
+        .col i.free { background: transparent; }
+        .col i.past { left: 0; right: 0; border-radius: 0; background: var(--past); }
+        .legend { display: flex; gap: 1rem; margin-top: .6rem; font-size: .8rem; color: var(--muted); }
+        .legend span::before {
+            content: ""; display: inline-block; width: .7rem; height: .7rem; margin-right: .35rem;
+            vertical-align: -1px; border-radius: 2px; background: var(--free); border: 1px solid var(--line);
+        }
+        .legend span.busy::before { background: var(--busy); border-color: var(--busy); }
+
+        .layout { display: grid; gap: 2.5rem; align-items: start; }
+        @media (min-width: 64rem) {
+            .layout { grid-template-columns: minmax(0, 1fr) 21rem; gap: 3rem; }
+            /* Size the 13 hour rows so the whole page fits the window height;
+               356px is everything above and below the grid. */
+            .week { --hour: clamp(22px, calc((100dvh - 356px) / 13), 36px); }
+        }
+        aside section + section { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+        aside h3 { font: 600 1.05rem var(--font-display); margin: 0 0 .75rem; }
+        .durations { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+        .durations .pill { justify-content: center; padding: .6rem .5rem; }
+        .copyhead { display: flex; align-items: center; gap: .5rem; margin-bottom: .5rem; }
+        .copyhead h3 { margin: 0; }
+        .copyhead button {
+            display: grid; place-items: center; width: 1.9rem; height: 1.9rem; padding: 0; border-radius: 999px; cursor: pointer;
+            border: 1px solid var(--line); background: transparent; color: var(--muted);
+        }
+        .copyhead button:hover { color: var(--fg); background: var(--gold-dim); }
+        .copyhead button.done { color: var(--gold); }
+        #freetext { font-size: .95rem; line-height: 1.5; }
+        #freetext div + div { margin-top: .6rem; }
+        #freetext b { display: block; font-weight: 700; }
+
+        dialog {
+            width: min(760px, calc(100vw - 32px)); height: min(860px, calc(100dvh - 32px)); max-width: none; max-height: none;
+            padding: 0; border: 1px solid var(--line); border-radius: 16px; background: var(--raised); color: var(--fg);
+            box-shadow: 0 24px 64px rgba(10, 22, 40, .25);
+        }
+        dialog[open] { display: flex; flex-direction: column; }
+        dialog::backdrop { background: rgba(10, 22, 40, .45); }
+        .dialoghead { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .75rem .75rem .75rem 1.25rem; border-bottom: 1px solid var(--line); }
+        .dialoghead h2 { font: 600 1.15rem var(--font-display); margin: 0; }
+        .dialoghead .actions { display: flex; align-items: center; gap: .75rem; font-size: .85rem; }
+        .dialoghead .actions a { color: var(--muted); }
+        .dialoghead button {
+            display: grid; place-items: center; width: 2.25rem; height: 2.25rem; padding: 0; border-radius: 999px; cursor: pointer;
+            border: 1px solid var(--line); background: transparent; color: var(--fg); font-size: 1.25rem; line-height: 1;
+        }
+        .dialoghead button:hover { background: var(--gold-dim); }
+        #bookframe { flex: 1; width: 100%; border: 0; background: #fff; border-radius: 0 0 16px 16px; }
+        .blocked { padding: 1.5rem 1.25rem; }
+        .blocked p { margin: 0 0 .75rem; }
+        .blocked p:last-child { margin: 0; }
+        @media (max-width: 30rem) {
+            .week { --hour: 30px; grid-template-columns: 2.75rem repeat(5, 1fr); }
+            .week .head { font-size: .7rem; }
+            .dialoghead .actions a { display: none; }
+        }
+    </style>
 </head>
 <body>
-    <p>Redirecting to calendar...</p>
-    <script>
-        window.location.href = "https://calendar.google.com/calendar/u/0/appointments/AcZssZ0ErAD3_ySrke5VN5jq51fzheAJUb2TH8HMOQQ=";
-    </script>
+<main>
+    <a class="home" href="/" aria-label="Jonathan Yen, home">JY</a>
+    <div class="hero">
+        <div>
+            <p class="eyebrow">Schedule</p>
+            <h1>When I'm free</h1>
+            <p class="lede">Weekdays, 8am to 9pm Eastern, over the next month.</p>
+        </div>
+    </div>
+    <p class="note" id="status">Loading…</p>
+    <div class="layout">
+    <div id="calendar" hidden>
+        <div class="weeknav">
+            <h2 id="weeklabel"></h2>
+            <div class="navbtns">
+                <button type="button" id="today">Today</button>
+                <button type="button" id="prev" aria-label="Previous week">‹</button>
+                <button type="button" id="next" aria-label="Next week">›</button>
+            </div>
+        </div>
+        <div class="week" id="week"></div>
+        <div class="legend" aria-hidden="true"><span>Free</span><span class="busy">Busy</span></div>
+    </div>
+    <aside>
+        <section>
+            <h3>Book a time</h3>
+            <!-- The four schedules on the Google booking page; data-url is the embeddable link. -->
+            <div class="durations">
+                <button type="button" class="pill" data-min="15" data-url="https://calendar.google.com/calendar/appointments/schedules/AcZssZ0InlPJJ02krS2cF9ITLaaIk9jfdtWYciKrl_-I7v1jh5PQ2rd-pSDy-ismyQgpP-F5dgI9Q5SF">15 min</button>
+                <button type="button" class="pill" data-min="30" data-url="https://calendar.google.com/calendar/appointments/schedules/AcZssZ3K08PRdRO8C-xNIIDX8mDdF0KP9Fbkg7ro8ihenbaoEXyRI06f_FEb5gFNmVF5kaTadt-d5vg4">30 min</button>
+                <button type="button" class="pill" data-min="45" data-url="https://calendar.google.com/calendar/appointments/schedules/AcZssZ0tzYOcAtLJv6hqxV9k_oD_C0UfN2PyEol1MG1R8P6T1tIy2vCsCBM1XqMGVD4vncvYHH9wuh0v">45 min</button>
+                <button type="button" class="pill" data-min="60" data-url="https://calendar.google.com/calendar/appointments/schedules/AcZssZ0BAbkwcR4Tkax5r9aib_be8SJaWMxmsceGYjZkWueTKfF5Tgx3x_zw1IbUWOOxQ6xvbPNckOga">60 min</button>
+            </div>
+        </section>
+        <section class="copybox" id="freebox" hidden>
+            <div class="copyhead">
+                <h3>Free times (Eastern)</h3>
+                <button type="button" id="copy" aria-label="Copy free times" title="Copy"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            </div>
+            <div id="freetext"></div>
+        </section>
+    </aside>
+    </div>
+    <dialog id="book" aria-labelledby="booktitle">
+        <div class="dialoghead">
+            <h2 id="booktitle">Book a time</h2>
+            <div class="actions">
+                <a id="booknote" href="https://calendar.google.com/calendar/appointments/AcZssZ0ErAD3_ySrke5VN5jq51fzheAJUb2TH8HMOQQ=" target="_blank" rel="noopener">Open in a new tab</a>
+                <button type="button" id="closebook" aria-label="Close" autofocus>×</button>
+            </div>
+        </div>
+        <!-- src is set on first open so the page doesn't load Google's booking app up front. -->
+        <iframe id="bookframe" title="Book a time with Jonathan Yen"></iframe>
+        <div class="blocked" id="blocked" hidden>
+            <p><strong>The booking calendar can't load on this network.</strong> Some workplaces block Google Calendar.</p>
+            <p>Pick a time from the free times list and email it to me. The email starts with the list filled in.</p>
+            <p><a class="pill solid" id="emailme" href="#">Email me a time</a></p>
+            <p>Or try the <a href="https://calendar.google.com/calendar/appointments/AcZssZ0ErAD3_ySrke5VN5jq51fzheAJUb2TH8HMOQQ=">booking page</a> from your phone or a home network.</p>
+        </div>
+    </dialog>
+</main>
+<script>
+(() => {
+    const HOME_TZ = 'America/New_York';
+    const START_HOUR = 8;
+    const END_HOUR = 21;
+    const DAY = 86400000;
+
+    const $ = (id) => document.getElementById(id);
+    // The list as copied or emailed: the page's heading becomes its first line.
+    let freeLines = [];
+    const freeText = () => `Free times (Eastern):\n${freeLines.join('\n')}`;
+
+    // The address is assembled here rather than written into the HTML, to keep
+    // it away from simple scrapers.
+    // The link is built on click so the body carries the week being shown.
+    $('emailme').addEventListener('click', () => {
+        const to = ['jonyen', 'gmail.com'].join('@');
+        const body = `Hi Jonathan,\n\nThis time works for me:\n\n\n${freeText()}\n`;
+        $('emailme').href = `mailto:${to}?subject=${encodeURIComponent('Finding a time to meet')}&body=${encodeURIComponent(body)}`;
+    });
+
+    // A blocked cross-origin iframe can't be inspected, so probe the same host
+    // with a small image instead: a firewall block page or a dropped request
+    // fails to decode, and a request that never answers times out.
+    (() => {
+        let settled = false;
+        const probe = new Image();
+        const blocked = () => {
+            if (settled) return;
+            settled = true;
+            $('bookframe').remove();
+            $('booknote').remove();
+            $('blocked').hidden = false;
+        };
+        probe.onload = () => { settled = true; };
+        probe.onerror = blocked;
+        setTimeout(blocked, 8000);
+        probe.src = `https://calendar.google.com/googlecalendar/images/favicons_2020q4/calendar_31.ico?t=${Date.now()}`;
+    })();
+
+    const dialog = $('book');
+    for (const btn of document.querySelectorAll('.durations button')) {
+        btn.addEventListener('click', () => {
+            $('booktitle').textContent = `Book ${btn.dataset.min} minutes`;
+            const frame = $('bookframe');
+            const embed = `${btn.dataset.url}?gv=true`;
+            if (frame && frame.src !== embed) frame.src = embed;
+            if ($('booknote')) $('booknote').href = btn.dataset.url;
+            dialog.showModal();
+        });
+    }
+    $('closebook').addEventListener('click', () => dialog.close());
+    // A click on the backdrop lands on the dialog element itself.
+    dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
+
+    // Favicon: a calendar page showing today's date in Eastern time.
+    const todayNum = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TZ, day: 'numeric' }).format(Date.now());
+    // Digits are ~0.72em tall, so a baseline 0.36em below the page's centre (y=19.25) centres them.
+    const iconSize = todayNum.length > 1 ? 16 : 18;
+    $('favicon').href = 'data:image/svg+xml,' + encodeURIComponent(
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">` +
+        `<rect x="1.5" y="1.5" width="29" height="29" rx="6" fill="#fff" stroke="#1a2744" stroke-width="3"/>` +
+        `<path d="M1.5 7.5a6 6 0 0 1 6-6h17a6 6 0 0 1 6 6v2.5h-29z" fill="#1a2744"/>` +
+        `<text x="16" y="${(19.25 + iconSize * 0.36).toFixed(2)}" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif" ` +
+        `font-weight="700" font-size="${iconSize}" fill="#1a2744">${todayNum}</text></svg>`);
+    const statusEl = $('status');
+
+    // Offset in ms of `tz` at instant `ms` (positive east of UTC).
+    function offset(tz, ms) {
+        const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
+            timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit',
+        }).formatToParts(ms).map(x => [x.type, x.value]));
+        return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(ms / 1000) * 1000;
+    }
+    // UTC instant of wall-clock y-m-d h:00 in `tz`.
+    function zoned(tz, y, m, d, h) {
+        const guess = Date.UTC(y, m, d, h);
+        const first = guess - offset(tz, guess);
+        return guess - offset(tz, first);
+    }
+    // Eastern calendar date of an instant, as a UTC-midnight "day number" in ms.
+    function homeDay(ms) {
+        const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: HOME_TZ, year: 'numeric', month: 'numeric', day: 'numeric' })
+            .formatToParts(ms).map(x => [x.type, x.value]));
+        return Date.UTC(+p.year, p.month - 1, +p.day);
+    }
+    const mondayOf = (day) => day - ((new Date(day).getUTCDay() + 6) % 7) * DAY;
+
+    let data = null;
+    let weekIndex = 0;
+    let weeks = [];
+
+    function render() {
+        const tz = HOME_TZ;
+        const fmtTime = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit' });
+        const fmtHour = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric' });
+        const fmtDow = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', weekday: 'short' });
+        const fmtDate = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' });
+        const busy = data.busy.map(b => [Date.parse(b.start), Date.parse(b.end)]);
+        const now = Date.now();
+        const today = homeDay(now);
+        const monday = weeks[weekIndex];
+
+        $('weeklabel').textContent = `Week of ${fmtDate.format(monday)}`;
+        $('prev').disabled = weekIndex === 0;
+        $('today').disabled = weekIndex === 0;
+        $('next').disabled = weekIndex === weeks.length - 1;
+
+        const grid = $('week');
+        grid.replaceChildren(document.createElement('div'));
+        for (let i = 0; i < 5; i++) {
+            const day = monday + i * DAY;
+            const head = document.createElement('div');
+            head.className = day === today ? 'head today' : 'head';
+            head.innerHTML = `${fmtDow.format(day)}<b>${new Date(day).getUTCDate()}</b>`;
+            grid.append(head);
+        }
+
+        const d0 = new Date(monday);
+        const hours = document.createElement('div');
+        hours.className = 'hours';
+        for (let h = START_HOUR; h < END_HOUR; h++) {
+            const label = document.createElement('span');
+            label.style.top = `${((h - START_HOUR) / (END_HOUR - START_HOUR)) * 100}%`;
+            const at = zoned(HOME_TZ, d0.getUTCFullYear(), d0.getUTCMonth(), d0.getUTCDate(), h);
+            label.textContent = fmtHour.format(at).replace(' ', '').toLowerCase();
+            hours.append(label);
+        }
+        grid.append(hours);
+
+        // Compact times for the text list: "9–10:30am", "11am–2pm".
+        const short = (ms) => {
+            const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit', hour12: true })
+                .formatToParts(ms).map(x => [x.type, x.value]));
+            return { t: p.minute === '00' ? p.hour : `${p.hour}:${p.minute}`, ap: p.dayPeriod.toLowerCase() };
+        };
+        const shortRange = (s, e) => {
+            const a = short(s), b = short(e);
+            return a.ap === b.ap ? `${a.t}–${b.t}${b.ap}` : `${a.t}${a.ap}–${b.t}${b.ap}`;
+        };
+        const textLines = [];
+
+        const dataEnd = Date.parse(data.to);
+        for (let i = 0; i < 5; i++) {
+            const day = new Date(monday + i * DAY);
+            const y = day.getUTCFullYear(), m = day.getUTCMonth(), d = day.getUTCDate();
+            const winStart = zoned(HOME_TZ, y, m, d, START_HOUR);
+            const winEnd = zoned(HOME_TZ, y, m, d, END_HOUR);
+            const span = winEnd - winStart;
+            const col = document.createElement('div');
+            col.className = 'col';
+
+            const place = (s, e, cls, title) => {
+                s = Math.max(s, winStart); e = Math.min(e, winEnd);
+                if (e <= s) return;
+                const el = document.createElement('i');
+                if (cls) el.className = cls;
+                el.style.top = `${((s - winStart) / span) * 100}%`;
+                el.style.height = `${((e - s) / span) * 100}%`;
+                if (title) el.title = title;
+                col.append(el);
+            };
+            const range = (s, e) => `${fmtTime.format(Math.max(s, winStart))}–${fmtTime.format(Math.min(e, winEnd))}`;
+            // Past time and time beyond the feed both read as unavailable.
+            const blocked = [[winStart, now], [dataEnd, winEnd]];
+            const free = [];
+            place(winStart, now, 'past');
+            place(dataEnd, winEnd, 'past');
+            for (const [s, e] of busy) {
+                if (e > winStart && s < winEnd) {
+                    place(s, e, '', `Busy ${range(s, e)}`);
+                    blocked.push([s, e]);
+                }
+            }
+            // Free time is whatever the blocked intervals leave open.
+            const clipped = blocked
+                .map(([s, e]) => [Math.max(s, winStart), Math.min(e, winEnd)])
+                .filter(([s, e]) => e > s)
+                .sort((a, b) => a[0] - b[0]);
+            let cursor = winStart;
+            for (const [s, e] of clipped) {
+                if (s > cursor) free.push([cursor, s]);
+                cursor = Math.max(cursor, e);
+            }
+            if (cursor < winEnd) free.push([cursor, winEnd]);
+            for (const [s, e] of free) place(s, e, 'free', `Free ${range(s, e)}`);
+            const open = free.filter(([s, e]) => e - s >= 30 * 60000);
+            if (winEnd > now && winStart < dataEnd) {
+                textLines.push([`${fmtDow.format(day)}, ${fmtDate.format(day)}`, open.length ? open.map(([s, e]) => shortRange(s, e)).join(', ') : 'no open time']);
+            }
+            grid.append(col);
+        }
+
+        // Shown as a day heading over its times; copied as one "Day: times" line each.
+        freeLines = textLines.length ? textLines.map(([d, t]) => `${d}: ${t}`) : ['No open weekday time left this week.'];
+        $('freetext').replaceChildren(...(textLines.length ? textLines : [['', freeLines[0]]]).map(([d, t]) => {
+            const row = document.createElement('div');
+            if (d) row.append(Object.assign(document.createElement('b'), { textContent: d }));
+            row.append(t);
+            return row;
+        }));
+        setCopyState('', 'Copy');
+
+        // Only a partial feed needs a note; otherwise the status line goes away.
+        statusEl.className = 'note warn';
+        statusEl.textContent = "One of my calendars didn't load, so some busy times may be missing.";
+        statusEl.hidden = !data.incomplete;
+    }
+
+    const COPY_ICON = $('copy').innerHTML;
+    const CHECK_ICON = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+    function setCopyState(cls, label) {
+        const btn = $('copy');
+        btn.className = cls;
+        btn.title = label;
+        btn.innerHTML = cls === 'done' ? CHECK_ICON : COPY_ICON;
+    }
+    $('copy').addEventListener('click', async () => {
+        try {
+            await navigator.clipboard.writeText(freeText());
+            setCopyState('done', 'Copied');
+            setTimeout(() => setCopyState('', 'Copy'), 2000);
+        } catch {
+            getSelection().selectAllChildren($('freetext'));
+            setCopyState('', 'Press ⌘C to copy');
+        }
+    });
+    // Week 0 is the current week, or the coming one on a weekend.
+    $('today').addEventListener('click', () => { if (weekIndex !== 0) { weekIndex = 0; render(); } });
+    $('prev').addEventListener('click', () => { if (weekIndex > 0) { weekIndex--; render(); } });
+    $('next').addEventListener('click', () => { if (weekIndex < weeks.length - 1) { weekIndex++; render(); } });
+
+    fetch('/schedule/busy.json')
+        .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(json => {
+            data = json;
+            const now = Date.now();
+            const today = homeDay(now);
+            let monday = mondayOf(today);
+            // On a weekend, start with the coming week.
+            if (new Date(today).getUTCDay() % 6 === 0) monday += 7 * DAY;
+            const last = homeDay(Date.parse(json.to));
+            for (; monday <= last; monday += 7 * DAY) weeks.push(monday);
+            $('calendar').hidden = false;
+            $('freebox').hidden = false;
+            render();
+        })
+        .catch(() => {
+            statusEl.className = 'note warn';
+            statusEl.textContent = "Availability couldn't load right now. Pick a length under Book a time to see open slots.";
+        });
+})();
+</script>
 </body>
 </html>

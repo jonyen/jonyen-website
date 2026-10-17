@@ -142,7 +142,7 @@ export default function Hero() {
               sx={{
                 fontFamily: 'var(--font-display)',
                 fontSize: { xs: '3rem', sm: '4rem', md: '5.5rem', lg: '6.5rem' },
-                fontWeight: 600,
+                fontWeight: 800,
                 lineHeight: 1,
                 letterSpacing: '-0.03em',
                 color: 'var(--color-ink)',

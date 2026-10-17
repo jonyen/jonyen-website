@@ -44,7 +44,7 @@
       "dates": "August 2022 – June 2025",
       "subtitle": "React/Node.js/GraphQL Software Engineer in Central AI and Confluence teams",
       "bullets": [
-        "Modernized Confluence frontend package management, resulting in an 8.5x installation improvement",
+        "Modernized Confluence frontend package management by migrating from Bolt to Yarn v2, cutting install time from 13 minutes to under 2 minutes (8.5x improvement)",
         "Utilized observability tools such as Splunk and SignalFX for troubleshooting issues in production and staging environments",
         "Helped to deliver Rovo, the company's new flagship AI product, in record time by implementing core third-party connectors",
         "Led team of engineers to build a frontend autosuggestion component to improve search experience in Confluence",
