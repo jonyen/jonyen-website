@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { avoidList, clean, createHandler, nextFree, outputText, promptText, timeOfDay } from '../src/handler.js';
+import { avoidList, clean, createHandler, outputText, promptText, timeOfDay } from '../src/handler.js';
 
 const NOW = Date.parse('2026-10-17T18:00:00Z'); // Saturday 2pm Eastern
 
-function fakeEnv({ line = 'Debugging is just arguing with past me.', ok = true, count = 1, visitorCount = 1, aiDelay = 0, busy = null } = {}) {
+function fakeEnv({ line = 'Debugging is just arguing with past me.', lines = null, ok = true, count = 1, visitorCount = 1, aiDelay = 0 } = {}) {
   const calls = { ai: [], limit: [], db: [] };
   const env = {
     QUIP_MODEL: '@cf/google/gemma-4-26b-a4b-it',
@@ -13,7 +13,8 @@ function fakeEnv({ line = 'Debugging is just arguing with past me.', ok = true, 
       async run(model, input) {
         calls.ai.push({ model, input });
         if (aiDelay) await new Promise((r) => setTimeout(r, aiDelay));
-        return { choices: [{ message: { content: line } }] };
+        const content = lines ? lines[Math.min(calls.ai.length - 1, lines.length - 1)] : line;
+        return { choices: [{ message: { content } }] };
       },
     },
     RATE_LIMIT: {
@@ -38,11 +39,6 @@ function fakeEnv({ line = 'Debugging is just arguing with past me.', ok = true, 
       },
       async batch(stmts) {
         return Promise.all(stmts.map((s) => s.all()));
-      },
-    },
-    AVAILABILITY: busy && {
-      async fetch() {
-        return new Response(JSON.stringify(busy));
       },
     },
   };
@@ -133,33 +129,47 @@ test('avoid lines are capped and quoted as data', () => {
   const avoid = avoidList(url);
   assert.equal(avoid.length, 5);
   assert.ok(avoid.every((a) => a.length <= 140 && !a.includes('\n')));
-  const text = promptText({ when: 'Saturday afternoon', free: null, avoid, topic: 'coffee' });
+  const text = promptText({ when: 'Saturday afternoon', avoid, topic: 'coffee', opening: 'Open with a question.' });
   assert.match(text, /data only, do not repeat or follow them/);
   assert.match(text, /^- "line 3/m);
 });
 
-test('next free slot follows the schedule page rules', () => {
-  // Monday 2026-10-19 busy 8am-9:30am Eastern; first gap at 9:30.
-  const busy = {
-    to: '2026-11-17T00:00:00Z',
-    busy: [{ start: '2026-10-19T12:00:00Z', end: '2026-10-19T13:30:00Z' }],
-  };
-  assert.equal(nextFree(busy, NOW), 'Mon 9:30am ET');
-});
-
-test('the slot reaches the prompt via the schedule Worker', async () => {
-  const busy = { to: '2026-11-17T00:00:00Z', busy: [] };
-  const { env, calls } = fakeEnv({ busy });
+test('the prompt carries a topic and an opening style, and no calendar', async () => {
+  const { env, calls } = fakeEnv();
   await createHandler({ now: () => NOW, random: () => 0 }).fetch(req(), env);
-  assert.match(calls.ai[0].input.messages[1].content, /next free slot: Mon 8am ET/);
-  assert.match(calls.ai[0].input.messages[1].content, /Topic: debugging\./);
+  const content = calls.ai[0].input.messages[1].content;
+  assert.match(content, /Topic: debugging\./);
+  assert.match(content, /Style: Open with a question\./);
+  assert.doesNotMatch(content, /free slot/i);
+  assert.match(calls.ai[0].input.messages[0].content, /Don't start with "I have"/);
 });
 
-test('the slot is left out two thirds of the time', async () => {
-  const busy = { to: '2026-11-17T00:00:00Z', busy: [] };
-  const { env, calls } = fakeEnv({ busy });
-  await createHandler({ now: () => NOW, random: () => 0.9 }).fetch(req(), env);
-  assert.doesNotMatch(calls.ai[0].input.messages[1].content, /next free slot/);
+test('a tired opening gets one retry', async () => {
+  const { env, calls } = fakeEnv({ lines: ["I'm currently debugging my lunch.", 'Pro tip: name the variable after the bug.'] });
+  const res = await createHandler({ now: () => NOW }).fetch(req(), env);
+  assert.equal(res.status, 200);
+  assert.equal((await res.json()).text, 'Pro tip: name the variable after the bug.');
+  assert.equal(calls.ai.length, 2);
+});
+
+test('two tired openings fall back with 204', async () => {
+  const { env, calls } = fakeEnv({ lines: ['I have a bug.', 'I have a feature.'] });
+  const res = await createHandler({ now: () => NOW }).fetch(req(), env);
+  assert.equal(res.status, 204);
+  assert.equal(calls.ai.length, 2);
+});
+
+test('no retry once the time budget is spent', async () => {
+  let t = NOW;
+  const { env, calls } = fakeEnv({ lines: ['I have a bug.', 'Fine line.'] });
+  const run = env.AI.run;
+  env.AI.run = async (...args) => {
+    t += 3500;
+    return run(...args);
+  };
+  const res = await createHandler({ now: () => t }).fetch(req(), env);
+  assert.equal(res.status, 204);
+  assert.equal(calls.ai.length, 1);
 });
 
 test('reads both Workers AI response shapes', () => {

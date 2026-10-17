@@ -11,12 +11,6 @@ workers_dev = false
 [ai]
 binding = "AI"
 
-# The schedule Worker, called directly for busy.json (a fetch to the same zone
-# from one Worker to another needs a service binding).
-[[services]]
-binding = "AVAILABILITY"
-service = "schedule-availability"
-
 # About 10 quips a minute per IP. This binding is cheap but approximate (its
 # counters live per machine and sync later), so the exact limit, QUIP_PER_MINUTE,
 # is also enforced in D1 below.
