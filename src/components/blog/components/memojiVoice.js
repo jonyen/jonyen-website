@@ -62,7 +62,7 @@ const MAX_CHARS = 140;
 
 let session = null; // Promise of a LanguageModel session (or null), created once per page view.
 let pending = null; // Promise of the next generated line.
-let ready = null; // The next generated line, { text, credit }, once it has arrived.
+let ready = null; // The next generated line, { text, credit, source }, once it has arrived.
 let off = false; // Chrome's model isn't usable on this device; stop trying it.
 let quipFailures = 0;
 let quipOff = false; // /quip said no (rate limit, cap, missing); stop asking.
@@ -102,7 +102,7 @@ export function warmUp() {
   prefetch();
 }
 
-// The next generated line, { text, credit }, if one is waiting, else null.
+// The next generated line, { text, credit, source }, if one is waiting, else null.
 // Taking it starts the next one, so the following click has a line ready too.
 export function takeModelLine() {
   if (!ready) return null;
@@ -142,7 +142,7 @@ async function generate() {
   };
   let text = await once();
   if (text && TIRED_OPENING.test(text)) text = await once();
-  return text && !TIRED_OPENING.test(text) ? { text, credit: MODEL_CREDIT } : null;
+  return text && !TIRED_OPENING.test(text) ? { text, credit: MODEL_CREDIT, source: 'gemini-nano' } : null;
 }
 
 // One line from the Workers AI Worker. A 429 (rate limit or daily cap) or a
@@ -160,7 +160,7 @@ async function fetchQuip() {
     const data = await res.json();
     const text = clean(data.text);
     if (!text) throw new Error('quip filtered');
-    return { text, credit: quipCredit(data) };
+    return { text, credit: quipCredit(data), source: 'workers-ai' };
   } catch {
     quipFailures += 1;
     if (quipFailures >= QUIP_MAX_FAILURES) quipOff = true;
