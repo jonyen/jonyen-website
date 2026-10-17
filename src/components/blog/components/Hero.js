@@ -7,7 +7,53 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import profileImage from '../../../assets/profile.png';
 
+// Furthest the memoji turns toward the cursor, at the edge of the window.
+const MAX_TILT_DEG = 18;
+const MAX_SHIFT_PX = 6;
+
 export default function Hero() {
+  const avatarRef = React.useRef(null);
+
+  // Turn the memoji toward the pointer. The values go into CSS variables so
+  // the motion never re-renders React. Touch screens and reduced-motion users
+  // get the still image.
+  React.useEffect(() => {
+    const el = avatarRef.current;
+    if (!el) return undefined;
+    if (!window.matchMedia('(pointer: fine)').matches) return undefined;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+
+    let frame = 0;
+    const setTilt = (x, y) => {
+      el.style.setProperty('--ry', `${x * MAX_TILT_DEG}deg`);
+      el.style.setProperty('--rx', `${-y * MAX_TILT_DEG}deg`);
+      el.style.setProperty('--tx', `${x * MAX_SHIFT_PX}px`);
+      el.style.setProperty('--ty', `${y * MAX_SHIFT_PX}px`);
+    };
+    const clamp = (v) => Math.max(-1, Math.min(1, v));
+    const onMove = (e) => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const r = el.getBoundingClientRect();
+        setTilt(
+          clamp((e.clientX - (r.left + r.width / 2)) / (window.innerWidth / 2)),
+          clamp((e.clientY - (r.top + r.height / 2)) / (window.innerHeight / 2)),
+        );
+      });
+    };
+    const onLeave = () => {
+      cancelAnimationFrame(frame);
+      setTilt(0, 0);
+    };
+    window.addEventListener('pointermove', onMove, { passive: true });
+    document.documentElement.addEventListener('mouseleave', onLeave);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('pointermove', onMove);
+      document.documentElement.removeEventListener('mouseleave', onLeave);
+    };
+  }, []);
+
   const scrollToAbout = () => {
     const element = document.querySelector('#about');
     if (element) {
@@ -124,18 +170,34 @@ export default function Hero() {
             }}
           >
             <Box
-              component="img"
-              src={profileImage}
-              alt="Jonathan Yen"
+              ref={avatarRef}
               sx={{
+                flex: 'none',
                 width: { xs: 100, sm: 120, md: 150 },
                 height: { xs: 100, sm: 120, md: 150 },
                 borderRadius: '50%',
-                objectFit: 'cover',
+                overflow: 'hidden',
                 border: '3px solid var(--color-ink)',
                 boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                perspective: '400px',
               }}
-            />
+            >
+              {/* Scaled up slightly so the frame never shows an edge while it turns. */}
+              <Box
+                component="img"
+                src={profileImage}
+                alt="Jonathan Yen"
+                sx={{
+                  display: 'block',
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  transform:
+                    'translate(var(--tx, 0px), var(--ty, 0px)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.1)',
+                  transition: 'transform 0.25s ease-out',
+                }}
+              />
+            </Box>
             {/* Main heading */}
             <Typography
               component="h1"
