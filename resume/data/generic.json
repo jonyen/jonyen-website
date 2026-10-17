@@ -35,7 +35,7 @@
       "role": "Software Engineer (Frontend), Central AI & Confluence",
       "dates": "Aug 2022 – Jun 2025 · Remote",
       "bullets": [
-        "Modernized Confluence frontend package management, achieving an 8.5x installation-time improvement",
+        "Modernized Confluence frontend package management by migrating from Bolt to Yarn v2, cutting install time from 13 minutes to under 2 minutes (8.5x)",
         "Built and maintained React/Node.js/GraphQL features across Confluence and Central AI teams at enterprise scale"
       ]
     },
