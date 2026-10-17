@@ -6,124 +6,167 @@
     <title>Schedule - Jonathan Yen</title>
     <link rel="icon" type="image/svg+xml" id="favicon" href="/favicon.svg">
     <meta name="description" content="When Jonathan Yen is free on weekdays over the next month, and a calendar to book a time.">
+    <script>
+        // Follow the light/dark choice made on the main site (MUI keeps it in
+        // localStorage as "mui-mode"); "system" or nothing falls back to the OS.
+        try {
+            const mode = localStorage.getItem('mui-mode');
+            if (mode === 'light' || mode === 'dark') document.documentElement.dataset.theme = mode;
+        } catch {}
+    </script>
+    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600&f[]=satoshi@400,500,700&display=swap">
     <style>
+        /* Palette and type from the main site (src/index.css). */
         :root {
-            --bg: #ffffff;
-            --fg: #16181d;
-            --muted: #5b616b;
-            --line: #e3e5e8;
-            --free: #e8f4ec;
-            --busy: #9aa1ab;
-            --past: #f1f2f4;
-            --busy-fg: #ffffff;
-            --free-fg: #1f7a3f;
-            --accent: #0b5fff;
+            --bg: #faf8f5;
+            --fg: #0a1628;
+            --muted: #5a6478;
+            --line: rgba(10, 22, 40, 0.1);
+            --gold: #c9a227;
+            --gold-dim: rgba(201, 162, 39, 0.15);
+            --free: #f1ede4;
+            --busy: #2d3f5e;
+            --past: rgba(10, 22, 40, 0.05);
+            --raised: #ffffff;
+            --font-display: 'Clash Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-body: 'Satoshi', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
         @media (prefers-color-scheme: dark) {
-            :root {
-                --bg: #121417;
-                --fg: #eceef1;
-                --muted: #9aa1ab;
-                --line: #2a2e34;
-                --free: #1b3324;
-                --busy: #5b616b;
-                --past: #1c1f23;
-                --busy-fg: #eceef1;
-                --free-fg: #7fd19b;
-                --accent: #6b9cff;
+            :root:not([data-theme="light"]) {
+                --bg: #0a1628;
+                --fg: #faf8f5;
+                --muted: #9ba3b5;
+                --line: rgba(250, 248, 245, 0.1);
+                --gold-dim: rgba(201, 162, 39, 0.2);
+                --free: #111d32;
+                --busy: #5a6c8c;
+                --past: rgba(250, 248, 245, 0.04);
+                --raised: #111d32;
             }
         }
+        :root[data-theme="dark"] {
+            --bg: #0a1628;
+            --fg: #faf8f5;
+            --muted: #9ba3b5;
+            --line: rgba(250, 248, 245, 0.1);
+            --gold-dim: rgba(201, 162, 39, 0.2);
+            --free: #111d32;
+            --busy: #5a6c8c;
+            --past: rgba(250, 248, 245, 0.04);
+            --raised: #111d32;
+        }
         * { box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
         body {
             margin: 0;
             background: var(--bg);
             color: var(--fg);
-            font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font: 16px/1.5 var(--font-body);
+            -webkit-font-smoothing: antialiased;
         }
-        main { max-width: 90rem; margin: 0 auto; padding: 2rem 16px 3rem; }
-        h1 { font-size: 1.5rem; margin: 0 0 .25rem; }
-        .lede { margin: 0 0 1.25rem; color: var(--muted); }
+        a { color: inherit; }
+        main { max-width: 56rem; margin: 0 auto; padding: 1.5rem 16px 4rem; }
+        .home {
+            display: inline-block; margin-bottom: 2.5rem; font: 600 1.5rem var(--font-display);
+            letter-spacing: -0.02em; text-decoration: none; transition: opacity .2s ease;
+        }
+        .home:hover { opacity: .7; }
+        .hero { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem 2rem; margin-bottom: 2rem; }
+        .eyebrow { margin: 0 0 .5rem; font-size: .8rem; font-weight: 500; letter-spacing: .15em; text-transform: uppercase; color: var(--gold); }
+        h1 { font: 600 clamp(2rem, 6vw, 3rem)/1.05 var(--font-display); letter-spacing: -0.02em; margin: 0 0 .5rem; }
+        .lede { margin: 0; color: var(--muted); }
         .note { color: var(--muted); font-size: .9rem; margin: 0 0 1rem; }
         .warn { color: #b25e00; }
 
-        .weeknav { display: flex; align-items: center; justify-content: space-between; margin-bottom: .5rem; }
-        .weeknav h2 { font-size: 1.05rem; margin: 0; }
+        .pill {
+            font: 500 .95rem var(--font-body); display: inline-flex; align-items: center; gap: .4rem;
+            padding: .6rem 1.4rem; border-radius: 999px; cursor: pointer; text-decoration: none;
+            border: 1.5px solid var(--fg); background: transparent; color: var(--fg); transition: all .2s ease;
+        }
+        .pill:hover { background: var(--gold-dim); }
+        .pill.solid { background: var(--fg); color: var(--bg); }
+        .pill.solid:hover { opacity: .85; }
+
+        .weeknav { display: flex; align-items: center; justify-content: space-between; margin-bottom: .75rem; }
+        .weeknav h2 { font: 600 1.15rem var(--font-display); margin: 0; }
         .weeknav button {
             font: inherit; font-size: 1.1rem; line-height: 1; width: 2.25rem; height: 2.25rem;
-            border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--fg); cursor: pointer;
+            border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--fg); cursor: pointer;
         }
+        .weeknav button:hover:not(:disabled) { background: var(--gold-dim); }
         .weeknav button:disabled { opacity: .35; cursor: default; }
         .weeknav .navbtns { display: flex; gap: .4rem; }
-        .weeknav #today { width: auto; padding: 0 .8rem; font-size: .9rem; }
+        .weeknav #today { width: auto; padding: 0 .9rem; font-size: .85rem; }
 
         .week { --hour: 36px; display: grid; grid-template-columns: 3.25rem repeat(5, 1fr); }
-        .week .head { text-align: center; font-size: .85rem; padding-bottom: .35rem; border-bottom: 1px solid var(--line); }
-        .week .head b { display: block; font-size: 1rem; }
-        .week .head.today b { color: var(--accent); }
+        .week .head { text-align: center; font-size: .8rem; color: var(--muted); padding-bottom: .4rem; border-bottom: 1px solid var(--line); }
+        .week .head b { display: block; font: 600 1.15rem var(--font-display); color: var(--fg); }
+        .week .head.today b { color: var(--gold); }
         .hours, .col { position: relative; height: calc(var(--hour) * 13); }
-        .hours span { position: absolute; right: .4rem; margin-top: 1px; font-size: .7rem; line-height: 1.2; color: var(--muted); white-space: nowrap; }
+        .hours span { position: absolute; right: .5rem; margin-top: 1px; font-size: .7rem; line-height: 1.2; color: var(--muted); white-space: nowrap; }
         .col {
             background: var(--free); border-left: 1px solid var(--bg);
             background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--hour) - 1px), var(--line) calc(var(--hour) - 1px), var(--line) var(--hour));
         }
-        .col i {
-            position: absolute; left: 2px; right: 2px; border-radius: 3px; background: var(--busy);
-            font-style: normal; font-size: .7rem; line-height: 1.2; padding: 2px 4px; overflow: hidden; color: var(--busy-fg);
-        }
+        .col i { position: absolute; left: 3px; right: 3px; border-radius: 4px; background: var(--busy); }
         .col i.free { background: transparent; }
+        .col i.past { left: 0; right: 0; border-radius: 0; background: var(--past); }
         .legend { display: flex; gap: 1rem; margin-top: .6rem; font-size: .8rem; color: var(--muted); }
         .legend span::before {
             content: ""; display: inline-block; width: .7rem; height: .7rem; margin-right: .35rem;
             vertical-align: -1px; border-radius: 2px; background: var(--free); border: 1px solid var(--line);
         }
         .legend span.busy::before { background: var(--busy); border-color: var(--busy); }
-        .col i.past { left: 0; right: 0; border-radius: 0; background: var(--past); opacity: .9; }
 
-        .layout { display: grid; gap: 2.5rem; align-items: start; }
-        .booking { border-top: 1px solid var(--line); padding-top: 1.5rem; }
-        /* Google's booking page shows two tiles per row from ~690px wide. */
-        @media (min-width: 80rem) {
-            .layout { grid-template-columns: minmax(0, 1fr) 720px; }
-            .layout .booking { border-top: 0; padding-top: 0; }
-            .layout .booking iframe { height: 800px; }
-        }
-        .copybox { margin-top: 1.75rem; }
-        .copyhead { display: flex; align-items: center; gap: .5rem; margin-bottom: .4rem; }
-        .copyhead h3 { font-size: .95rem; margin: 0; }
+        .copybox { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+        .copyhead { display: flex; align-items: center; gap: .5rem; margin-bottom: .5rem; }
+        .copyhead h3 { font: 600 1.05rem var(--font-display); margin: 0; }
         .copyhead button {
-            display: grid; place-items: center; width: 1.75rem; height: 1.75rem; padding: 0; border-radius: 6px; cursor: pointer;
-            border: 1px solid var(--line); background: var(--bg); color: var(--muted);
+            display: grid; place-items: center; width: 1.9rem; height: 1.9rem; padding: 0; border-radius: 999px; cursor: pointer;
+            border: 1px solid var(--line); background: transparent; color: var(--muted);
         }
-        .copyhead button:hover { color: var(--fg); }
-        .copyhead button.done { color: var(--free-fg); }
-        .copybox pre {
-            margin: 0; font: .9rem/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; white-space: pre-wrap;
+        .copyhead button:hover { color: var(--fg); background: var(--gold-dim); }
+        .copyhead button.done { color: var(--gold); }
+        .copybox pre { margin: 0; font: .95rem/1.7 var(--font-body); white-space: pre-wrap; }
+
+        dialog {
+            width: min(760px, calc(100vw - 32px)); height: min(860px, calc(100dvh - 32px)); max-width: none; max-height: none;
+            padding: 0; border: 1px solid var(--line); border-radius: 16px; background: var(--raised); color: var(--fg);
+            box-shadow: 0 24px 64px rgba(10, 22, 40, .25);
         }
-        .booking h2 { font-size: 1.25rem; margin: 0 0 1rem; }
-        .booking iframe { display: block; width: 100%; height: 720px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
-        .booking .note { margin-top: .5rem; }
-        .blocked { padding: 1.25rem; border: 1px solid var(--line); border-radius: 8px; }
-        .blocked p { margin: 0 0 .6rem; }
+        dialog[open] { display: flex; flex-direction: column; }
+        dialog::backdrop { background: rgba(10, 22, 40, .45); }
+        .dialoghead { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .75rem .75rem .75rem 1.25rem; border-bottom: 1px solid var(--line); }
+        .dialoghead h2 { font: 600 1.15rem var(--font-display); margin: 0; }
+        .dialoghead .actions { display: flex; align-items: center; gap: .75rem; font-size: .85rem; }
+        .dialoghead .actions a { color: var(--muted); }
+        .dialoghead button {
+            display: grid; place-items: center; width: 2.25rem; height: 2.25rem; padding: 0; border-radius: 999px; cursor: pointer;
+            border: 1px solid var(--line); background: transparent; color: var(--fg); font-size: 1.25rem; line-height: 1;
+        }
+        .dialoghead button:hover { background: var(--gold-dim); }
+        #bookframe { flex: 1; width: 100%; border: 0; background: #fff; border-radius: 0 0 16px 16px; }
+        .blocked { padding: 1.5rem 1.25rem; }
+        .blocked p { margin: 0 0 .75rem; }
         .blocked p:last-child { margin: 0; }
-        .blocked a { color: var(--accent); }
-        .blocked .email {
-            display: inline-block; padding: .5rem .9rem; border-radius: 8px; font-weight: 600;
-            background: var(--accent); color: #fff; text-decoration: none;
-        }
-        .booking a { color: var(--accent); }
         @media (max-width: 30rem) {
             .week { --hour: 30px; grid-template-columns: 2.75rem repeat(5, 1fr); }
-            .week .head { font-size: .75rem; }
+            .week .head { font-size: .7rem; }
+            .dialoghead .actions a { display: none; }
         }
     </style>
 </head>
 <body>
 <main>
-    <h1>When I'm free</h1>
-    <p class="lede">Weekdays, 8am to 9pm Eastern, over the next month.</p>
+    <a class="home" href="/" aria-label="Jonathan Yen, home">JY</a>
+    <div class="hero">
+        <div>
+            <p class="eyebrow">Schedule</p>
+            <h1>When I'm free</h1>
+            <p class="lede">Weekdays, 8am to 9pm Eastern, over the next month.</p>
+        </div>
+        <button type="button" class="pill solid" id="openbook">Book a time</button>
+    </div>
     <p class="note" id="status">Loading…</p>
-    <div class="layout">
     <div id="calendar" hidden>
         <div class="weeknav">
             <h2 id="weeklabel"></h2>
@@ -143,18 +186,23 @@
             <pre id="freetext"></pre>
         </div>
     </div>
-    <section id="book" class="booking">
-        <h2>Book a time</h2>
-        <iframe id="bookframe" src="https://calendar.google.com/calendar/appointments/AcZssZ0ErAD3_ySrke5VN5jq51fzheAJUb2TH8HMOQQ=?gv=true" title="Book a time with Jonathan Yen" loading="lazy"></iframe>
-        <p class="note" id="booknote"><a href="https://calendar.google.com/calendar/appointments/AcZssZ0ErAD3_ySrke5VN5jq51fzheAJUb2TH8HMOQQ=">Open the booking page in a new tab</a> if it doesn't show here.</p>
+    <dialog id="book" aria-labelledby="booktitle">
+        <div class="dialoghead">
+            <h2 id="booktitle">Book a time</h2>
+            <div class="actions">
+                <a id="booknote" href="https://calendar.google.com/calendar/appointments/AcZssZ0ErAD3_ySrke5VN5jq51fzheAJUb2TH8HMOQQ=" target="_blank" rel="noopener">Open in a new tab</a>
+                <button type="button" id="closebook" aria-label="Close" autofocus>×</button>
+            </div>
+        </div>
+        <!-- src is set on first open so the page doesn't load Google's booking app up front. -->
+        <iframe id="bookframe" title="Book a time with Jonathan Yen"></iframe>
         <div class="blocked" id="blocked" hidden>
             <p><strong>The booking calendar can't load on this network.</strong> Some workplaces block Google Calendar.</p>
             <p>Pick a time from the free times list and email it to me. The email starts with the list filled in.</p>
-            <p><a class="email" id="emailme" href="#">Email me a time</a></p>
+            <p><a class="pill solid" id="emailme" href="#">Email me a time</a></p>
             <p>Or try the <a href="https://calendar.google.com/calendar/appointments/AcZssZ0ErAD3_ySrke5VN5jq51fzheAJUb2TH8HMOQQ=">booking page</a> from your phone or a home network.</p>
         </div>
-    </section>
-    </div>
+    </dialog>
 </main>
 <script>
 (() => {
@@ -186,7 +234,7 @@
             if (settled) return;
             settled = true;
             $('bookframe').remove();
-            $('booknote').hidden = true;
+            $('booknote').remove();
             $('blocked').hidden = false;
         };
         probe.onload = () => { settled = true; };
@@ -195,16 +243,27 @@
         probe.src = `https://calendar.google.com/googlecalendar/images/favicons_2020q4/calendar_31.ico?t=${Date.now()}`;
     })();
 
+    const BOOK_URL = 'https://calendar.google.com/calendar/appointments/AcZssZ0ErAD3_ySrke5VN5jq51fzheAJUb2TH8HMOQQ=?gv=true';
+    const dialog = $('book');
+    $('openbook').addEventListener('click', () => {
+        const frame = $('bookframe');
+        if (frame && !frame.src) frame.src = BOOK_URL;
+        dialog.showModal();
+    });
+    $('closebook').addEventListener('click', () => dialog.close());
+    // A click on the backdrop lands on the dialog element itself.
+    dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
+
     // Favicon: a calendar page showing today's date in Eastern time.
     const todayNum = new Intl.DateTimeFormat('en-US', { timeZone: HOME_TZ, day: 'numeric' }).format(Date.now());
     // Digits are ~0.72em tall, so a baseline 0.36em below the page's centre (y=19.25) centres them.
     const iconSize = todayNum.length > 1 ? 16 : 18;
     $('favicon').href = 'data:image/svg+xml,' + encodeURIComponent(
         `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">` +
-        `<rect x="1.5" y="1.5" width="29" height="29" rx="6" fill="#fff" stroke="#0b5fff" stroke-width="3"/>` +
-        `<path d="M1.5 7.5a6 6 0 0 1 6-6h17a6 6 0 0 1 6 6v2.5h-29z" fill="#0b5fff"/>` +
+        `<rect x="1.5" y="1.5" width="29" height="29" rx="6" fill="#fff" stroke="#1a2744" stroke-width="3"/>` +
+        `<path d="M1.5 7.5a6 6 0 0 1 6-6h17a6 6 0 0 1 6 6v2.5h-29z" fill="#1a2744"/>` +
         `<text x="16" y="${(19.25 + iconSize * 0.36).toFixed(2)}" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif" ` +
-        `font-weight="700" font-size="${iconSize}" fill="#0b5fff">${todayNum}</text></svg>`);
+        `font-weight="700" font-size="${iconSize}" fill="#1a2744">${todayNum}</text></svg>`);
     const statusEl = $('status');
 
     // Offset in ms of `tz` at instant `ms` (positive east of UTC).
