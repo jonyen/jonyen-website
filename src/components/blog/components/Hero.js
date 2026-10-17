@@ -5,50 +5,218 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import profileImage from '../../../assets/profile.png';
+import profileNoIris from '../../../assets/profile-noiris.jpg';
+import irisLeft from '../../../assets/memoji-iris-left.png';
+import irisRight from '../../../assets/memoji-iris-right.png';
+import eyesMask from '../../../assets/memoji-eyes-mask.png';
+import { MODEL_CREDIT, takeModelLine, warmUp } from './memojiVoice';
+import { visitorLine } from './visitorCount';
 
-// Furthest the memoji turns toward the cursor, at the edge of the window.
-const MAX_TILT_DEG = 18;
-const MAX_SHIFT_PX = 6;
+// Said by the memoji when it's clicked. Edit freely. An entry is a string, or
+// { text, linkText, href } where linkText is the part of text that links.
+const SAYINGS = [
+  'Jesus is my single source of truth.',
+  "I'd tell you a UDP joke, but you might not get it.",
+  "It's not a bug, it's an undocumented feature.",
+  "There are 10 kinds of people: those who read binary and those who don't.",
+  'I have a joke about recursion. I have a joke about recursion. I have a joke…',
+  "Debugging: being the detective in a crime movie where you're also the murderer.",
+  'Weeks of coding can save you hours of planning.',
+  'There are two hard problems in computer science: cache invalidation, naming things, and off-by-one errors.',
+  'How do you comfort a JavaScript developer? You console him.',
+  'The best time to plant a tree was 20 years ago. The second best time is now.',
+  { text: 'Want to meet up? Book a time on my schedule.', linkText: 'my schedule', href: '/schedule/' },
+];
+
+const textOf = (saying) => (typeof saying === 'string' ? saying : saying.text);
+
+// Renders a saying, turning the linkText part of a linked saying into a link.
+function SayingText({ saying }) {
+  if (typeof saying === 'string') return saying;
+  const { text, linkText, href } = saying;
+  const at = text.indexOf(linkText);
+  if (at < 0) return text;
+  return (
+    <>
+      {text.slice(0, at)}
+      <Box
+        component="a"
+        href={href}
+        sx={{ color: 'inherit', fontWeight: 700, textDecorationColor: 'var(--color-gold)', textUnderlineOffset: '3px' }}
+      >
+        {linkText}
+      </Box>
+      {text.slice(at + linkText.length)}
+    </>
+  );
+}
+
+// Where the eyes sit in the 1000x1000 memoji, from scripts that cut the irises
+// out of src/assets/profile.png. EYES_BOX is the region the eye mask covers;
+// each iris is placed in % of that box.
+const EYES_BOX = { left: '30.7%', top: '49.7%', width: '33.6%', height: '5.9%' };
+const IRISES = [
+  { src: irisLeft, left: '7.44%', top: '-16.949%', width: '23.512%', height: '133.898%' },
+  { src: irisRight, left: '69.345%', top: '-8.475%', width: '24.107%', height: '137.288%' },
+];
+// Iris travel at full gaze, as % of the iris's own size (about 14px and 5px
+// of the 1000px source), so it stays mostly inside the eye.
+const MAX_LOOK_X = 17;
+const MAX_LOOK_Y = 6;
+// Easing time constant: the eyes cover ~63% of the way to the target in this time.
+const EASE_MS = 150;
+// Pointer distance (px) at which the gaze is ~76% of the way to full.
+const GAZE_REACH_PX = 320;
+const IDLE_MS = 2000;
+const BUBBLE_MS = 4000;
+// The bubble's pop-in; the exit plays it backwards over the same time.
+const BUBBLE_ANIM_MS = 220;
 
 export default function Hero() {
   const avatarRef = React.useRef(null);
+  const [saying, setSaying] = React.useState(null);
+  const lastText = React.useRef('');
+  // "You're visitor #N today!" once GoatCounter answers; it then joins the
+  // fixed sayings.
+  const visitorText = React.useRef(null);
+  const prepare = () => {
+    warmUp();
+    visitorLine().then((line) => {
+      visitorText.current = line;
+    });
+  };
+  const bubbleTimer = React.useRef(0);
+  const leaveTimer = React.useRef(0);
 
-  // Turn the memoji toward the pointer. The values go into CSS variables so
-  // the motion never re-renders React. Touch screens and reduced-motion users
-  // get the still image.
+  // Fade the bubble out the way it came in, then unmount it. The timeout backs
+  // up animationend; reduced-motion users get an instant hide.
+  const hideBubble = () => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      setSaying(null);
+      return;
+    }
+    setSaying((cur) => {
+      if (!cur) return cur;
+      clearTimeout(leaveTimer.current);
+      leaveTimer.current = setTimeout(
+        () => setSaying((now) => (now?.key === cur.key ? null : now)),
+        BUBBLE_ANIM_MS + 100,
+      );
+      return { ...cur, leaving: true };
+    });
+  };
+  const startHideTimer = () => {
+    clearTimeout(bubbleTimer.current);
+    bubbleTimer.current = setTimeout(hideBubble, BUBBLE_MS);
+  };
+  // Hold the bubble open while the pointer or keyboard focus is on it, so its
+  // link can be reached; the 4s countdown restarts on leave or blur.
+  const holdBubble = () => clearTimeout(bubbleTimer.current);
+  const releaseBubble = (e) => {
+    if (e.type === 'blur' && e.currentTarget.contains(e.relatedTarget)) return;
+    if (e.type === 'mouseleave' && e.currentTarget.contains(document.activeElement)) return;
+    startHideTimer();
+  };
+
+  // About half the time, use a line Chrome's on-device model made up, when one
+  // is ready; otherwise a fixed saying. Never the same line twice in a row.
+  const speak = () => {
+    prepare();
+    let item = null;
+    let credit = null;
+    if (Math.random() < 0.5) {
+      const line = takeModelLine();
+      if (line && line !== lastText.current) {
+        item = line;
+        credit = MODEL_CREDIT;
+      }
+    }
+    if (!item) {
+      const pool = visitorText.current ? [...SAYINGS, visitorText.current] : SAYINGS;
+      const choices = pool.filter((x) => textOf(x) !== lastText.current);
+      item = choices[Math.floor(Math.random() * choices.length)];
+    }
+    lastText.current = textOf(item);
+    // A fresh key restarts the pop-in, which also cancels a fade-out under way.
+    clearTimeout(leaveTimer.current);
+    setSaying({ item, credit, key: Date.now(), leaving: false });
+    startHideTimer();
+  };
+  React.useEffect(
+    () => () => {
+      clearTimeout(bubbleTimer.current);
+      clearTimeout(leaveTimer.current);
+    },
+    [],
+  );
+
+  // Let the eyes follow the pointer. A requestAnimationFrame loop eases them
+  // toward the target and writes CSS variables, so React never re-renders per
+  // frame; the loop stops once they settle or the hero is off screen. Touch
+  // screens and reduced-motion users keep the eyes centred.
   React.useEffect(() => {
     const el = avatarRef.current;
     if (!el) return undefined;
-    if (!window.matchMedia('(pointer: fine)').matches) return undefined;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    // matchMedia is missing in jsdom (tests); treat that as "no fine pointer".
+    const matches = (query) => window.matchMedia?.(query).matches ?? false;
+    if (!matches('(pointer: fine)') || matches('(prefers-reduced-motion: reduce)')) return undefined;
 
     let frame = 0;
-    const setTilt = (x, y) => {
-      el.style.setProperty('--ry', `${x * MAX_TILT_DEG}deg`);
-      el.style.setProperty('--rx', `${-y * MAX_TILT_DEG}deg`);
-      el.style.setProperty('--tx', `${x * MAX_SHIFT_PX}px`);
-      el.style.setProperty('--ty', `${y * MAX_SHIFT_PX}px`);
+    let last = 0;
+    let visible = true;
+    let idleTimer = 0;
+    const cur = { x: 0, y: 0 };
+    const target = { x: 0, y: 0 };
+
+    const step = (now) => {
+      const dt = last ? Math.min(now - last, 100) : 16;
+      last = now;
+      const k = 1 - Math.exp(-dt / EASE_MS);
+      cur.x += (target.x - cur.x) * k;
+      cur.y += (target.y - cur.y) * k;
+      el.style.setProperty('--look-x', cur.x.toFixed(4));
+      el.style.setProperty('--look-y', cur.y.toFixed(4));
+      if (Math.abs(target.x - cur.x) + Math.abs(target.y - cur.y) > 0.002) {
+        frame = requestAnimationFrame(step);
+      } else {
+        frame = 0;
+      }
     };
-    const clamp = (v) => Math.max(-1, Math.min(1, v));
+    const run = () => {
+      if (!frame) {
+        last = 0;
+        frame = requestAnimationFrame(step);
+      }
+    };
+    const lookAt = (x, y) => {
+      target.x = x;
+      target.y = y;
+      run();
+    };
     const onMove = (e) => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const r = el.getBoundingClientRect();
-        setTilt(
-          clamp((e.clientX - (r.left + r.width / 2)) / (window.innerWidth / 2)),
-          clamp((e.clientY - (r.top + r.height / 2)) / (window.innerHeight / 2)),
-        );
-      });
+      if (!visible) return;
+      const r = el.getBoundingClientRect();
+      const dx = e.clientX - (r.left + r.width / 2);
+      const dy = e.clientY - (r.top + r.height / 2);
+      const dist = Math.hypot(dx, dy) || 1;
+      // tanh eases the response off with distance, so far-away movement barely registers.
+      const scale = Math.tanh(dist / GAZE_REACH_PX) / dist;
+      lookAt(dx * scale, dy * scale);
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => lookAt(0, 0), IDLE_MS);
     };
-    const onLeave = () => {
-      cancelAnimationFrame(frame);
-      setTilt(0, 0);
-    };
+    const onLeave = () => lookAt(0, 0);
+    const io = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (!visible) lookAt(0, 0);
+    });
+    io.observe(el);
     window.addEventListener('pointermove', onMove, { passive: true });
     document.documentElement.addEventListener('mouseleave', onLeave);
     return () => {
       cancelAnimationFrame(frame);
+      clearTimeout(idleTimer);
+      io.disconnect();
       window.removeEventListener('pointermove', onMove);
       document.documentElement.removeEventListener('mouseleave', onLeave);
     };
@@ -169,34 +337,158 @@ export default function Hero() {
               flexWrap: 'wrap',
             }}
           >
-            <Box
-              ref={avatarRef}
-              sx={{
-                flex: 'none',
-                width: { xs: 100, sm: 120, md: 150 },
-                height: { xs: 100, sm: 120, md: 150 },
-                borderRadius: '50%',
-                overflow: 'hidden',
-                border: '3px solid var(--color-ink)',
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-                perspective: '400px',
-              }}
-            >
-              {/* Scaled up slightly so the frame never shows an edge while it turns. */}
+            <Box sx={{ position: 'relative', flex: 'none' }}>
               <Box
-                component="img"
-                src={profileImage}
-                alt="Jonathan Yen"
+                component="button"
+                type="button"
+                ref={avatarRef}
+                onClick={speak}
+                onPointerEnter={prepare}
+                onFocus={prepare}
+                aria-label="Say something"
                 sx={{
                   display: 'block',
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  transform:
-                    'translate(var(--tx, 0px), var(--ty, 0px)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.1)',
-                  transition: 'transform 0.25s ease-out',
+                  position: 'relative',
+                  p: 0,
+                  width: { xs: 100, sm: 120, md: 150 },
+                  height: { xs: 100, sm: 120, md: 150 },
+                  borderRadius: '50%',
+                  overflow: 'hidden',
+                  border: '3px solid var(--color-ink)',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                  background: 'none',
+                  cursor: 'pointer',
+                  '&:focus-visible': { outline: '3px solid var(--color-gold)', outlineOffset: '3px' },
                 }}
-              />
+              >
+                {/* The memoji with its irises painted out; the irises sit on top. */}
+                <Box
+                  component="img"
+                  src={profileNoIris}
+                  alt="Jonathan Yen"
+                  sx={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+                <Box
+                  aria-hidden="true"
+                  sx={{
+                    position: 'absolute',
+                    ...EYES_BOX,
+                    maskImage: `url(${eyesMask})`,
+                    WebkitMaskImage: `url(${eyesMask})`,
+                    maskSize: '100% 100%',
+                    WebkitMaskSize: '100% 100%',
+                  }}
+                >
+                  {IRISES.map(({ src, ...pos }) => (
+                    <Box
+                      key={src}
+                      component="img"
+                      src={src}
+                      alt=""
+                      sx={{
+                        position: 'absolute',
+                        ...pos,
+                        maxWidth: 'none',
+                        transform: `translate(calc(var(--look-x, 0) * ${MAX_LOOK_X}%), calc(var(--look-y, 0) * ${MAX_LOOK_Y}%))`,
+                        willChange: 'transform',
+                      }}
+                    />
+                  ))}
+                </Box>
+              </Box>
+              {/* Speech bubble to the right of the memoji, over the start of the name;
+                  absolutely placed so it never moves the layout. The phone widths
+                  leave the 16px/24px page gutter clear. */}
+              <Box
+                role="status"
+                aria-live="polite"
+                sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: 'calc(100% + 14px)',
+                  transform: 'translateY(-50%)',
+                  zIndex: 2,
+                  width: 'max-content',
+                  maxWidth: {
+                    xs: 'min(240px, calc(100vw - 146px))',
+                    sm: 'min(280px, calc(100vw - 182px))',
+                    md: 320,
+                  },
+                  pointerEvents: 'none',
+                }}
+              >
+                {saying && (
+                  <Box
+                    key={saying.key}
+                    onMouseEnter={holdBubble}
+                    onMouseLeave={releaseBubble}
+                    onFocus={holdBubble}
+                    onBlur={releaseBubble}
+                    onAnimationEnd={() => {
+                      if (saying.leaving) setSaying((now) => (now?.key === saying.key ? null : now));
+                    }}
+                    aria-hidden={saying.leaving || undefined}
+                    sx={{
+                      position: 'relative',
+                      pointerEvents: saying.leaving ? 'none' : 'auto',
+                      px: 2,
+                      py: 1.25,
+                      borderRadius: '16px',
+                      border: '1.5px solid var(--color-ink)',
+                      backgroundColor: 'var(--color-paper)',
+                      color: 'var(--color-ink)',
+                      fontFamily: 'var(--font-body)',
+                      fontSize: '0.95rem',
+                      fontWeight: 500,
+                      lineHeight: 1.4,
+                      boxShadow: '0 8px 24px rgba(10, 22, 40, 0.12)',
+                      transformOrigin: 'left center',
+                      // bubbleOut is bubbleIn reversed: mirrored keyframes, and
+                      // cubic-bezier(0.5, 0, 0.75, 0) is --ease-out-quart reversed.
+                      animation: saying.leaving
+                        ? `bubbleOut ${BUBBLE_ANIM_MS}ms cubic-bezier(0.5, 0, 0.75, 0) both`
+                        : `bubbleIn ${BUBBLE_ANIM_MS}ms var(--ease-out-quart) both`,
+                      '@keyframes bubbleIn': {
+                        from: { opacity: 0, transform: 'scale(0.85) translateX(-6px)' },
+                        to: { opacity: 1, transform: 'none' },
+                      },
+                      '@keyframes bubbleOut': {
+                        from: { opacity: 1, transform: 'none' },
+                        to: { opacity: 0, transform: 'scale(0.85) translateX(-6px)' },
+                      },
+                      // Tail on the left, pointing at the memoji.
+                      '&::after': {
+                        content: '""',
+                        position: 'absolute',
+                        left: -8,
+                        top: '50%',
+                        width: 14,
+                        height: 14,
+                        backgroundColor: 'var(--color-paper)',
+                        borderLeft: '1.5px solid var(--color-ink)',
+                        borderBottom: '1.5px solid var(--color-ink)',
+                        transform: 'translateY(-50%) rotate(45deg)',
+                      },
+                    }}
+                  >
+                    <SayingText saying={saying.item} />
+                    {saying.credit && (
+                      <Box
+                        component="span"
+                        sx={{
+                          display: 'block',
+                          mt: 0.5,
+                          fontSize: '0.72rem',
+                          fontWeight: 500,
+                          color: 'var(--color-text-secondary)',
+                        }}
+                      >
+                        {saying.credit}
+                      </Box>
+                    )}
+                  </Box>
+                )}
+              </Box>
             </Box>
             {/* Main heading */}
             <Typography
