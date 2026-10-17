@@ -1,6 +1,6 @@
 // Renders scripts/og-image.html to public/og-image.png (1200x630), the
 // Open Graph / Twitter card image referenced from index.html.
-// Usage: node scripts/og-image.mjs   (needs network for the Fontshare fonts)
+// Usage: node scripts/og-image.mjs   (needs network for the Google Fonts Manrope font)
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 import puppeteer from 'puppeteer';
