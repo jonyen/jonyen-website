@@ -11,6 +11,7 @@ import irisRight from '../../../assets/memoji-iris-right.png';
 import eyesMask from '../../../assets/memoji-eyes-mask.png';
 import { MODEL_CREDIT, takeModelLine, warmUp } from './memojiVoice';
 import { visitorLine } from './visitorCount';
+import { createBag, VISITOR_ID } from './sayingsBag';
 
 // Said by the memoji when it's clicked. Edit freely. An entry is a string, or
 // { text, linkText, href } where linkText is the part of text that links.
@@ -29,6 +30,9 @@ const SAYINGS = [
 ];
 
 const textOf = (saying) => (typeof saying === 'string' ? saying : saying.text);
+
+// Every fixed saying comes up once before any repeats; see sayingsBag.js.
+const bag = createBag(SAYINGS.map(textOf));
 
 // Renders a saying, turning the linkText part of a linked saying into a link.
 function SayingText({ saying }) {
@@ -82,6 +86,7 @@ export default function Hero() {
   const prepare = () => {
     warmUp();
     visitorLine().then((line) => {
+      if (line && !visitorText.current) bag.addVisitor();
       visitorText.current = line;
     });
   };
@@ -119,7 +124,8 @@ export default function Hero() {
   };
 
   // About half the time, use a line Chrome's on-device model made up, when one
-  // is ready; otherwise a fixed saying. Never the same line twice in a row.
+  // is ready; otherwise the next fixed saying from the shuffled deck. Never the
+  // same line twice in a row.
   const speak = () => {
     prepare();
     let item = null;
@@ -132,9 +138,8 @@ export default function Hero() {
       }
     }
     if (!item) {
-      const pool = visitorText.current ? [...SAYINGS, visitorText.current] : SAYINGS;
-      const choices = pool.filter((x) => textOf(x) !== lastText.current);
-      item = choices[Math.floor(Math.random() * choices.length)];
+      const id = bag.deal((x) => x === VISITOR_ID && !visitorText.current);
+      item = id === VISITOR_ID ? visitorText.current : SAYINGS[id ?? 0];
     }
     lastText.current = textOf(item);
     // A fresh key restarts the pop-in, which also cancels a fade-out under way.
