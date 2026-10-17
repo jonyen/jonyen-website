@@ -30,7 +30,8 @@
     "resume:full": "node resume/build.mjs --variant full --out dist/resume-full",
     "resume:link": "node resume/mint-link.mjs",
     "prebuild": "npm run resume:public",
-    "test:worker": "node --test \"worker/test/*.test.mjs\" \"availability/test/*.test.mjs\" \"quip/test/*.test.mjs\""
+    "test:worker": "node --test \"worker/test/*.test.mjs\" \"availability/test/*.test.mjs\" \"quip/test/*.test.mjs\"",
+    "quip:log": "npx wrangler d1 execute jonyen-quip --remote --config quip/wrangler.toml --command \"select ts, accepted, reject_reason, latency_ms, text from quips order by ts desc limit 50\""
   },
   "eslintConfig": {
     "extends": [

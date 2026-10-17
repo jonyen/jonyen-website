@@ -12,6 +12,9 @@
  * Anything that fails (rate limit, daily cap, model error, a line that doesn't
  * pass the filters) answers with an error status and no body worth reading, so
  * the page falls back to its fixed sayings.
+ *
+ * Every line the model generates goes into the D1 table quips, kept or not.
+ * No visitor data is stored. See quip/README.md for how to read the log.
  */
 
 const DEFAULT_MODEL = '@cf/google/gemma-4-26b-a4b-it';
@@ -23,6 +26,7 @@ const MODEL_NAMES = {
 };
 const DEFAULT_DAILY_CAP = 2000;
 const DEFAULT_PER_MINUTE = 10;
+const RETENTION_DAYS = 180;
 const AI_TIMEOUT_MS = 6000;
 const MAX_CHARS = 140;
 const MAX_AVOID = 5;
@@ -99,17 +103,28 @@ function reply(request, status, body) {
 // link-like or on the blocklist is dropped. Same rules as the page's
 // memojiVoice.js.
 export function clean(raw) {
-  if (typeof raw !== 'string') return null;
-  const line = raw
-    .replace(/[*_`#>~]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .replace(/^["'“”‘’]+|["'“”‘’]+$/g, '')
-    .trim();
-  if (!line || line.length > MAX_CHARS) return null;
-  if (/https?:|www\.|\]\(|\.(com|org|net)\b/i.test(line)) return null;
-  if (BLOCKLIST.test(line)) return null;
-  return line;
+  const j = judge(raw);
+  return j.ok ? j.text : null;
+}
+
+// The cleaned-up line plus whether it passes, and why not if it doesn't; the
+// reason goes into the quips log.
+export function judge(raw) {
+  const text = typeof raw === 'string'
+    ? raw
+      .replace(/[*_`#>~]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/^["'“”‘’]+|["'“”‘’]+$/g, '')
+      .trim()
+    : '';
+  const fail = (reason) => ({ ok: false, text: text || null, reason });
+  if (!text) return fail('empty');
+  if (text.length > MAX_CHARS) return fail('too_long');
+  if (/https?:|www\.|\]\(|\.(com|org|net)\b/i.test(text)) return fail('link');
+  if (BLOCKLIST.test(text)) return fail('blocklist');
+  if (TIRED_OPENING.test(text)) return fail('starts_with_i');
+  return { ok: true, text, reason: null };
 }
 
 // The last few lines the visitor saw: at most MAX_AVOID, each cut to MAX_CHARS
@@ -160,9 +175,7 @@ async function ipHash(ip) {
 // visitor over their limit can't use up everyone's day. Returns the limit hit,
 // or null. D1 gives exact counters across every data centre, which the
 // rate-limit binding (per machine, eventually consistent) doesn't.
-async function overLimit(env, now, ip) {
-  const cap = Number(env.QUIP_DAILY_CAP ?? DEFAULT_DAILY_CAP);
-  const perMinute = Number(env.QUIP_PER_MINUTE ?? DEFAULT_PER_MINUTE);
+async function overLimit(env, now, ip, { perMinute, cap }) {
   const day = new Date(now).toISOString().slice(0, 10);
   const minute = Math.floor(now / 60000);
   const count = (r) => r?.results?.[0]?.n ?? Infinity;
@@ -179,6 +192,38 @@ async function overLimit(env, now, ip) {
     .bind(day)
     .all();
   return count(daily) > cap ? 'daily' : null;
+}
+
+// Write log rows; never throws. Each write also has a small chance of
+// deleting rows past RETENTION_DAYS, which keeps the table trimmed without a
+// cron trigger: at a few hundred rows a day, a sweep every ~50 writes is
+// plenty.
+export async function logQuips(env, rows, { now = Date.now(), random = Math.random } = {}) {
+  if (!rows.length) return;
+  try {
+    const stmts = rows.map((r) =>
+      env.DB.prepare(
+        'INSERT INTO quips (ts, source, model, text, accepted, reject_reason, latency_ms, topic_hint, style_hint) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)',
+      ).bind(
+        new Date(r.ts ?? now).toISOString(),
+        r.source,
+        r.model ?? null,
+        r.text ?? null,
+        r.accepted ? 1 : 0,
+        r.reject_reason ?? null,
+        r.latency_ms ?? null,
+        r.topic_hint ?? null,
+        r.style_hint ?? null,
+      ),
+    );
+    if (random() < 1 / 50) {
+      const cutoff = new Date(now - RETENTION_DAYS * 86400000).toISOString();
+      stmts.push(env.DB.prepare('DELETE FROM quips WHERE ts < ?1').bind(cutoff));
+    }
+    await env.DB.batch(stmts);
+  } catch (err) {
+    console.error('quip log failed:', err?.message);
+  }
 }
 
 function withTimeout(promise, ms) {
@@ -200,7 +245,7 @@ export function outputText(result) {
 
 export function createHandler({ now = Date.now, random = Math.random } = {}) {
   return {
-    async fetch(request, env) {
+    async fetch(request, env, ctx) {
       const url = new URL(request.url);
       if (url.pathname !== '/quip') return new Response('Not found', { status: 404 });
       if (request.method === 'OPTIONS') {
@@ -217,7 +262,8 @@ export function createHandler({ now = Date.now, random = Math.random } = {}) {
 
       const t = now();
       try {
-        if (await overLimit(env, t, ip)) return reply(request, 429);
+        const limits = { perMinute: Number(env.QUIP_PER_MINUTE ?? DEFAULT_PER_MINUTE), cap: Number(env.QUIP_DAILY_CAP ?? DEFAULT_DAILY_CAP) };
+        if (await overLimit(env, t, ip, limits)) return reply(request, 429);
       } catch (err) {
         // Without a working counter there's no cap, so don't generate.
         console.error('daily cap check failed:', err?.message);
@@ -227,38 +273,57 @@ export function createHandler({ now = Date.now, random = Math.random } = {}) {
       const model = env.QUIP_MODEL || DEFAULT_MODEL;
       const pick = (list) => list[Math.floor(random() * list.length)];
       const avoid = avoidList(url);
+      // Every generation is logged, kept or not, once the response is on its way.
+      const logged = [];
+      const finish = (res) => {
+        ctx?.waitUntil(logQuips(env, logged, { now: now(), random }));
+        return res;
+      };
       const generate = async () => {
-        const content = promptText({ when: timeOfDay(t), avoid, topic: pick(TOPICS), opening: pick(OPENINGS) });
-        const result = await withTimeout(
-          env.AI.run(model, {
-            messages: [
-              { role: 'system', content: SYSTEM_PROMPT },
-              { role: 'user', content },
-            ],
-            max_tokens: 60,
-            max_completion_tokens: 60,
-            temperature: 1,
-            // Gemma 4 reasons before answering by default, which costs ~10x the
-            // tokens and seconds of latency; a one-liner doesn't need it.
-            chat_template_kwargs: { enable_thinking: false },
-          }),
-          AI_TIMEOUT_MS,
-        );
-        return clean(outputText(result));
+        const topic = pick(TOPICS);
+        const opening = pick(OPENINGS);
+        const started = now();
+        const row = { ts: started, source: 'workers-ai', model, topic_hint: topic, style_hint: opening };
+        logged.push(row);
+        const content = promptText({ when: timeOfDay(t), avoid, topic, opening });
+        let result;
+        try {
+          result = await withTimeout(
+            env.AI.run(model, {
+              messages: [
+                { role: 'system', content: SYSTEM_PROMPT },
+                { role: 'user', content },
+              ],
+              max_tokens: 60,
+              max_completion_tokens: 60,
+              temperature: 1,
+              // Gemma 4 reasons before answering by default, which costs ~10x the
+              // tokens and seconds of latency; a one-liner doesn't need it.
+              chat_template_kwargs: { enable_thinking: false },
+            }),
+            AI_TIMEOUT_MS,
+          );
+        } catch (err) {
+          Object.assign(row, { accepted: false, reject_reason: err?.message === 'timeout' ? 'timeout' : 'error', latency_ms: now() - started });
+          throw err;
+        }
+        const verdict = judge(outputText(result));
+        Object.assign(row, { text: verdict.text, accepted: verdict.ok, reject_reason: verdict.reason, latency_ms: now() - started });
+        return verdict;
       };
 
-      let text;
+      let verdict;
       try {
-        text = await generate();
+        verdict = await generate();
         // One retry, with a fresh topic and style, for a tired opening, and
         // only while the page is still likely to be waiting.
-        if (text && TIRED_OPENING.test(text) && now() - t < RETRY_BUDGET_MS) text = await generate();
+        if (verdict.reason === 'starts_with_i' && now() - t < RETRY_BUDGET_MS) verdict = await generate();
       } catch (err) {
         console.error('AI.run failed:', err?.message);
-        return reply(request, 502);
+        return finish(reply(request, 502));
       }
-      if (!text || TIRED_OPENING.test(text)) return reply(request, 204);
-      return reply(request, 200, { text, model, modelName: MODEL_NAMES[model] ?? model.split('/').pop() });
+      if (!verdict.ok) return finish(reply(request, 204));
+      return finish(reply(request, 200, { text: verdict.text, model, modelName: MODEL_NAMES[model] ?? model.split('/').pop() }));
     },
   };
 }

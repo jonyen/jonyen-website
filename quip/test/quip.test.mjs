@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { avoidList, clean, createHandler, outputText, promptText, timeOfDay } from '../src/handler.js';
+import { avoidList, clean, createHandler, judge, logQuips, outputText, promptText, timeOfDay } from '../src/handler.js';
 
 const NOW = Date.parse('2026-10-17T18:00:00Z'); // Saturday 2pm Eastern
 
@@ -190,4 +190,81 @@ test('only GET /quip', async () => {
   const h = createHandler({ now: () => NOW });
   assert.equal((await h.fetch(new Request('https://jonyen.com/other'), fakeEnv().env)).status, 404);
   assert.equal((await h.fetch(new Request('https://jonyen.com/quip', { method: 'POST' }), fakeEnv().env)).status, 405);
+});
+
+// ctx whose waitUntil promises the test can wait on.
+function fakeCtx() {
+  const pending = [];
+  return { waitUntil: (p) => pending.push(p), done: () => Promise.all(pending) };
+}
+const quipRows = (calls) =>
+  calls.db
+    .filter((s) => s.sql.startsWith('INSERT INTO quips'))
+    .map(({ args: [ts, source, model, text, accepted, reason, latency, topic, style] }) => ({ ts, source, model, text, accepted, reason, latency, topic, style }));
+
+test('every Workers AI generation is logged, the rejected retry included', async () => {
+  const { env, calls } = fakeEnv({ lines: ["I'm currently debugging my lunch.", 'Pro tip: name the variable after the bug.'] });
+  const ctx = fakeCtx();
+  const res = await createHandler({ now: () => NOW, random: () => 0.5 }).fetch(req('?avoid=secret%20visitor%20line'), env, ctx);
+  assert.equal(res.status, 200);
+  await ctx.done();
+  const rows = quipRows(calls);
+  assert.equal(rows.length, 2);
+  assert.deepEqual(
+    rows.map((r) => [r.source, r.model, r.accepted, r.reason, r.text]),
+    [
+      ['workers-ai', '@cf/google/gemma-4-26b-a4b-it', 0, 'starts_with_i', "I'm currently debugging my lunch."],
+      ['workers-ai', '@cf/google/gemma-4-26b-a4b-it', 1, null, 'Pro tip: name the variable after the bug.'],
+    ],
+  );
+  assert.equal(rows[0].ts, '2026-10-17T18:00:00.000Z');
+  assert.ok(rows.every((r) => r.topic && r.style && Number.isInteger(r.latency)));
+  // No visitor data: neither the avoid list nor the IP reaches the log.
+  assert.ok(!JSON.stringify(rows).includes('secret visitor line'));
+  assert.ok(!JSON.stringify(rows).includes('203.0.113.9'));
+});
+
+test('timeouts and filtered lines are logged with a reason', { timeout: 10000 }, async () => {
+  const slow = fakeEnv({ aiDelay: 6500 });
+  const ctx1 = fakeCtx();
+  assert.equal((await createHandler().fetch(req(), slow.env, ctx1)).status, 502);
+  await ctx1.done();
+  assert.deepEqual(quipRows(slow.calls).map((r) => [r.accepted, r.reason, r.text]), [[0, 'timeout', null]]);
+
+  const blocked = fakeEnv({ line: 'Datavault forever.' });
+  const ctx2 = fakeCtx();
+  assert.equal((await createHandler({ now: () => NOW }).fetch(req(), blocked.env, ctx2)).status, 204);
+  await ctx2.done();
+  assert.deepEqual(quipRows(blocked.calls).map((r) => [r.accepted, r.reason]), [[0, 'blocklist']]);
+});
+
+test('a failing log never fails the request', async () => {
+  const { env } = fakeEnv();
+  env.DB.batch = async (stmts) => {
+    if (stmts.some((s) => s.sql.startsWith('INSERT INTO quips'))) throw new Error('disk full');
+    return Promise.all(stmts.map((s) => s.all()));
+  };
+  const ctx = fakeCtx();
+  const res = await createHandler({ now: () => NOW }).fetch(req(), env, ctx);
+  assert.equal(res.status, 200);
+  await ctx.done(); // resolves: the error is swallowed
+});
+
+test('old rows are swept now and then, not on every write', async () => {
+  const sweep = fakeEnv();
+  await logQuips(sweep.env, [{ source: 'workers-ai', accepted: true }], { now: NOW, random: () => 0 });
+  const del = sweep.calls.db.find((s) => s.sql.startsWith('DELETE FROM quips'));
+  assert.equal(del.args[0], new Date(NOW - 180 * 86400000).toISOString());
+  const none = fakeEnv();
+  await logQuips(none.env, [{ source: 'workers-ai', accepted: true }], { now: NOW, random: () => 0.5 });
+  assert.equal(none.calls.db.some((s) => s.sql.startsWith('DELETE FROM quips')), false);
+});
+
+test('judge names the reason a line was dropped', () => {
+  assert.deepEqual(judge('  '), { ok: false, text: null, reason: 'empty' });
+  assert.equal(judge('x'.repeat(141)).reason, 'too_long');
+  assert.equal(judge('see example.com').reason, 'link');
+  assert.equal(judge('I miss Atlassian').reason, 'blocklist');
+  assert.equal(judge('I have a bug.').reason, 'starts_with_i');
+  assert.deepEqual(judge('Pro tip: ship it.'), { ok: true, text: 'Pro tip: ship it.', reason: null });
 });
