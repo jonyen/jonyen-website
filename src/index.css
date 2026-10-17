@@ -115,10 +115,10 @@ body {
 
 @keyframes drawLine {
   from {
-    width: 0;
+    transform: scaleX(0);
   }
   to {
-    width: 100%;
+    transform: scaleX(1);
   }
 }
 

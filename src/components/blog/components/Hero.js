@@ -162,17 +162,20 @@ export default function Hero() {
                 mb: 2,
               }}
             >
+              {/* Grows with scaleX rather than width so the title beside it never moves. */}
               <Box
                 sx={{
-                  width: '60px',
+                  flex: 1,
                   height: '2px',
                   backgroundColor: 'var(--color-gold)',
-                  animation: 'drawLine 0.8s ease-out 0.6s forwards',
+                  animation: 'drawLine 0.8s ease-out 0.6s both',
                   transformOrigin: 'left',
                 }}
               />
               <Typography
                 sx={{
+                  flex: 'none',
+                  whiteSpace: 'nowrap',
                   fontFamily: 'var(--font-display)',
                   fontSize: { xs: '1rem', md: '1.25rem' },
                   fontWeight: 500,
