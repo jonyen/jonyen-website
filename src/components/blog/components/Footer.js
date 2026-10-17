@@ -11,6 +11,26 @@ const socialLinks = [
   { icon: LinkedInIcon, href: 'https://www.linkedin.com/in/jonyen/', label: 'LinkedIn' },
 ];
 
+function CreditLink({ href, children }) {
+  return (
+    <Box
+      component="a"
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      sx={{
+        color: 'inherit',
+        textDecoration: 'underline',
+        textUnderlineOffset: '2px',
+        transition: 'color 0.2s ease',
+        '&:hover': { color: 'var(--color-gold)' },
+      }}
+    >
+      {children}
+    </Box>
+  );
+}
+
 export default function Footer() {
   return (
     <Box
@@ -114,7 +134,10 @@ export default function Footer() {
               letterSpacing: '0.05em',
             }}
           >
-            Built with React & Material-UI
+            Built with{' '}
+            <CreditLink href="https://claude.com/claude-code">Claude Code</CreditLink>,{' '}
+            <CreditLink href="https://react.dev">React</CreditLink> and{' '}
+            <CreditLink href="https://mui.com/material-ui/">Material UI</CreditLink>
           </Typography>
         </Box>
       </Container>
