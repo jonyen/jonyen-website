@@ -6,6 +6,24 @@ A Cloudflare Worker that serves `GET jonyen.com/quip`: one-line quips for the me
 - **Tests:** `test/quip.test.mjs`, run with `npm run test:worker` from the repo root.
 - **Bindings and limits:** `wrangler.toml`.
 
+## Visitor count
+
+`GET jonyen.com/quip/visitors` returns `{ count, sites, partial }`: today's visitors (Eastern day, from midnight America/New_York) summed across every GoatCounter site behind jonyen.com and its subdomains. The homepage memoji uses it for "You're visitor #N across jonyen.com today!", and falls back to the homepage's own public counter if it fails.
+
+- **Sites:** `GOATCOUNTER_SITES` in `src/handler.js`. It mirrors `GOATCOUNTER_SITES` in `~/Projects/usage-stats/src/collectors/goatcounter.ts`; add a new site to both.
+- **How it sums:** each site's `/api/v0/stats/total?start=<Eastern midnight>`, fetched in parallel with a 4-second timeout each. A site that fails is left out and `partial` is `true`; if none answer, the endpoint returns 502.
+- **Caveat:** each site counts its own unique visitors, so someone who visits two sites counts twice. Ad blockers hide some visitors.
+- **Cache:** the sum is cached for 5 minutes per data centre (Cache API), keyed by the day.
+- **Rate limit:** 30 a minute per visitor, in the same D1 `ip_minute` table under its own salt, so it never uses up quips or the daily quip cap.
+- **Secret:** `GOATCOUNTER_TOKEN`, a GoatCounter read token. The source of truth is Doppler `usage-stats/prd` `GOATCOUNTER_TOKEN`. To set or rotate it, pipe it without printing it:
+
+  ```sh
+  doppler secrets get GOATCOUNTER_TOKEN --project usage-stats --config prd --plain \
+    | npx wrangler secret put GOATCOUNTER_TOKEN --config quip/wrangler.toml
+  ```
+
+  Worker secrets survive deploys, so the CI deploy job doesn't need it.
+
 ## Deploy
 
 CI deploys on every push to `main` (job `deploy-quip`). To deploy by hand, run this from the repo root:

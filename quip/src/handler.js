@@ -15,6 +15,12 @@
  *
  * Every line the model generates goes into the D1 table quips, kept or not.
  * No visitor data is stored. See quip/README.md for how to read the log.
+ *
+ * GET /quip/visitors -> { count, sites, partial }
+ *
+ * Today's visitors (Eastern day) summed across every GoatCounter site behind
+ * jonyen.com and its subdomains, for the memoji's visitor-count line. Cached
+ * for a few minutes so page views don't each hit GoatCounter's API.
  */
 
 const DEFAULT_MODEL = '@cf/google/gemma-4-26b-a4b-it';
@@ -76,6 +82,19 @@ const TOPICS = [
 
 // Employers and other names a line must never contain.
 const BLOCKLIST = /datavault|dvlt|atlassian|mercor|medallia|\bibm\b|aspera|cvent|employer/i;
+
+// The GoatCounter sites behind jonyen.com and its subdomains. Mirrors
+// GOATCOUNTER_SITES in ~/Projects/usage-stats/src/collectors/goatcounter.ts;
+// a new site goes in both lists.
+export const GOATCOUNTER_SITES = [
+  'jonyen-wavelength', 'jonyen-website', 'jonyen-blog', 'jonyen-bible-atlas',
+  'jonyen-daily-bible-quiz', 'jonyen-automata', 'jonyen-esv-bible', 'jonyen-strike-a-pose',
+  'jonyen-shadow-monsters', 'jonyen-zephyr', 'jonyen-daily-proverbs-esv', 'jonyen-audiobooks',
+  'jonyen-virtual-vball',
+];
+const GOATCOUNTER_TIMEOUT_MS = 4000;
+const VISITORS_CACHE_SECONDS = 300;
+const VISITORS_PER_MINUTE = 30;
 
 const ALLOWED_ORIGIN = /^(https:\/\/jonyen\.com|http:\/\/localhost(:\d+)?|http:\/\/127\.0\.0\.1(:\d+)?)$/;
 
@@ -165,8 +184,9 @@ export function promptText({ when, avoid, topic, opening }) {
   return lines.join('\n');
 }
 
-async function ipHash(ip) {
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`jonyen-quip:${ip}`));
+// salt keeps each endpoint's per-minute counters apart in the same table.
+async function ipHash(ip, salt = 'jonyen-quip') {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${salt}:${ip}`));
   return [...new Uint8Array(digest).slice(0, 8)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
@@ -192,6 +212,97 @@ async function overLimit(env, now, ip, { perMinute, cap }) {
     .bind(day)
     .all();
   return count(daily) > cap ? 'daily' : null;
+}
+
+// Count a /quip/visitors request against the visitor's minute; true when over.
+// Its own bucket, so reading the count never uses up quips.
+async function visitorsOverLimit(env, now, ip) {
+  const minute = Math.floor(now / 60000);
+  const row = await env.DB.prepare(
+    'INSERT INTO ip_minute (ip, minute, n) VALUES (?1, ?2, 1) ON CONFLICT(ip, minute) DO UPDATE SET n = n + 1 RETURNING n',
+  )
+    .bind(await ipHash(ip, 'jonyen-quip-visitors'), minute)
+    .all();
+  return (row?.results?.[0]?.n ?? Infinity) > VISITORS_PER_MINUTE;
+}
+
+// Offset of HOME_TZ from UTC at instant ms, in ms (negative west of UTC).
+function zoneOffset(ms) {
+  const p = Object.fromEntries(
+    new Intl.DateTimeFormat('en-US', {
+      timeZone: HOME_TZ, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+    })
+      .formatToParts(ms)
+      .map((x) => [x.type, x.value]),
+  );
+  return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(ms / 1000) * 1000;
+}
+
+// Midnight Eastern at the start of today, as a UTC ISO string without
+// milliseconds (the form GoatCounter's API takes). Two passes so a day that
+// starts on the other side of a DST change still lands on midnight.
+export function easternMidnightUTC(ms) {
+  const local = new Date(ms + zoneOffset(ms));
+  const midnight = Date.UTC(local.getUTCFullYear(), local.getUTCMonth(), local.getUTCDate());
+  const guess = midnight - zoneOffset(midnight - zoneOffset(ms));
+  return new Date(midnight - zoneOffset(guess)).toISOString().replace('.000Z', 'Z');
+}
+
+// Sum today's visitors across GOATCOUNTER_SITES. A site that errors or times
+// out is left out and the result is marked partial.
+export async function sumVisitors(env, fetchImpl, now) {
+  const start = easternMidnightUTC(now);
+  const totals = await Promise.all(
+    GOATCOUNTER_SITES.map(async (code) => {
+      try {
+        const res = await withTimeout(
+          fetchImpl(`https://${code}.goatcounter.com/api/v0/stats/total?start=${encodeURIComponent(start)}`, {
+            headers: { Authorization: `Bearer ${env.GOATCOUNTER_TOKEN}` },
+          }),
+          GOATCOUNTER_TIMEOUT_MS,
+        );
+        if (!res.ok) return null;
+        const n = Number((await res.json())?.total);
+        return Number.isFinite(n) && n >= 0 ? n : null;
+      } catch {
+        return null;
+      }
+    }),
+  );
+  const counted = totals.filter((n) => n !== null);
+  return {
+    start,
+    count: counted.reduce((a, b) => a + b, 0),
+    sites: counted.length,
+    partial: counted.length < GOATCOUNTER_SITES.length,
+  };
+}
+
+async function visitors(request, env, ctx, { now, fetchImpl, cache }) {
+  const t = now();
+  const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
+  try {
+    if (await visitorsOverLimit(env, t, ip)) return reply(request, 429);
+  } catch (err) {
+    console.error('visitors rate limit failed:', err?.message);
+    return reply(request, 503);
+  }
+  // Keyed by the day, so the count starts over at midnight Eastern.
+  const key = new Request(`https://jonyen.com/quip/visitors?day=${easternMidnightUTC(t)}`);
+  const hit = cache && (await cache.match(key));
+  if (hit) return reply(request, 200, await hit.json());
+
+  const { count, sites, partial } = await sumVisitors(env, fetchImpl, t);
+  if (!sites) return reply(request, 502);
+  const body = { count, sites, partial };
+  if (cache) {
+    const stored = new Response(JSON.stringify(body), {
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': `max-age=${VISITORS_CACHE_SECONDS}` },
+    });
+    ctx?.waitUntil(cache.put(key, stored));
+  }
+  return reply(request, 200, body);
 }
 
 // Write log rows; never throws. Each write also has a small chance of
@@ -243,11 +354,16 @@ export function outputText(result) {
   return result?.choices?.[0]?.message?.content ?? null;
 }
 
-export function createHandler({ now = Date.now, random = Math.random } = {}) {
+export function createHandler({
+  now = Date.now,
+  random = Math.random,
+  fetchImpl = (...args) => fetch(...args),
+  cache = typeof caches === 'undefined' ? undefined : caches.default,
+} = {}) {
   return {
     async fetch(request, env, ctx) {
       const url = new URL(request.url);
-      if (url.pathname !== '/quip') return new Response('Not found', { status: 404 });
+      if (url.pathname !== '/quip' && url.pathname !== '/quip/visitors') return new Response('Not found', { status: 404 });
       if (request.method === 'OPTIONS') {
         return new Response(null, {
           status: 204,
@@ -255,6 +371,7 @@ export function createHandler({ now = Date.now, random = Math.random } = {}) {
         });
       }
       if (request.method !== 'GET') return reply(request, 405);
+      if (url.pathname === '/quip/visitors') return visitors(request, env, ctx, { now, fetchImpl, cache });
 
       const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
       const { success } = await env.RATE_LIMIT.limit({ key: ip });

@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { avoidList, clean, createHandler, judge, logQuips, outputText, promptText, timeOfDay } from '../src/handler.js';
+import {
+  GOATCOUNTER_SITES, avoidList, clean, createHandler, easternMidnightUTC, judge, logQuips, outputText, promptText,
+  sumVisitors, timeOfDay,
+} from '../src/handler.js';
 
 const NOW = Date.parse('2026-10-17T18:00:00Z'); // Saturday 2pm Eastern
 
@@ -267,4 +270,112 @@ test('judge names the reason a line was dropped', () => {
   assert.equal(judge('I miss Atlassian').reason, 'blocklist');
   assert.equal(judge('I have a bug.').reason, 'starts_with_i');
   assert.deepEqual(judge('Pro tip: ship it.'), { ok: true, text: 'Pro tip: ship it.', reason: null });
+});
+
+// --- /quip/visitors ---
+
+function fakeGoatCounter(totals = {}) {
+  const calls = [];
+  const fetchImpl = async (url, init) => {
+    calls.push({ url, auth: init?.headers?.Authorization });
+    const code = new URL(url).hostname.split('.')[0];
+    const n = totals[code] ?? 1;
+    if (n === 'fail') throw new Error('network');
+    if (n === 'http') return new Response('nope', { status: 500 });
+    return Response.json({ total: n, total_events: 0, total_utc: n });
+  };
+  return { fetchImpl, calls };
+}
+
+function fakeCache() {
+  const store = new Map();
+  return {
+    store,
+    async match(req) {
+      const r = store.get(req.url);
+      return r ? r.clone() : undefined;
+    },
+    async put(req, res) {
+      store.set(req.url, res);
+    },
+  };
+}
+
+const visitorsReq = (headers = {}) =>
+  new Request('https://jonyen.com/quip/visitors', { headers: { 'CF-Connecting-IP': '203.0.113.9', ...headers } });
+
+const waitCtx = () => {
+  const pending = [];
+  return { pending, ctx: { waitUntil: (p) => pending.push(p) } };
+};
+
+test('easternMidnightUTC follows daylight saving', () => {
+  assert.equal(easternMidnightUTC(Date.parse('2026-10-18T12:00:00Z')), '2026-10-18T04:00:00Z');
+  assert.equal(easternMidnightUTC(Date.parse('2026-10-18T03:30:00Z')), '2026-10-17T04:00:00Z');
+  assert.equal(easternMidnightUTC(Date.parse('2026-11-02T03:00:00Z')), '2026-11-01T04:00:00Z');
+  assert.equal(easternMidnightUTC(Date.parse('2026-03-08T12:00:00Z')), '2026-03-08T05:00:00Z');
+  assert.equal(easternMidnightUTC(Date.parse('2026-01-15T23:00:00Z')), '2026-01-15T05:00:00Z');
+});
+
+test('sums today across every GoatCounter site', async () => {
+  const { fetchImpl, calls } = fakeGoatCounter({ 'jonyen-website': 5, 'jonyen-daily-bible-quiz': 3 });
+  const r = await sumVisitors({ GOATCOUNTER_TOKEN: 't0k' }, fetchImpl, NOW);
+  assert.equal(calls.length, GOATCOUNTER_SITES.length);
+  assert.deepEqual(r, {
+    start: '2026-10-17T04:00:00Z',
+    count: 5 + 3 + (GOATCOUNTER_SITES.length - 2),
+    sites: GOATCOUNTER_SITES.length,
+    partial: false,
+  });
+  assert.ok(calls.every((c) => c.auth === 'Bearer t0k'));
+  assert.ok(calls.every((c) => c.url.endsWith('/api/v0/stats/total?start=2026-10-17T04%3A00%3A00Z')));
+});
+
+test('a failing site is left out and marks the sum partial', async () => {
+  const { fetchImpl } = fakeGoatCounter({ 'jonyen-website': 5, 'jonyen-wavelength': 'fail', 'jonyen-blog': 'http' });
+  const r = await sumVisitors({}, fetchImpl, NOW);
+  assert.equal(r.sites, GOATCOUNTER_SITES.length - 2);
+  assert.equal(r.partial, true);
+  assert.equal(r.count, 5 + (GOATCOUNTER_SITES.length - 3));
+});
+
+test('/quip/visitors answers from GoatCounter, then from the cache', async () => {
+  const { env } = fakeEnv();
+  env.GOATCOUNTER_TOKEN = 't0k';
+  const gc = fakeGoatCounter({ 'jonyen-website': 5 });
+  const cache = fakeCache();
+  const handler = createHandler({ now: () => NOW, fetchImpl: gc.fetchImpl, cache });
+
+  const first = waitCtx();
+  const res = await handler.fetch(visitorsReq({ Origin: 'https://jonyen.com' }), env, first.ctx);
+  await Promise.all(first.pending);
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get('Access-Control-Allow-Origin'), 'https://jonyen.com');
+  assert.equal(res.headers.get('Cache-Control'), 'no-store');
+  assert.deepEqual(await res.json(), { count: 5 + GOATCOUNTER_SITES.length - 1, sites: GOATCOUNTER_SITES.length, partial: false });
+  assert.equal(gc.calls.length, GOATCOUNTER_SITES.length);
+  assert.ok([...cache.store.keys()][0].endsWith('day=2026-10-17T04:00:00Z'));
+
+  const again = await handler.fetch(visitorsReq(), env, waitCtx().ctx);
+  assert.equal((await again.json()).count, 5 + GOATCOUNTER_SITES.length - 1);
+  assert.equal(gc.calls.length, GOATCOUNTER_SITES.length, 'a cache hit makes no GoatCounter calls');
+});
+
+test('/quip/visitors fails when no site answers, and never calls the model', async () => {
+  const { env, calls } = fakeEnv();
+  const failing = Object.fromEntries(GOATCOUNTER_SITES.map((c) => [c, 'fail']));
+  const res = await createHandler({ now: () => NOW, fetchImpl: fakeGoatCounter(failing).fetchImpl, cache: fakeCache() })
+    .fetch(visitorsReq(), env, waitCtx().ctx);
+  assert.equal(res.status, 502);
+  assert.equal(calls.ai.length, 0);
+});
+
+test('/quip/visitors has its own per-minute bucket', async () => {
+  const { env, calls } = fakeEnv({ visitorCount: 31 });
+  const gc = fakeGoatCounter();
+  const res = await createHandler({ now: () => NOW, fetchImpl: gc.fetchImpl, cache: fakeCache() })
+    .fetch(visitorsReq(), env, waitCtx().ctx);
+  assert.equal(res.status, 429);
+  assert.equal(gc.calls.length, 0);
+  assert.ok(!calls.db.some((s) => s.sql.includes('daily_count')), 'does not count against the daily quip cap');
 });

@@ -8,6 +8,16 @@
     <meta http-equiv="refresh" content="0; url=/resume/jonathan-yen-resume-fullstack.pdf">
     <link rel="canonical" href="/resume/jonathan-yen-resume-fullstack.pdf">
     <script>
+        // Anonymous, cookieless visit count via GoatCounter (same site as the
+        // homepage). count.js would never load before this page redirects, so
+        // ping its endpoint directly; sendBeacon survives the navigation.
+        // b=153 flags automated browsers as count.js does, so GoatCounter drops them.
+        try {
+            navigator.sendBeacon('https://jonyen-website.goatcounter.com/count?' + new URLSearchParams({
+                p: '/resume/fullstack', t: document.title, r: document.referrer, s: String(screen.width), rnd: String(Math.random()).slice(2),
+                ...(navigator.webdriver ? { b: '153' } : {}),
+            }));
+        } catch (e) {}
         window.location.replace('/resume/jonathan-yen-resume-fullstack.pdf');
     </script>
 </head>
