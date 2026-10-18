@@ -8,7 +8,7 @@ A Cloudflare Worker that serves `GET jonyen.com/quip`: one-line quips for the me
 
 ## Visitor count
 
-`GET jonyen.com/quip/visitors` returns `{ count, sites, partial }`: today's visitors (Eastern day, from midnight America/New_York) summed across every GoatCounter site behind jonyen.com and its subdomains. The homepage memoji uses it for "You're visitor #N across jonyen.com today!", and falls back to the homepage's own public counter if it fails.
+`GET jonyen.com/quip/visitors` returns `{ count, sites, partial }`: today's visitors (Eastern day, from midnight America/New_York) summed across every GoatCounter site behind jonyen.com and its subdomains. The homepage memoji uses it for "You're visitor #N on jonyen.com today!", and falls back to the homepage's own public counter if it fails.
 
 - **Sites:** `GOATCOUNTER_SITES` in `src/handler.js`. It mirrors `GOATCOUNTER_SITES` in `~/Projects/usage-stats/src/collectors/goatcounter.ts`; add a new site to both.
 - **How it sums:** each site's `/api/v0/stats/total?start=<Eastern midnight>`, fetched in parallel with a 4-second timeout each. A site that fails is left out and `partial` is `true`; if none answer, the endpoint returns 502.

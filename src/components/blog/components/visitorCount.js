@@ -46,7 +46,7 @@ export function visitorLine() {
     request = sitewide()
       .catch(() => null)
       .then(async (n) => {
-        if (n) return `You're visitor #${n.toLocaleString('en-US')} across jonyen.com today!`;
+        if (n) return `You're visitor #${n.toLocaleString('en-US')} on jonyen.com today!`;
         const home = await homepageOnly().catch(() => null);
         return home ? `You're visitor #${home.toLocaleString('en-US')} today!` : null;
       })
