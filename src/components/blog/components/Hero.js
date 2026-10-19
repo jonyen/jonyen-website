@@ -65,10 +65,12 @@ const IRISES = [
   { src: irisLeft, left: '7.44%', top: '-16.949%', width: '23.512%', height: '133.898%' },
   { src: irisRight, left: '69.345%', top: '-8.475%', width: '24.107%', height: '137.288%' },
 ];
-// Iris travel at full gaze, as % of the iris's own size (about 14px and 5px
-// of the 1000px source), so it stays mostly inside the eye.
+// Iris travel at full gaze, as % of the iris's own size (about 14px and 14px
+// of the 1000px source). Sideways it stays mostly inside the eye; up and down
+// the eyelids cover part of the iris and show white below or above it, so
+// looking up or down reads at a glance.
 const MAX_LOOK_X = 17;
-const MAX_LOOK_Y = 6;
+const MAX_LOOK_Y = 18;
 // Easing time constant: the eyes cover ~63% of the way to the target in this time.
 const EASE_MS = 150;
 // Pointer distance (px) at which the gaze is ~76% of the way to full.
