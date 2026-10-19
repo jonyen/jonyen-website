@@ -60,6 +60,7 @@ test('serves a quip with its model', async () => {
     text: 'Debugging is just arguing with past me.',
     model: '@cf/google/gemma-4-26b-a4b-it',
     modelName: 'Gemma 4',
+    host: 'Cloudflare Workers AI',
   });
   assert.equal(calls.limit[0].key, '203.0.113.9');
   assert.deepEqual(calls.ai[0].input.chat_template_kwargs, { enable_thinking: false });
@@ -379,3 +380,87 @@ test('/quip/visitors has its own per-minute bucket', async () => {
   assert.equal(gc.calls.length, 0);
   assert.ok(!calls.db.some((s) => s.sql.includes('daily_count')), 'does not count against the daily quip cap');
 });
+
+// A stand-in Anthropic client: each call answers the next of lines, or throws
+// when that entry is an Error.
+function fakeClaude(lines) {
+  const calls = [];
+  const client = {
+    messages: {
+      async create(params) {
+        calls.push(params);
+        const next = lines[Math.min(calls.length - 1, lines.length - 1)];
+        if (next instanceof Error) throw next;
+        return { content: [{ type: 'text', text: next }], stop_reason: 'end_turn' };
+      },
+    },
+  };
+  return { claude: () => client, calls };
+}
+
+test('Claude writes the quip when it answers, with no host in the credit', async () => {
+  const { env, calls } = fakeEnv();
+  const fake = fakeClaude(['Pro tip: commit messages are love letters to future you.']);
+  const ctx = fakeCtx();
+  const res = await createHandler({ now: () => NOW, claude: fake.claude }).fetch(req(), env, ctx);
+  assert.equal(res.status, 200);
+  assert.deepEqual(await res.json(), {
+    text: 'Pro tip: commit messages are love letters to future you.',
+    model: 'claude-haiku-5-5',
+    modelName: 'Claude Haiku 5.5',
+  });
+  assert.equal(calls.ai.length, 0);
+  const sent = fake.calls[0];
+  assert.equal(sent.model, 'claude-haiku-5-5');
+  assert.deepEqual(sent.thinking, { type: 'disabled' });
+  assert.equal(sent.temperature, undefined);
+  assert.match(sent.messages[0].content, /Saturday afternoon/);
+  await ctx.done();
+  assert.deepEqual(quipRows(calls).map((r) => [r.source, r.model, r.accepted]), [['claude', 'claude-haiku-5-5', 1]]);
+});
+
+test('a Claude failure falls back to Gemma, and the retry skips Claude', async (t) => {
+  const { env, calls } = fakeEnv({ lines: ['I have a bug.', 'Pro tip: name the variable after the bug.'] });
+  const fake = fakeClaude([new Error('credit balance is too low')]);
+  t.mock.method(console, 'error', () => {});
+  const ctx = fakeCtx();
+  const res = await createHandler({ now: () => NOW, claude: fake.claude }).fetch(req(), env, ctx);
+  assert.equal(res.status, 200);
+  assert.deepEqual(await res.json(), {
+    text: 'Pro tip: name the variable after the bug.',
+    model: '@cf/google/gemma-4-26b-a4b-it',
+    modelName: 'Gemma 4',
+    host: 'Cloudflare Workers AI',
+  });
+  assert.equal(fake.calls.length, 1);
+  await ctx.done();
+  assert.deepEqual(
+    quipRows(calls).map((r) => [r.source, r.accepted, r.reason]),
+    [['claude', 0, 'error'], ['workers-ai', 0, 'starts_with_i'], ['workers-ai', 1, null]],
+  );
+});
+
+test('a tired Claude opening is retried on Claude', async () => {
+  const { env, calls } = fakeEnv();
+  const fake = fakeClaude(["I'm currently refactoring my breakfast.", 'Nothing compiles faster than regret.']);
+  const res = await createHandler({ now: () => NOW, claude: fake.claude }).fetch(req(), env);
+  assert.equal((await res.json()).text, 'Nothing compiles faster than regret.');
+  assert.equal(fake.calls.length, 2);
+  assert.equal(calls.ai.length, 0);
+});
+
+test('a slow Claude times out to Gemma', { timeout: 10000 }, async (t) => {
+  const { env } = fakeEnv();
+  const slow = { messages: { create: () => new Promise((r) => setTimeout(() => r({ content: [{ type: 'text', text: 'Too late.' }] }), 3000)) } };
+  t.mock.method(console, 'error', () => {});
+  const res = await createHandler({ now: () => NOW, claude: () => slow }).fetch(req(), env);
+  assert.equal((await res.json()).model, '@cf/google/gemma-4-26b-a4b-it');
+});
+
+test('no ANTHROPIC_API_KEY goes straight to Gemma', async () => {
+  const { env, calls } = fakeEnv();
+  const res = await createHandler({ now: () => NOW }).fetch(req(), env);
+  assert.equal((await res.json()).host, 'Cloudflare Workers AI');
+  assert.equal(calls.ai.length, 1);
+});
+

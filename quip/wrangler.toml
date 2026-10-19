@@ -30,6 +30,9 @@ database_name = "jonyen-quip"
 database_id = "a3197c81-930d-412a-92b5-14d3d179b015"
 
 [vars]
+# Claude Haiku writes the quips; Gemma is the fallback when Claude fails or
+# the ANTHROPIC_API_KEY secret is missing.
+QUIP_CLAUDE_MODEL = "claude-haiku-5-5"
 QUIP_MODEL = "@cf/google/gemma-4-26b-a4b-it"
 # Each quip costs about 2 Neurons, so 2,000 a day stays well inside Workers
 # AI's free 10,000 Neurons a day.

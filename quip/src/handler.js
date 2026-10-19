@@ -1,10 +1,14 @@
 /**
- * One-line quips for the memoji's speech bubble on jonyen.com, written by a
- * small open model on Cloudflare Workers AI. The homepage uses this when the
+ * One-line quips for the memoji's speech bubble on jonyen.com, written by
+ * Claude Haiku on the Anthropic API, or by a small open model on Cloudflare
+ * Workers AI when Claude fails or has no key. The homepage uses this when the
  * visitor's browser has no on-device model (Chrome's Gemini Nano), so iPhone,
  * Safari and Firefox visitors get made-up lines too.
  *
- * GET /quip[?avoid=...&avoid=...] -> { text, model, modelName }
+ * GET /quip[?avoid=...&avoid=...] -> { text, model, modelName, host? }
+ *
+ * host is set only for Workers AI lines ("Cloudflare Workers AI"), for the
+ * credit line under the bubble.
  *
  * avoid carries the last few lines the visitor saw, so the model can steer
  * clear of them. They are quoted to the model as data, never as instructions.
@@ -23,9 +27,14 @@
  * for a few minutes so page views don't each hit GoatCounter's API.
  */
 
+import Anthropic from '@anthropic-ai/sdk';
+
 const DEFAULT_MODEL = '@cf/google/gemma-4-26b-a4b-it';
+const DEFAULT_CLAUDE_MODEL = 'claude-haiku-5-5';
 // Display names for the credit line under a generated quip.
 const MODEL_NAMES = {
+  'claude-haiku-5-5': 'Claude Haiku 5.5',
+  'claude-haiku-4-5': 'Claude Haiku 4.5',
   '@cf/google/gemma-4-26b-a4b-it': 'Gemma 4',
   '@cf/meta/llama-3.2-3b-instruct': 'Llama 3.2 3B',
   '@cf/meta/llama-3.1-8b-instruct-fp8': 'Llama 3.1 8B',
@@ -34,6 +43,9 @@ const DEFAULT_DAILY_CAP = 2000;
 const DEFAULT_PER_MINUTE = 10;
 const RETENTION_DAYS = 180;
 const AI_TIMEOUT_MS = 6000;
+// The page gives up on /quip after 4s, so Claude gets 2.5s and leaves Gemma
+// time to answer if it fails.
+const CLAUDE_TIMEOUT_MS = 2500;
 const MAX_CHARS = 140;
 const MAX_AVOID = 5;
 const HOME_TZ = 'America/New_York';
@@ -354,11 +366,33 @@ export function outputText(result) {
   return result?.choices?.[0]?.message?.content ?? null;
 }
 
+// One line from Claude. No SDK retries: a failure falls through to Workers AI
+// instead, while the page is still waiting.
+async function claudeText(client, model, content) {
+  const res = await client.messages.create({
+    model,
+    max_tokens: 60,
+    system: SYSTEM_PROMPT,
+    messages: [{ role: 'user', content }],
+    // A one-liner doesn't need reasoning, and thinking would eat the 60 tokens.
+    thinking: { type: 'disabled' },
+    output_config: { effort: 'low' },
+  });
+  return res.content.filter((b) => b.type === 'text').map((b) => b.text).join('');
+}
+
+const defaultClaude = (env) =>
+  env.ANTHROPIC_API_KEY
+    ? new Anthropic({ apiKey: env.ANTHROPIC_API_KEY, maxRetries: 0, timeout: CLAUDE_TIMEOUT_MS })
+    : null;
+
 export function createHandler({
   now = Date.now,
   random = Math.random,
   fetchImpl = (...args) => fetch(...args),
   cache = typeof caches === 'undefined' ? undefined : caches.default,
+  // env -> Anthropic client, or null to skip straight to Workers AI.
+  claude = defaultClaude,
 } = {}) {
   return {
     async fetch(request, env, ctx) {
@@ -388,6 +422,9 @@ export function createHandler({
       }
 
       const model = env.QUIP_MODEL || DEFAULT_MODEL;
+      const claudeModel = env.QUIP_CLAUDE_MODEL || DEFAULT_CLAUDE_MODEL;
+      // Set to null after a Claude failure, so a retry goes straight to Gemma.
+      let claudeClient = claude(env);
       const pick = (list) => list[Math.floor(random() * list.length)];
       const avoid = avoidList(url);
       // Every generation is logged, kept or not, once the response is on its way.
@@ -399,10 +436,25 @@ export function createHandler({
       const generate = async () => {
         const topic = pick(TOPICS);
         const opening = pick(OPENINGS);
+        const content = promptText({ when: timeOfDay(t), avoid, topic, opening });
+        if (claudeClient) {
+          const started = now();
+          const row = { ts: started, source: 'claude', model: claudeModel, topic_hint: topic, style_hint: opening };
+          logged.push(row);
+          try {
+            const verdict = judge(await withTimeout(claudeText(claudeClient, claudeModel, content), CLAUDE_TIMEOUT_MS));
+            Object.assign(row, { text: verdict.text, accepted: verdict.ok, reject_reason: verdict.reason, latency_ms: now() - started });
+            return { ...verdict, model: claudeModel };
+          } catch (err) {
+            const timedOut = err?.message === 'timeout' || err instanceof Anthropic.APIConnectionTimeoutError;
+            Object.assign(row, { accepted: false, reject_reason: timedOut ? 'timeout' : 'error', latency_ms: now() - started });
+            console.error('Claude failed, falling back to Workers AI:', err?.message);
+            claudeClient = null;
+          }
+        }
         const started = now();
         const row = { ts: started, source: 'workers-ai', model, topic_hint: topic, style_hint: opening };
         logged.push(row);
-        const content = promptText({ when: timeOfDay(t), avoid, topic, opening });
         let result;
         try {
           result = await withTimeout(
@@ -426,7 +478,7 @@ export function createHandler({
         }
         const verdict = judge(outputText(result));
         Object.assign(row, { text: verdict.text, accepted: verdict.ok, reject_reason: verdict.reason, latency_ms: now() - started });
-        return verdict;
+        return { ...verdict, model, host: 'Cloudflare Workers AI' };
       };
 
       let verdict;
@@ -440,7 +492,13 @@ export function createHandler({
         return finish(reply(request, 502));
       }
       if (!verdict.ok) return finish(reply(request, 204));
-      return finish(reply(request, 200, { text: verdict.text, model, modelName: MODEL_NAMES[model] ?? model.split('/').pop() }));
+      const used = verdict.model;
+      return finish(reply(request, 200, {
+        text: verdict.text,
+        model: used,
+        modelName: MODEL_NAMES[used] ?? used.split('/').pop(),
+        ...(verdict.host ? { host: verdict.host } : {}),
+      }));
     },
   };
 }

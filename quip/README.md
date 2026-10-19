@@ -1,10 +1,20 @@
 # jonyen-quip
 
-A Cloudflare Worker that serves `GET jonyen.com/quip`: one-line quips for the memoji's speech bubble on the homepage, written by Gemma 4 on Workers AI. The page uses it when the visitor's browser has no on-device model.
+A Cloudflare Worker that serves `GET jonyen.com/quip`: one-line quips for the memoji's speech bubble on the homepage, written by Claude Haiku 5.5 on the Anthropic API. The page uses it when the visitor's browser has no on-device model.
+
+If Claude errors, takes over 2.5 seconds, or has no key, Gemma 4 on Workers AI writes the line instead. Once Claude fails, the retry for that request also goes to Gemma. Only Gemma lines include `host: "Cloudflare Workers AI"`, so the page's credit line names the host only for them.
 
 - **Code:** `src/handler.js`
 - **Tests:** `test/quip.test.mjs`, run with `npm run test:worker` from the repo root.
 - **Bindings and limits:** `wrangler.toml`.
+- **Secret:** `ANTHROPIC_API_KEY`. The source of truth is Doppler `personal/prd` `QUIP_ANTHROPIC_API_KEY`. Usage bills to that key's Console credits. To set or rotate it, pipe it without printing it:
+
+  ```sh
+  doppler secrets get QUIP_ANTHROPIC_API_KEY --project personal --config prd --plain \
+    | npx wrangler secret put ANTHROPIC_API_KEY --config quip/wrangler.toml
+  ```
+
+  The daily cap (2,000 quips) also caps Claude spend: at Haiku 5.5 prices, that is about 10 cents a day at most.
 
 ## Visitor count
 
@@ -43,8 +53,8 @@ Every line the model generates goes into the D1 table `quips` (database `jonyen-
 | Column | Meaning |
 |---|---|
 | `ts` | When generation started (UTC, ISO 8601) |
-| `source` | `workers-ai` |
-| `model` | Workers AI model ID |
+| `source` | `claude` or `workers-ai` |
+| `model` | Anthropic or Workers AI model ID |
 | `text` | The line after whitespace and markdown clean-up; null on a timeout or error |
 | `accepted` | 1 if it was returned to the page |
 | `reject_reason` | null, or `empty`, `too_long`, `link`, `blocklist`, `starts_with_i`, `timeout` or `error` |
