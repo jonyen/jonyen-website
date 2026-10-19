@@ -22,6 +22,7 @@ import ICAL from 'ical.js';
 const WINDOW_DAYS = 31;
 const CACHE_SECONDS = 600;
 const ALL_DAY_MS = 20 * 3600_000;
+const DAY_MS = 86400_000;
 
 const JSON_HEADERS = {
   'Content-Type': 'application/json; charset=utf-8',
@@ -75,17 +76,161 @@ function isBusy(event) {
   return status !== 'FREE';
 }
 
+// An ICAL.Time's wall-clock fields read as if they were UTC. No zone is more
+// than 14 hours from UTC, so the real instant is within a day of this; that is
+// enough to rule out occurrences far outside the window without the costly
+// zone conversion in toUnixTime.
+const wallMs = (t) => Date.UTC(t.year, t.month - 1, t.day, t.hour, t.minute, t.second);
+
+/**
+ * Outlook starts every VTIMEZONE rule in 1601, and ical.js expands each one
+ * year by year from its DTSTART, about 4 ms per zone per request. A yearly rule
+ * such as BYMONTH=11;BYDAY=1SU falls on the same day whatever year it starts
+ * in, so starting it in `year` gives the same offsets from `year` + 1 on.
+ */
+function trimTimezone(vtimezone, year) {
+  for (const sub of vtimezone.getAllSubcomponents()) {
+    const prop = sub.getFirstProperty('dtstart');
+    const rule = sub.getFirstPropertyValue('rrule');
+    if (!prop || !rule || sub.hasProperty('rdate') || sub.getAllProperties('rrule').length !== 1) continue;
+    if (rule.freq !== 'YEARLY' || rule.count || (rule.interval || 1) !== 1 || (rule.until && rule.until.year < year)) continue;
+    const dtstart = prop.getFirstValue();
+    if (dtstart.year >= year || (dtstart.month === 2 && dtstart.day === 29)) continue;
+    const moved = dtstart.clone();
+    moved.year = year;
+    prop.setValue(moved);
+  }
+}
+
+/**
+ * How far apart a rule repeats exactly in wall-clock time, as { days } or
+ * { months }, or null if the rule is not that simple. DAILY/WEEKLY rules with
+ * INTERVAL, plain weekday BYDAY, WKST and UNTIL repeat every INTERVAL days or
+ * weeks (BYDAY only filters the days a DAILY rule steps through).
+ * MONTHLY rules with BYDAY (1WE, -1FR) or BYMONTHDAY pick the same days in
+ * every month, so they repeat every INTERVAL months. COUNT, other BY* parts
+ * and RDATEs all depend on where the series started.
+ */
+function recurrencePeriod(event) {
+  const comp = event.component;
+  if (comp.hasProperty('rdate') || comp.getAllProperties('rrule').length !== 1) return null;
+  const rule = comp.getFirstPropertyValue('rrule');
+  if (rule.count) return null;
+  const interval = rule.interval || 1;
+  const parts = Object.keys(rule.parts);
+  if (rule.freq === 'MONTHLY') {
+    if (!parts.length || parts.some((p) => p !== 'BYDAY' && p !== 'BYMONTHDAY')) return null;
+    return { months: interval };
+  }
+  if (rule.freq !== 'DAILY' && rule.freq !== 'WEEKLY') return null;
+  if (parts.some((p) => p !== 'BYDAY') || (rule.parts.BYDAY ?? []).some((d) => !/^[A-Z]{2}$/.test(d))) return null;
+  return { days: rule.freq === 'WEEKLY' ? 7 * interval : interval };
+}
+
+/**
+ * Where to start expanding a recurring event. Long-running series would
+ * otherwise be walked from DTSTART, years of occurrences that all end before
+ * the window. Jumping a whole number of periods keeps every occurrence near
+ * the window identical; the jump stops two days short of the window and of any
+ * exception, which could move an old occurrence into it. A monthly series
+ * restarts on the 1st, so its first month keeps every day the rule picks.
+ */
+function expansionStart(event, from, durationMs, exceptionMs) {
+  const start = event.startDate;
+  const period = recurrencePeriod(event);
+  if (!period || event.rangeExceptions.length) return start;
+  const limit = Math.min(from - durationMs, ...exceptionMs) - 2 * DAY_MS;
+  const shifted = start.clone();
+  if (period.days) {
+    const periods = Math.floor((limit - wallMs(start)) / (period.days * DAY_MS));
+    if (periods <= 0) return start;
+    shifted.adjust(periods * period.days, 0, 0, 0);
+  } else {
+    const limitDate = new Date(limit);
+    // Months from DTSTART's month to the month before the limit's.
+    const span = limitDate.getUTCFullYear() * 12 + limitDate.getUTCMonth() - (start.year * 12 + start.month - 1) - 1;
+    const periods = Math.floor(span / period.months);
+    if (periods <= 0) return start;
+    const month = start.year * 12 + start.month - 1 + periods * period.months;
+    shifted.day = 1;
+    shifted.year = Math.floor(month / 12);
+    shifted.month = (month % 12) + 1;
+  }
+  return shifted;
+}
+
+const VEVENT = /^BEGIN:VEVENT\r?\n[\s\S]*?^END:VEVENT\r?$\n?/gim;
+const propertyTest = (name) => new RegExp(`^${name}[;:]`, 'im');
+const IS_RECURRING = /^(?:RRULE|RDATE)[;:]/im;
+const IS_EXCEPTION = propertyTest('RECURRENCE-ID');
+const HAS_DURATION = propertyTest('DURATION');
+const HAS_DTEND = propertyTest('DTEND');
+const IS_RANGE = /^RECURRENCE-ID;[^\r\n]*RANGE=/im;
+// The date of an unfolded DTSTART/DTEND/RECURRENCE-ID line, as YYYYMMDD, or
+// undefined when the line is missing or folded in a way this does not follow.
+const dateLine = (name) => new RegExp(`^${name}(?:;[^\r\n]*?)?:(\\d{8})(?=T|\r?$)`, 'im');
+const DTSTART = dateLine('DTSTART');
+const DTEND = dateLine('DTEND');
+const RECURRENCE_ID = dateLine('RECURRENCE-ID');
+const lineDate = (block, re) => re.exec(block)?.[1];
+const unfoldedUid = (block) => /^UID:(.*(?:\r?\n[ \t].*)*)/im.exec(block)?.[1].replace(/\r?\n[ \t]/g, '').trim();
+const dateKey = (ms) => new Date(ms).toISOString().slice(0, 10).replaceAll('-', '');
+
+/**
+ * Drops VEVENTs that cannot reach the window before ical.js parses them, since
+ * a published feed carries months of past one-off meetings. Dates are compared
+ * with two days to spare for time zones. Anything this cannot read for sure,
+ * every recurring master, range exceptions, and events whose UID appears more
+ * than once (they interact through the masters map) are kept.
+ */
+export function dropDistantEvents(text, from, to) {
+  const before = dateKey(from - 2 * DAY_MS);
+  const after = dateKey(to + 2 * DAY_MS);
+  const blocks = text.match(VEVENT) ?? [];
+  const uidCount = new Map();
+  for (const block of blocks) {
+    const uid = unfoldedUid(block);
+    uidCount.set(uid, (uidCount.get(uid) ?? 0) + 1);
+  }
+  // Starts after the window, or (if it has a readable end) ends before it.
+  const startsAfter = (block) => lineDate(block, DTSTART) > after;
+  const endsBefore = (block) => {
+    if (HAS_DURATION.test(block)) return false;
+    // Without DTEND the event ends at DTSTART, or a day later for a DATE.
+    const last = HAS_DTEND.test(block) ? lineDate(block, DTEND) : lineDate(block, DTSTART);
+    return last !== undefined && last < before;
+  };
+  return text.replace(VEVENT, (block) => {
+    if (IS_RECURRING.test(block)) return block;
+    if (IS_EXCEPTION.test(block)) {
+      if (IS_RANGE.test(block)) return block;
+      // An exception counts both where it was and where it moved to. One that
+      // moved an old occurrence past the window still ends the expansion
+      // there, so it is kept.
+      const rid = lineDate(block, RECURRENCE_ID);
+      if (rid > after && startsAfter(block)) return '';
+      if (rid < before && endsBefore(block)) return '';
+      return block;
+    }
+    const uid = unfoldedUid(block);
+    if (uid === undefined || uidCount.get(uid) !== 1) return block;
+    return startsAfter(block) || endsBefore(block) ? '' : block;
+  });
+}
+
 /** Expands an ICS feed (recurrences, exceptions, VTIMEZONEs) into busy intervals. */
 export function icsBusy(text, from, to) {
-  const root = new ICAL.Component(ICAL.parse(text));
+  const root = new ICAL.Component(ICAL.parse(dropDistantEvents(text, from, to)));
+  const recentYear = new Date(from).getUTCFullYear() - 2;
   for (const tz of root.getAllSubcomponents('vtimezone')) {
+    trimTimezone(tz, recentYear);
     ICAL.TimezoneService.register(new ICAL.Timezone(tz));
   }
 
   const masters = new Map();
   const exceptions = [];
   for (const comp of root.getAllSubcomponents('vevent')) {
-    const event = new ICAL.Event(comp);
+    const event = new ICAL.Event(comp, { exceptions: [] });
     if (event.isRecurrenceException()) exceptions.push(event);
     else masters.set(event.uid, event);
   }
@@ -104,12 +249,33 @@ export function icsBusy(text, from, to) {
 
   for (const event of masters.values()) {
     if (!event.isRecurring()) {
-      add(event.startDate, event.endDate, event);
+      const { startDate, endDate } = event;
+      if (wallMs(endDate) + DAY_MS > from && wallMs(startDate) - DAY_MS < to) add(startDate, endDate, event);
       continue;
     }
-    const it = event.iterator();
+    // Occurrences that end well before the window are skipped unless an
+    // exception might move them into it. Exceptions that themselves end well
+    // before the window cannot, so only the others are kept.
+    const duration = event.duration;
+    const durationMs = duration.toSeconds() * 1000;
+    const related = Object.values(event.exceptions);
+    const allExceptionMs = related.map((ex) => wallMs(ex.recurrenceId));
+    const exceptionMs = allExceptionMs.filter((_, i) => wallMs(related[i].endDate) + DAY_MS > from);
+    const canSkip = event.rangeExceptions.length === 0;
+    const it = event.iterator(expansionStart(event, from, durationMs, exceptionMs));
     for (let next = it.next(), n = 0; next && n < 5000; next = it.next(), n++) {
-      const d = event.getOccurrenceDetails(next);
+      const wall = wallMs(next);
+      if (canSkip && wall + durationMs + DAY_MS <= from && exceptionMs.every((ms) => Math.abs(ms - wall) > DAY_MS)) continue;
+      let d;
+      if (canSkip && allExceptionMs.every((ms) => Math.abs(ms - wall) > DAY_MS)) {
+        // No exception is keyed anywhere near this occurrence, so this is what
+        // getOccurrenceDetails returns, without its lookups under a UTC copy.
+        const endDate = next.clone();
+        endDate.addDuration(duration);
+        d = { startDate: next, endDate, item: event };
+      } else {
+        d = event.getOccurrenceDetails(next);
+      }
       if (d.startDate.toUnixTime() * 1000 >= to) break;
       add(d.startDate, d.endDate, d.item);
     }
