@@ -138,8 +138,9 @@ jobs:
 
       - run: npm ci
 
-      # No secrets: the Worker uses only its AI, D1, rate-limit and service
-      # bindings, all declared in quip/wrangler.toml.
+      # Bindings are declared in quip/wrangler.toml. The Worker's secrets
+      # (ANTHROPIC_API_KEY, GOATCOUNTER_TOKEN) are set with `wrangler secret
+      # put` and survive deploys.
       - name: Deploy Worker
         working-directory: quip
         run: npx wrangler deploy
