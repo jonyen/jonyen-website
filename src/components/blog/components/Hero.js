@@ -9,10 +9,12 @@ import profileNoIris from '../../../assets/profile-noiris.jpg';
 import irisLeft from '../../../assets/memoji-iris-left.png';
 import irisRight from '../../../assets/memoji-iris-right.png';
 import eyesMask from '../../../assets/memoji-eyes-mask.png';
+import depthMap from '../../../assets/memoji-depth.png';
 import { takeModelLine, warmUp } from './memojiVoice';
 import { visitorLine } from './visitorCount';
 import { createBag, VISITOR_ID } from './sayingsBag';
 import { track, trackOnce } from './track';
+import { createMemojiDepth, DEPTH_FOCUS, DEPTH_STRENGTH, DEPTH_STRENGTH_Y, EYE_DEPTH } from './memojiDepth';
 
 // Said by the memoji when it's clicked. Edit freely. An entry is a string, or
 // { text, linkText, href } where linkText is the part of text that links.
@@ -71,17 +73,34 @@ const IRISES = [
 // looking up or down reads at a glance.
 const MAX_LOOK_X = 17;
 const MAX_LOOK_Y = 18;
+// The 3D head turn moves the face under the eye layers; they follow it by the
+// same amount, as % of EYES_BOX, once the WebGL head is drawing (--depth-on: 1).
+const EYE_SHIFT_X = (DEPTH_STRENGTH * (EYE_DEPTH - DEPTH_FOCUS) * 10000) / parseFloat(EYES_BOX.width);
+const EYE_SHIFT_Y =
+  (DEPTH_STRENGTH * DEPTH_STRENGTH_Y * (EYE_DEPTH - DEPTH_FOCUS) * 10000) / parseFloat(EYES_BOX.height);
 // Easing time constant: the eyes cover ~63% of the way to the target in this time.
 const EASE_MS = 150;
 // Pointer distance (px) at which the gaze is ~76% of the way to full.
 const GAZE_REACH_PX = 320;
 const IDLE_MS = 2000;
+// The memoji first appears looking off to the side (gaze -1 to 1; negative
+// is away from the name), holds that, then settles to centre, unless the
+// pointer has already moved.
+const INTRO_LOOK_X = -0.8;
+const INTRO_HOLD_MS = 900;
+// Blinks: a skin-coloured lid slides down over the eye mask and back up. The
+// gap between blinks is random in this range, with an occasional double blink.
+const BLINK_MS = 180;
+const BLINK_GAP_MS = [2500, 6500];
+const DOUBLE_BLINK_CHANCE = 0.15;
 const BUBBLE_MS = 4000;
 // The bubble's pop-in; the exit plays it backwards over the same time.
 const BUBBLE_ANIM_MS = 220;
 
 export default function Hero() {
   const avatarRef = React.useRef(null);
+  const lidRef = React.useRef(null);
+  const headRef = React.useRef(null);
   const [saying, setSaying] = React.useState(null);
   const lastText = React.useRef('');
   // "You're visitor #N today!" once GoatCounter answers; it then joins the
@@ -178,9 +197,30 @@ export default function Hero() {
     const matches = (query) => window.matchMedia?.(query).matches ?? false;
     if (!matches('(pointer: fine)') || matches('(prefers-reduced-motion: reduce)')) return undefined;
 
+    // The 3D head, drawn over the flat image once its textures load. Without
+    // WebGL the flat image and moving irises carry on alone.
+    const canvas = headRef.current;
+    const head = canvas && createMemojiDepth(canvas, profileNoIris, depthMap);
+    head?.ready
+      .then(() => {
+        // Start already turned, so the head never visibly swings out first.
+        if (!moved && visible) {
+          cur.x = INTRO_LOOK_X;
+          target.x = INTRO_LOOK_X;
+          el.style.setProperty('--look-x', String(INTRO_LOOK_X));
+          // onMove clears this timer, so the pointer takes over mid-glance.
+          idleTimer = setTimeout(() => lookAt(0, 0), INTRO_HOLD_MS);
+        }
+        head.draw(cur.x, cur.y);
+        canvas.style.opacity = '1';
+        el.style.setProperty('--depth-on', '1');
+      })
+      .catch(() => {});
+
     let frame = 0;
     let last = 0;
     let visible = true;
+    let moved = false;
     let idleTimer = 0;
     const cur = { x: 0, y: 0 };
     const target = { x: 0, y: 0 };
@@ -193,6 +233,7 @@ export default function Hero() {
       cur.y += (target.y - cur.y) * k;
       el.style.setProperty('--look-x', cur.x.toFixed(4));
       el.style.setProperty('--look-y', cur.y.toFixed(4));
+      head?.draw(cur.x, cur.y);
       if (Math.abs(target.x - cur.x) + Math.abs(target.y - cur.y) > 0.002) {
         frame = requestAnimationFrame(step);
       } else {
@@ -212,6 +253,7 @@ export default function Hero() {
     };
     const onMove = (e) => {
       if (!visible) return;
+      moved = true;
       const r = el.getBoundingClientRect();
       const dx = e.clientX - (r.left + r.width / 2);
       const dy = e.clientY - (r.top + r.height / 2);
@@ -235,10 +277,42 @@ export default function Hero() {
     return () => {
       cancelAnimationFrame(frame);
       clearTimeout(idleTimer);
+      head?.destroy();
       io.disconnect();
       window.removeEventListener('pointermove', onMove);
       document.documentElement.removeEventListener('mouseleave', onLeave);
     };
+  }, []);
+
+  // Blink now and then. Reduced-motion users get open eyes; hidden tabs skip
+  // the blink but keep the timer going.
+  React.useEffect(() => {
+    const lid = lidRef.current;
+    // Element.animate is missing in jsdom (tests).
+    if (!lid?.animate || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return undefined;
+
+    let timer = 0;
+    const blink = () =>
+      lid.animate(
+        [
+          { transform: 'translateY(-100%)' },
+          { transform: 'translateY(0)', offset: 0.45 },
+          { transform: 'translateY(-100%)' },
+        ],
+        { duration: BLINK_MS, easing: 'ease-in-out' },
+      );
+    const schedule = () => {
+      const [min, max] = BLINK_GAP_MS;
+      timer = setTimeout(() => {
+        if (!document.hidden) {
+          blink();
+          if (Math.random() < DOUBLE_BLINK_CHANCE) setTimeout(blink, BLINK_MS + 80);
+        }
+        schedule();
+      }, min + Math.random() * (max - min));
+    };
+    schedule();
+    return () => clearTimeout(timer);
   }, []);
 
   const scrollToAbout = () => {
@@ -388,6 +462,12 @@ export default function Hero() {
                   sx={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }}
                 />
                 <Box
+                  ref={headRef}
+                  component="canvas"
+                  aria-hidden="true"
+                  sx={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0 }}
+                />
+                <Box
                   aria-hidden="true"
                   sx={{
                     position: 'absolute',
@@ -396,6 +476,7 @@ export default function Hero() {
                     WebkitMaskImage: `url(${eyesMask})`,
                     maskSize: '100% 100%',
                     WebkitMaskSize: '100% 100%',
+                    transform: `translate(calc(var(--look-x, 0) * var(--depth-on, 0) * ${EYE_SHIFT_X}%), calc(var(--look-y, 0) * var(--depth-on, 0) * ${EYE_SHIFT_Y}%))`,
                   }}
                 >
                   {IRISES.map(({ src, ...pos }) => (
@@ -413,6 +494,16 @@ export default function Hero() {
                       }}
                     />
                   ))}
+                  {/* Eyelid: parked above the eye box, so the mask hides it until a blink. */}
+                  <Box
+                    ref={lidRef}
+                    sx={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: 'linear-gradient(to bottom, #eec2a5 82%, #2a1d17 82%)',
+                      transform: 'translateY(-100%)',
+                    }}
+                  />
                 </Box>
               </Box>
               {/* Speech bubble to the right of the memoji, over the start of the name;
