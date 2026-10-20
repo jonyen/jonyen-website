@@ -9,10 +9,12 @@ import profileNoIris from '../../../assets/profile-noiris.jpg';
 import irisLeft from '../../../assets/memoji-iris-left.png';
 import irisRight from '../../../assets/memoji-iris-right.png';
 import eyesMask from '../../../assets/memoji-eyes-mask.png';
+import depthMap from '../../../assets/memoji-depth.png';
 import { takeModelLine, warmUp } from './memojiVoice';
 import { visitorLine } from './visitorCount';
 import { createBag, VISITOR_ID } from './sayingsBag';
 import { track, trackOnce } from './track';
+import { createMemojiDepth, DEPTH_FOCUS, DEPTH_STRENGTH, DEPTH_STRENGTH_Y, EYE_DEPTH } from './memojiDepth';
 
 // Said by the memoji when it's clicked. Edit freely. An entry is a string, or
 // { text, linkText, href } where linkText is the part of text that links.
@@ -71,6 +73,11 @@ const IRISES = [
 // looking up or down reads at a glance.
 const MAX_LOOK_X = 17;
 const MAX_LOOK_Y = 18;
+// The 3D head turn moves the face under the eye layers; they follow it by the
+// same amount, as % of EYES_BOX, once the WebGL head is drawing (--depth-on: 1).
+const EYE_SHIFT_X = (DEPTH_STRENGTH * (EYE_DEPTH - DEPTH_FOCUS) * 10000) / parseFloat(EYES_BOX.width);
+const EYE_SHIFT_Y =
+  (DEPTH_STRENGTH * DEPTH_STRENGTH_Y * (EYE_DEPTH - DEPTH_FOCUS) * 10000) / parseFloat(EYES_BOX.height);
 // Easing time constant: the eyes cover ~63% of the way to the target in this time.
 const EASE_MS = 150;
 // Pointer distance (px) at which the gaze is ~76% of the way to full.
@@ -88,6 +95,7 @@ const BUBBLE_ANIM_MS = 220;
 export default function Hero() {
   const avatarRef = React.useRef(null);
   const lidRef = React.useRef(null);
+  const headRef = React.useRef(null);
   const [saying, setSaying] = React.useState(null);
   const lastText = React.useRef('');
   // "You're visitor #N today!" once GoatCounter answers; it then joins the
@@ -184,6 +192,18 @@ export default function Hero() {
     const matches = (query) => window.matchMedia?.(query).matches ?? false;
     if (!matches('(pointer: fine)') || matches('(prefers-reduced-motion: reduce)')) return undefined;
 
+    // The 3D head, drawn over the flat image once its textures load. Without
+    // WebGL the flat image and moving irises carry on alone.
+    const canvas = headRef.current;
+    const head = canvas && createMemojiDepth(canvas, profileNoIris, depthMap);
+    head?.ready
+      .then(() => {
+        head.draw(0, 0);
+        canvas.style.opacity = '1';
+        el.style.setProperty('--depth-on', '1');
+      })
+      .catch(() => {});
+
     let frame = 0;
     let last = 0;
     let visible = true;
@@ -199,6 +219,7 @@ export default function Hero() {
       cur.y += (target.y - cur.y) * k;
       el.style.setProperty('--look-x', cur.x.toFixed(4));
       el.style.setProperty('--look-y', cur.y.toFixed(4));
+      head?.draw(cur.x, cur.y);
       if (Math.abs(target.x - cur.x) + Math.abs(target.y - cur.y) > 0.002) {
         frame = requestAnimationFrame(step);
       } else {
@@ -241,6 +262,7 @@ export default function Hero() {
     return () => {
       cancelAnimationFrame(frame);
       clearTimeout(idleTimer);
+      head?.destroy();
       io.disconnect();
       window.removeEventListener('pointermove', onMove);
       document.documentElement.removeEventListener('mouseleave', onLeave);
@@ -425,6 +447,12 @@ export default function Hero() {
                   sx={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }}
                 />
                 <Box
+                  ref={headRef}
+                  component="canvas"
+                  aria-hidden="true"
+                  sx={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0 }}
+                />
+                <Box
                   aria-hidden="true"
                   sx={{
                     position: 'absolute',
@@ -433,6 +461,7 @@ export default function Hero() {
                     WebkitMaskImage: `url(${eyesMask})`,
                     maskSize: '100% 100%',
                     WebkitMaskSize: '100% 100%',
+                    transform: `translate(calc(var(--look-x, 0) * var(--depth-on, 0) * ${EYE_SHIFT_X}%), calc(var(--look-y, 0) * var(--depth-on, 0) * ${EYE_SHIFT_Y}%))`,
                   }}
                 >
                   {IRISES.map(({ src, ...pos }) => (
