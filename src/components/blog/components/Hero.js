@@ -83,6 +83,10 @@ const EASE_MS = 150;
 // Pointer distance (px) at which the gaze is ~76% of the way to full.
 const GAZE_REACH_PX = 320;
 const IDLE_MS = 2000;
+// On load the memoji glances up (gaze -1 to 1) and holds it this long before
+// settling, unless the pointer has already moved.
+const INTRO_LOOK_UP = 0.8;
+const INTRO_HOLD_MS = 900;
 // Blinks: a skin-coloured lid slides down over the eye mask and back up. The
 // gap between blinks is random in this range, with an occasional double blink.
 const BLINK_MS = 180;
@@ -201,12 +205,17 @@ export default function Hero() {
         head.draw(0, 0);
         canvas.style.opacity = '1';
         el.style.setProperty('--depth-on', '1');
+        if (moved || !visible) return;
+        lookAt(0, -INTRO_LOOK_UP);
+        // onMove clears this timer, so the pointer takes over mid-glance.
+        idleTimer = setTimeout(() => lookAt(0, 0), INTRO_HOLD_MS);
       })
       .catch(() => {});
 
     let frame = 0;
     let last = 0;
     let visible = true;
+    let moved = false;
     let idleTimer = 0;
     const cur = { x: 0, y: 0 };
     const target = { x: 0, y: 0 };
@@ -239,6 +248,7 @@ export default function Hero() {
     };
     const onMove = (e) => {
       if (!visible) return;
+      moved = true;
       const r = el.getBoundingClientRect();
       const dx = e.clientX - (r.left + r.width / 2);
       const dy = e.clientY - (r.top + r.height / 2);
