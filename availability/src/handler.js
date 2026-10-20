@@ -16,11 +16,12 @@
  *                            inlined as <script id="busy-data"> so the first
  *                            paint already shows free times
  *
- * A cron rebuilds the feed every 10 minutes into the BUSY KV namespace. KV is
- * shared by every data centre, unlike caches.default, so visitors read a
- * recent build instead of waiting on the calendar APIs. Only a missing or
- * stale build is made on request, and never for the page: it is served
- * without the inline data and fetches busy.json instead.
+ * cron-hub (jonyen/cron-hub) runs scheduled() every 10 minutes, rebuilding
+ * the feed into the BUSY KV namespace. KV is shared by every data centre,
+ * unlike caches.default, so visitors read a recent build instead of waiting on
+ * the calendar APIs. Only a missing or stale build is made on request, and
+ * never for the page: it is served without the inline data and fetches
+ * busy.json instead.
  *
  * If a source fails the others are still served with incomplete: true, so the
  * page can warn that some busy times may be missing. Error details stay in the

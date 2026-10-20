@@ -23,9 +23,9 @@ GOOGLE_CALENDARS_ACTS2 = "jonathan.yen@acts2.network,c_af3b7f631adc7ad1b21f146dd
 # "E-Sabbath & Family Night" on the A2K + Churchwide mirror.
 GOOGLE_SKIP_ALL_DAY = "c_af3b7f631adc7ad1b21f146dd993ff7644bd739a3c920ded3bcc79099b90b72c@group.calendar.google.com"
 
-# Rebuilds busy.json into KV, so no visitor waits on the calendar APIs.
-[triggers]
-crons = ["*/10 * * * *"]
+# scheduled() rebuilds busy.json into KV every 10 minutes, so no visitor waits
+# on the calendar APIs. It runs from cron-hub (jonyen/cron-hub), the account's
+# one cron trigger, not from a trigger here.
 
 # The latest complete busy.json, shared by every data centre.
 [[kv_namespaces]]
