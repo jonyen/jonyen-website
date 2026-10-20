@@ -83,10 +83,10 @@ const EASE_MS = 150;
 // Pointer distance (px) at which the gaze is ~76% of the way to full.
 const GAZE_REACH_PX = 320;
 const IDLE_MS = 2000;
-// The memoji first appears looking off to the side (gaze -1 to 1, toward
-// the name), holds that, then settles to centre, unless the pointer has
-// already moved.
-const INTRO_LOOK_X = 0.8;
+// The memoji first appears looking off to the side (gaze -1 to 1; negative
+// is away from the name), holds that, then settles to centre, unless the
+// pointer has already moved.
+const INTRO_LOOK_X = -0.8;
 const INTRO_HOLD_MS = 900;
 // Blinks: a skin-coloured lid slides down over the eye mask and back up. The
 // gap between blinks is random in this range, with an occasional double blink.
