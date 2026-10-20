@@ -163,3 +163,79 @@ test('404 for other paths', async () => {
   const worker = createHandler({ fetchImpl: fakeFetch(), now: () => NOW });
   assert.equal((await get(worker, '/schedule/other')).status, 404);
 });
+
+function fakeKv(initial = {}) {
+  const store = new Map(Object.entries(initial));
+  return {
+    store,
+    get: async (key) => store.get(key) ?? null,
+    put: async (key, value) => { store.set(key, value); },
+  };
+}
+
+const feed = (generatedAt) => JSON.stringify({ generatedAt: iso(generatedAt), from: iso(generatedAt), to: iso(generatedAt + 31 * DAY), incomplete: false, busy: [] });
+
+test('the cron stores a complete build in KV, and busy.json serves it without calendar calls', async () => {
+  const BUSY = fakeKv();
+  await createHandler({ fetchImpl: fakeFetch(), now: () => NOW }).scheduled({}, { ...env, BUSY });
+  assert.equal(JSON.parse(BUSY.store.get('busy')).generatedAt, iso(NOW));
+
+  const fetchImpl = fakeFetch();
+  const worker = createHandler({ fetchImpl, now: () => NOW + 5 * 60_000 });
+  const res = await worker.fetch(new Request('https://jonyen.com/schedule/busy.json'), { ...env, BUSY }, { waitUntil() {} });
+  assert.equal((await res.json()).generatedAt, iso(NOW));
+  assert.equal(fetchImpl.calls.length, 0);
+});
+
+test('a partial cron build keeps the last complete one', async () => {
+  const BUSY = fakeKv({ busy: feed(NOW - 10 * 60_000) });
+  const realError = console.error;
+  console.error = () => {};
+  await createHandler({ fetchImpl: fakeFetch({ failOutlook: true }), now: () => NOW }).scheduled({}, { ...env, BUSY });
+  console.error = realError;
+  assert.equal(JSON.parse(BUSY.store.get('busy')).generatedAt, iso(NOW - 10 * 60_000));
+});
+
+test('a stale stored build is rebuilt on request and stored again', async () => {
+  const BUSY = fakeKv({ busy: feed(NOW - 31 * 60_000) });
+  const pending = [];
+  const worker = createHandler({ fetchImpl: fakeFetch(), now: () => NOW });
+  const res = await worker.fetch(new Request('https://jonyen.com/schedule/busy.json'), { ...env, BUSY }, { waitUntil: (p) => pending.push(p) });
+  assert.equal((await res.json()).generatedAt, iso(NOW));
+  await Promise.all(pending);
+  assert.equal(JSON.parse(BUSY.store.get('busy')).generatedAt, iso(NOW));
+});
+
+const PAGE = '<!DOCTYPE html><html><head><title>Schedule</title></head><body></body></html>';
+function originFetch(type = 'text/html; charset=utf-8') {
+  return async (req) => {
+    assert.equal(new URL(req.url).pathname, '/schedule/');
+    return new Response(PAGE, { headers: { 'Content-Type': type, ETag: '"abc"', 'Cache-Control': 'max-age=600' } });
+  };
+}
+const getPage = (worker, BUSY) => worker.fetch(new Request('https://jonyen.com/schedule/'), { ...env, BUSY }, { waitUntil() {} });
+
+test('/schedule/ inlines the stored feed into the head', async () => {
+  const text = feed(NOW).replace('"busy":[]', '"busy":[],"x":"</script>"');
+  const worker = createHandler({ fetchImpl: originFetch(), now: () => NOW });
+  const res = await getPage(worker, fakeKv({ busy: text }));
+  const html = await res.text();
+  const [, inline] = html.match(/<script id="busy-data" type="application\/json">(.*?)<\/script>\n<\/head>/);
+  assert.deepEqual(JSON.parse(inline), JSON.parse(text));
+  assert.equal(res.headers.get('ETag'), null);
+  assert.equal(res.headers.get('Cache-Control'), 'no-cache');
+});
+
+test('/schedule/ goes out unchanged without a fresh stored feed or for non-HTML', async () => {
+  for (const [BUSY, type] of [
+    [fakeKv(), undefined],
+    [fakeKv({ busy: feed(NOW - 31 * 60_000) }), undefined],
+    [{ get: async () => { throw new Error('kv down'); } }, undefined],
+    [fakeKv({ busy: feed(NOW) }), 'text/plain'],
+  ]) {
+    const worker = createHandler({ fetchImpl: originFetch(type), now: () => NOW });
+    const res = await getPage(worker, BUSY);
+    assert.equal(await res.text(), PAGE);
+    assert.equal(res.headers.get('ETag'), '"abc"');
+  }
+});

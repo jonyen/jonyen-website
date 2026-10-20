@@ -3,11 +3,11 @@ main = "src/index.js"
 compatibility_date = "2026-08-01"
 workers_dev = false
 
-# The jonyen.com/schedule/busy.json route is managed outside this file: the
-# deploy token intentionally has no Workers Routes permission. Create the route
-# once in the Cloudflare dashboard (Workers & Pages > schedule-availability >
-# Settings > Domains & Routes), after which every deploy just replaces the
-# script behind it.
+# The jonyen.com/schedule/busy.json and jonyen.com/schedule/ routes are managed
+# outside this file: the deploy token intentionally has no Workers Routes
+# permission. Create each route once in the Cloudflare dashboard (Workers &
+# Pages > schedule-availability > Settings > Domains & Routes), after which
+# every deploy just replaces the script behind it.
 #
 # GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_PERSONAL,
 # GOOGLE_REFRESH_ACTS2 and OUTLOOK_ICS_URL are set by the deploy workflow with
@@ -22,3 +22,12 @@ GOOGLE_CALENDARS_ACTS2 = "jonathan.yen@acts2.network,c_af3b7f631adc7ad1b21f146dd
 # Calendars whose all-day (20h+) blocks are not busy, e.g. the Monday
 # "E-Sabbath & Family Night" on the A2K + Churchwide mirror.
 GOOGLE_SKIP_ALL_DAY = "c_af3b7f631adc7ad1b21f146dd993ff7644bd739a3c920ded3bcc79099b90b72c@group.calendar.google.com"
+
+# Rebuilds busy.json into KV, so no visitor waits on the calendar APIs.
+[triggers]
+crons = ["*/10 * * * *"]
+
+# The latest complete busy.json, shared by every data centre.
+[[kv_namespaces]]
+binding = "BUSY"
+id = "2a1777c2342944b68bb1cf3738223537"
