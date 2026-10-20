@@ -546,18 +546,29 @@
         return mondayOf(today) + (new Date(today).getUTCDay() % 6 === 0 ? 7 * DAY : 0);
     })();
     weeks = [firstMonday];
+
+    function load(json) {
+        data = json;
+        weeks = [];
+        const last = homeDay(Date.parse(json.to));
+        for (let monday = firstMonday; monday <= last; monday += 7 * DAY) weeks.push(monday);
+        $('freebox').hidden = false;
+        render();
+    }
+
+    // The Worker inlines a recent busy.json into the page when it has one, so
+    // the first paint already shows free times.
+    let inline = null;
+    try { inline = JSON.parse($('busy-data')?.textContent); } catch {}
+    if (inline) {
+        load(inline);
+        return;
+    }
     render();
 
     fetch('/schedule/busy.json')
         .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-        .then(json => {
-            data = json;
-            weeks = [];
-            const last = homeDay(Date.parse(json.to));
-            for (let monday = firstMonday; monday <= last; monday += 7 * DAY) weeks.push(monday);
-            $('freebox').hidden = false;
-            render();
-        })
+        .then(load)
         .catch(() => {
             statusEl.className = 'note warn';
             statusEl.textContent = "Availability couldn't load right now. Pick a length under Book a time to see open slots.";

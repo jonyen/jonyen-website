@@ -12,6 +12,16 @@
  *   - work Outlook, read from a published "Can view when I'm busy" ICS feed
  *
  * GET /schedule/busy.json -> { generatedAt, from, to, incomplete, busy: [{ start, end }] }
+ * GET /schedule/          -> the GitHub Pages page, with the stored busy.json
+ *                            inlined as <script id="busy-data"> so the first
+ *                            paint already shows free times
+ *
+ * cron-hub (jonyen/cron-hub) runs scheduled() every 10 minutes, rebuilding
+ * the feed into the BUSY KV namespace. KV is shared by every data centre,
+ * unlike caches.default, so visitors read a recent build instead of waiting on
+ * the calendar APIs. Only a missing or stale build is made on request, and
+ * never for the page: it is served without the inline data and fetches
+ * busy.json instead.
  *
  * If a source fails the others are still served with incomplete: true, so the
  * page can warn that some busy times may be missing. Error details stay in the
@@ -21,6 +31,9 @@ import ICAL from 'ical.js';
 
 const WINDOW_DAYS = 31;
 const CACHE_SECONDS = 600;
+// Three missed cron runs before a stored build counts as absent.
+const STALE_MS = 30 * 60_000;
+const STORE_KEY = 'busy';
 const ALL_DAY_MS = 20 * 3600_000;
 const DAY_MS = 86400_000;
 
@@ -334,9 +347,35 @@ export function createHandler({ fetchImpl = fetch, now = Date.now, cache = null 
     };
   }
 
+  // The last complete build as JSON text, or null if there is none or it is stale.
+  async function stored(env) {
+    const text = await env.BUSY?.get(STORE_KEY);
+    if (!text) return null;
+    return now() - Date.parse(JSON.parse(text).generatedAt) < STALE_MS ? text : null;
+  }
+
+  // Inlines the stored feed into the page. Without one, or if KV fails, the
+  // page goes out as is and fetches busy.json itself.
+  async function page(request, env) {
+    const [res, text] = await Promise.all([fetchImpl(request), stored(env).catch(() => null)]);
+    if (!text || !res.ok || !(res.headers.get('Content-Type') ?? '').startsWith('text/html')) return res;
+    // "<" never appears in the feed, but escaping it keeps "</script>" out for good.
+    const tag = `<script id="busy-data" type="application/json">${text.replace(/</g, '\\u003c')}</script>`;
+    const html = (await res.text()).replace('</head>', `${tag}\n</head>`);
+    const headers = new Headers(res.headers);
+    // The body no longer matches the origin's validators, and the inline data
+    // should be no older than the feed, so browsers re-fetch every visit.
+    headers.delete('ETag');
+    headers.delete('Last-Modified');
+    headers.delete('Content-Length');
+    headers.set('Cache-Control', 'no-cache');
+    return new Response(html, { status: res.status, headers });
+  }
+
   return {
     async fetch(request, env, ctx) {
       const url = new URL(request.url);
+      if (url.pathname === '/schedule/') return request.method === 'GET' ? page(request, env) : fetchImpl(request);
       if (url.pathname !== '/schedule/busy.json') return new Response('Not found', { status: 404 });
       if (request.method !== 'GET') return new Response('Method not allowed', { status: 405 });
 
@@ -344,11 +383,25 @@ export function createHandler({ fetchImpl = fetch, now = Date.now, cache = null 
       const hit = cache && (await cache.match(key));
       if (hit) return hit;
 
-      const body = await build(env);
-      const res = new Response(JSON.stringify(body), { headers: JSON_HEADERS });
+      let text = await stored(env);
+      let complete = true;
+      if (!text) {
+        const body = await build(env);
+        text = JSON.stringify(body);
+        complete = !body.incomplete;
+        if (complete && env.BUSY) ctx?.waitUntil(env.BUSY.put(STORE_KEY, text));
+      }
+      const res = new Response(text, { headers: JSON_HEADERS });
       // A partial answer is not cached, so the next request retries the failed source.
-      if (cache && !body.incomplete) ctx?.waitUntil(cache.put(key, res.clone()));
+      if (cache && complete) ctx?.waitUntil(cache.put(key, res.clone()));
       return res;
+    },
+
+    async scheduled(controller, env) {
+      const body = await build(env);
+      // A partial build would replace a complete one, so the last good one stays.
+      if (body.incomplete) return;
+      await env.BUSY.put(STORE_KEY, JSON.stringify(body));
     },
   };
 }
