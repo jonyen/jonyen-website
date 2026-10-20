@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<!-- Source for public/og-image.png (1200x630). Regenerate with: node scripts/og-image.mjs -->
+<!-- Source for public/og-image.png and public/schedule/og-image.png (1200x630).
+     ?page=schedule swaps in the /schedule text. Regenerate with: node scripts/og-image.mjs -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;800&display=swap" />
 <style>
   :root {
@@ -97,10 +98,17 @@
     <img class="photo" src="../src/assets/profile.png" alt="" />
     <div>
       <h1>Jonathan Yen</h1>
-      <div class="role"><div class="line"></div><span>Full Stack Engineer</span></div>
-      <p class="blurb">15+ years writing software for <span style="white-space: nowrap">industry-leading</span> companies.</p>
-      <p class="url">jonyen.com</p>
+      <div class="role"><div class="line"></div><span id="role">Full Stack Engineer</span></div>
+      <p class="blurb" id="blurb">15+ years writing software for <span style="white-space: nowrap">industry-leading</span> companies.</p>
+      <p class="url" id="url">jonyen.com</p>
     </div>
   </div>
+  <script>
+    if (new URLSearchParams(location.search).get('page') === 'schedule') {
+      document.getElementById('role').textContent = 'Book a time';
+      document.getElementById('blurb').textContent = 'See when I\u2019m free and pick a time.';
+      document.getElementById('url').textContent = 'jonyen.com/schedule';
+    }
+  </script>
 </body>
 </html>
