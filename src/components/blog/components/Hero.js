@@ -76,12 +76,18 @@ const EASE_MS = 150;
 // Pointer distance (px) at which the gaze is ~76% of the way to full.
 const GAZE_REACH_PX = 320;
 const IDLE_MS = 2000;
+// Blinks: a skin-coloured lid slides down over the eye mask and back up. The
+// gap between blinks is random in this range, with an occasional double blink.
+const BLINK_MS = 180;
+const BLINK_GAP_MS = [2500, 6500];
+const DOUBLE_BLINK_CHANCE = 0.15;
 const BUBBLE_MS = 4000;
 // The bubble's pop-in; the exit plays it backwards over the same time.
 const BUBBLE_ANIM_MS = 220;
 
 export default function Hero() {
   const avatarRef = React.useRef(null);
+  const lidRef = React.useRef(null);
   const [saying, setSaying] = React.useState(null);
   const lastText = React.useRef('');
   // "You're visitor #N today!" once GoatCounter answers; it then joins the
@@ -239,6 +245,37 @@ export default function Hero() {
       window.removeEventListener('pointermove', onMove);
       document.documentElement.removeEventListener('mouseleave', onLeave);
     };
+  }, []);
+
+  // Blink now and then. Reduced-motion users get open eyes; hidden tabs skip
+  // the blink but keep the timer going.
+  React.useEffect(() => {
+    const lid = lidRef.current;
+    // Element.animate is missing in jsdom (tests).
+    if (!lid?.animate || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return undefined;
+
+    let timer = 0;
+    const blink = () =>
+      lid.animate(
+        [
+          { transform: 'translateY(-100%)' },
+          { transform: 'translateY(0)', offset: 0.45 },
+          { transform: 'translateY(-100%)' },
+        ],
+        { duration: BLINK_MS, easing: 'ease-in-out' },
+      );
+    const schedule = () => {
+      const [min, max] = BLINK_GAP_MS;
+      timer = setTimeout(() => {
+        if (!document.hidden) {
+          blink();
+          if (Math.random() < DOUBLE_BLINK_CHANCE) setTimeout(blink, BLINK_MS + 80);
+        }
+        schedule();
+      }, min + Math.random() * (max - min));
+    };
+    schedule();
+    return () => clearTimeout(timer);
   }, []);
 
   const scrollToAbout = () => {
@@ -413,6 +450,16 @@ export default function Hero() {
                       }}
                     />
                   ))}
+                  {/* Eyelid: parked above the eye box, so the mask hides it until a blink. */}
+                  <Box
+                    ref={lidRef}
+                    sx={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: 'linear-gradient(to bottom, #eec2a5 82%, #2a1d17 82%)',
+                      transform: 'translateY(-100%)',
+                    }}
+                  />
                 </Box>
               </Box>
               {/* Speech bubble to the right of the memoji, over the start of the name;
