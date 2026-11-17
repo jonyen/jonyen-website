@@ -44,7 +44,7 @@
       "role": "Frontend Developer",
       "dates": "Jan 2020 – Aug 2022 · McLean, VA",
       "bullets": [
-        "Built React/Node.js/PHP crowdsourced-innovation application; upgraded PHP infrastructure and built REST and GraphQL APIs",
+        "Built React/Redux/Node.js/PHP crowdsourced-innovation application; upgraded PHP infrastructure and built REST and GraphQL APIs",
         "Set up observability with Grafana Loki; cut multi-step developer environment setup from hours to 3 minutes with Docker Compose",
         "Served as project security champion: managed vulnerabilities and enforced secure coding practices; led NodeJS/PHP debugging workshops; ran Jenkins CI for testing and linting"
       ]

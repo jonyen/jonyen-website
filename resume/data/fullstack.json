@@ -57,9 +57,9 @@
       "company": "Medallia",
       "role": "Software Engineer",
       "dates": "January 2020 – August 2022",
-      "subtitle": "React/Node.js/GraphQL, PHP Software engineer",
+      "subtitle": "React/Redux/Node.js/GraphQL, PHP Software engineer",
       "bullets": [
-        "Developed web application for crowdsourcing innovation in React, Node.js and PHP",
+        "Developed web application for crowdsourcing innovation in React/Redux, Node.js and PHP",
         "Upgraded code infrastructure to latest version of PHP, built out REST and GraphQL APIs",
         "Set up observability infrastructure with Grafana and Loki",
         "Simplified multistep developer environment setup from several hours to 3 minutes using Docker compose",
