@@ -1,0 +1,116 @@
+{
+  "slug": "jonathan-yen-resume-horizon3-dx",
+  "title": "Senior / Staff Developer Experience Engineer",
+  "extraContact": [],
+  "summary": "Software engineer with 15+ years across build and release engineering, CI/CD, and full stack product work. Began as a build & release engineer at Aspera; recent work includes pipeline security scanning, merge queues, preview environments, release automation, and an agent-based CI autofix built on Claude Code and Rovo Dev. Writes tooling in Go, Python, TypeScript, and shell. Remote, US citizen (no sponsorship required).",
+  "skills": [
+    {
+      "label": "CI/CD & Release",
+      "value": "Bitbucket Pipelines, GitHub Actions, GitLab CI, Jenkins, Bamboo; merge queues, release gates, artifact promotion by image digest, rollback paths, migration-safety gates, preview deploys"
+    },
+    {
+      "label": "Containers & Delivery",
+      "value": "Docker / OCI images, Docker Compose, Kubernetes (k3s), Helm values, ArgoCD / GitOps, AWS (ECR, S3, EC2, Lambda, CloudFront, VPC, RDS), Terraform, Cloudflare Workers"
+    },
+    {
+      "label": "Supply-Chain Security",
+      "value": "Trivy (dependency, image, secret scanning), Semgrep SAST, Snyk, SonarQube, secret management (Doppler, Infisical), least-privilege CI tokens, OIDC credentials"
+    },
+    {
+      "label": "Languages & Tooling",
+      "value": "Go, Python, TypeScript / Node.js, Bash; Yarn workspaces, monorepo tooling, git-subtree sync, Playwright, Cypress"
+    },
+    {
+      "label": "AI-Assisted Engineering",
+      "value": "Claude Code (headless, hooks, MCP servers), Rovo Dev, CodeRabbit; OpenTelemetry usage telemetry; observability with Grafana, Loki, Splunk, SignalFx"
+    }
+  ],
+  "experience": [
+    {
+      "company": "Datavault AI",
+      "role": "Software Engineer (Platform)",
+      "dates": "February 2026 – Current",
+      "subtitle": "Platform and developer-workflow owner across a Go API, Next.js portal, and Python AI services (Bitbucket Pipelines, ECR, k3s + ArgoCD)",
+      "bullets": [
+        "Built CI autofix: a failed build step triggers a headless agent (Rovo Dev CLI, Claude Code fallback) under a committed allow/deny tool policy, which re-runs the failing step to verify its patch and opens a PR for human review instead of pushing",
+        "Replaced a broken Snyk integration with Trivy (dependency, image, and secret scanning) and Semgrep SAST in two service pipelines, running warn-only first; wrote the ADR for the change",
+        "Added a CI check that fails PRs whose database migrations are numbered at or below the target branch, because golang-migrate silently skips them",
+        "Set up Bitbucket merge queues for the two core services to reduce merge contention on develop",
+        "Ran releases for both core services: release-branch PRs, back-merges, and preparing image-digest promotions to production through a GitOps (ArgoCD) promote script",
+        "Built per-branch preview deploys for frontend and backend (signed-cookie routing) and git-subtree monorepo sync driven by Bitbucket webhooks and pipelines",
+        "Set up CodeRabbit AI PR review and removed Qodo; built a prototype Claude Code OpenTelemetry usage collector (Lambda, DynamoDB, Terraform), not yet deployed",
+        "Published a CI test-timing dashboard to Confluence to target the slowest pipeline steps; authored ADRs/RFCs on reproducible dev environments, preview deploys, and connector strategy",
+        "300+ commits across both core services; also built the AI data-valuation feature across Go, Python (LangGraph, Temporal), and React"
+      ]
+    },
+    {
+      "company": "Mercor",
+      "role": "Senior Domain Expert (Software Developer) — Contract",
+      "dates": "November 2025 – February 2026",
+      "subtitle": "React/TypeScript/Node.js/Next.js/GraphQL/PHP/Docker/Postgres expert",
+      "bullets": [
+        "Contract software development work on AI training data for an AI lab",
+        "Built small projects from scratch as reference deliverables",
+        "Wrote data generation tooling used by other experts on the project",
+        "Worked with reviewers to improve training data quality"
+      ]
+    },
+    {
+      "company": "Atlassian",
+      "role": "Frontend Software Engineer",
+      "dates": "August 2022 – June 2025",
+      "subtitle": "React/Node.js/GraphQL Software Engineer in Central AI and Confluence teams",
+      "bullets": [
+        "Migrated Confluence frontend package management from Bolt to Yarn v2, cutting install time from about 13 minutes to under 2",
+        "Built third-party connectors for Rovo, Atlassian's AI product",
+        "Led a team of engineers building a search autosuggestion component; mentored 5 junior engineers and taught git bisect-style debugging to find regressions",
+        "Used Splunk and SignalFx to troubleshoot production and staging issues"
+      ]
+    },
+    {
+      "company": "Medallia",
+      "role": "Software Engineer",
+      "dates": "January 2020 – August 2022",
+      "subtitle": "React/Redux/Node.js/GraphQL, PHP Software engineer",
+      "bullets": [
+        "Cut developer environment setup from several hours to 3 minutes with Docker Compose",
+        "Built a Jenkins agent to run CI testing and linting for the PHP codebase",
+        "Stood up observability with Grafana and Loki",
+        "Security champion for the project team: triaged vulnerabilities and enforced secure coding practices",
+        "Upgraded the PHP runtime and built REST and GraphQL APIs for a React / Redux / Node.js / PHP innovation platform; led a debugging workshop for Node.js and PHP"
+      ]
+    },
+    {
+      "company": "Cvent",
+      "role": "Software Engineer II",
+      "dates": "January 2019 – January 2020",
+      "subtitle": "Full stack Ruby on Rails/JavaScript developer",
+      "bullets": [
+        "Wrote a development environment setup script that got new developers productive within 15 minutes",
+        "Built UI components and features for the event management platform and customer portal (Rails, JavaScript)"
+      ]
+    },
+    {
+      "company": "Aspera, an IBM Company",
+      "role": "Technical Consultant/Software Developer",
+      "dates": "July 2015 – January 2019",
+      "subtitle": "Ruby on Rails development; Object-oriented JavaScript",
+      "bullets": [
+        "Core Ruby on Rails developer for workflow automation software; provided JavaScript expertise for the team",
+        "Worked on UI overhaul, improved usability of software through development of new features",
+        "Migrated codebase from Subversion to Git"
+      ]
+    },
+    {
+      "company": "Aspera, an IBM Company",
+      "role": "Build & Release Engineer",
+      "dates": "July 2011 – June 2015",
+      "subtitle": "Systems & build maintenance; shell scripting; PHP web programming; cloud solutions",
+      "bullets": [
+        "Reduced the Aspera On Demand build from 3 hours to 12 minutes (15x)",
+        "Built a build dashboard monitoring build status across dozens of Aspera products",
+        "Built the AWS-hosted product offering, Aspera on Demand"
+      ]
+    }
+  ]
+}

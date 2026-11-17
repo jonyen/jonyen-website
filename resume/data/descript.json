@@ -1,0 +1,124 @@
+{
+  "slug": "jonathan-yen-resume-descript",
+  "title": "Software Engineer, Product",
+  "extraContact": [],
+  "summary": "Product-minded full stack engineer with 15+ years shipping customer-facing software in TypeScript, React, Node.js, Go, Rust, and Python. Owns features end to end, from problem framing through launch, instrumentation, and follow-up. Builds with agents daily (Claude Code, MCP, LangGraph) and ships AI-powered features into production. Hands-on with speech, audio, and video pipelines: real-time STT, TTS and voice cloning, Whisper alignment, FFmpeg rendering. Remote, US citizen.",
+  "skills": [
+    {
+      "label": "Product Stack",
+      "value": "TypeScript, React, Next.js, Node.js, SQL (PostgreSQL, MySQL, SQLite), GraphQL, REST, Go, Python (FastAPI)"
+    },
+    {
+      "label": "AI & Agents",
+      "value": "Claude Code and Anthropic API, MCP server author (Microsoft Graph, internal platform), LangGraph multi-agent systems, Temporal workflows, LLM classification and dedupe, vector search, agent-driven development workflow"
+    },
+    {
+      "label": "Media & Speech",
+      "value": "Real-time STT (Deepgram, Moonshine Core ML, Whisper), TTS and voice cloning, ffmpeg render pipelines, Pillow compositing, generative audio (Replicate, MiniMax), AVFoundation"
+    },
+    {
+      "label": "Product Practice",
+      "value": "Feature flags, analytics and experimentation (PostHog, Grafana), observability (Splunk, SignalFx, Loki), Playwright and Cypress, CI/CD (GitHub Actions, Bitbucket Pipelines), AWS, Cloudflare Workers, Docker"
+    }
+  ],
+  "experience": [
+    {
+      "company": "Datavault AI",
+      "role": "Software Engineer (Platform)",
+      "dates": "February 2026 – Current",
+      "subtitle": "Full stack on AI-powered data exchange platform: Go API, Next.js/React/TypeScript portal, Python agents",
+      "bullets": [
+        "Owned Intelligent Data Analyst, an AI data-valuation feature, end to end: LangGraph multi-agent engine on Temporal, Go endpoints with HMAC-verified async callbacks, React analysis UI shipped behind a feature flag with usage instrumentation",
+        "Shipped an LLM analysis chat over customer datasets; bounded the context digest so a 1.4 MB asset record could not blow the prompt ceiling",
+        "Built a marketplace scraper (FastAPI, Playwright, Claude classification) feeding a vector store of comparables to benchmark valuation accuracy against real prices",
+        "Top-3 contributor to both core services with 300+ commits; built per-branch preview deploys so product changes get reviewed as running software, not diffs",
+        "Introduced agent-assisted PR review, CI autofix, and a test-timing dashboard to the team; wrote ADRs that set connector strategy and dev-environment standards",
+        "Hardened the platform: AES-256-GCM credential encryption at rest, cross-tenant authorization fix, presigned S3 uploads, Entra ID OIDC library"
+      ]
+    },
+    {
+      "company": "Mercor",
+      "role": "Senior Domain Expert (Software Developer)",
+      "dates": "November 2025 – February 2026",
+      "subtitle": "Software engineering expert for a frontier AI lab",
+      "bullets": [
+        "Built dozens of 0-to-1 React/TypeScript/Node.js projects from scratch as ground-truth deliverables for model training",
+        "Developed data-generation tooling used by hundreds of experts; worked with reviewers to raise training-data quality"
+      ]
+    },
+    {
+      "company": "Atlassian",
+      "role": "Frontend Software Engineer",
+      "dates": "August 2022 – June 2025",
+      "subtitle": "React/Node.js/GraphQL engineer on the Central AI and Confluence teams",
+      "bullets": [
+        "Helped ship Rovo, Atlassian's flagship AI product, by building core third-party connectors on a compressed launch timeline",
+        "Led a team of engineers to build the Confluence search autosuggest component; owned the UX details that made it feel fast",
+        "Modernized Confluence frontend package management for an 8.5x install-time improvement across a 200+ engineer org",
+        "Second most prolific code contributor in the org in 2022; mentored 5 junior engineers and taught git-based debugging"
+      ]
+    },
+    {
+      "company": "Medallia",
+      "role": "Software Engineer",
+      "dates": "January 2020 – August 2022",
+      "subtitle": "React/Node.js/GraphQL/PHP engineer on Crowdicity, a crowdsourced-innovation product",
+      "bullets": [
+        "Built customer-facing features and REST/GraphQL APIs; shipped OAuth2 social login used by thousands of end users",
+        "Set up Grafana/Loki observability; cut developer environment setup from hours to 3 minutes with Docker Compose",
+        "Security champion for the team; led a workshop on Node.js and PHP debugging"
+      ]
+    },
+    {
+      "company": "Cvent",
+      "role": "Software Engineer II",
+      "dates": "January 2019 – January 2020",
+      "subtitle": "Full stack Ruby on Rails/JavaScript on the event management platform",
+      "bullets": [
+        "Shipped UI components for the customer portal; wrote a setup script that onboarded new developers in 15 minutes"
+      ]
+    },
+    {
+      "company": "Aspera, an IBM Company",
+      "role": "Software Developer, then Build & Release Engineer",
+      "dates": "July 2011 – January 2019",
+      "subtitle": "Rails and JavaScript on workflow automation; AWS cloud offering and build systems",
+      "bullets": [
+        "Core Rails developer on workflow automation software; led UI overhaul and Subversion-to-Git migration",
+        "Built Aspera on Demand on AWS and cut its build from 3 hours to 12 minutes"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "type-n-stitch",
+      "url": "github.com/jonyen/type-n-stitch",
+      "text": "Mini Descript: text-based media editing. whisper.cpp word timestamps, delete words to cut, overdub in a cloned voice via VoiceStudio; Rust engine + axum server, React/TypeScript UI, FFmpeg export. Built for this application."
+    },
+    {
+      "name": "Apple Watch Captions / Mac Live Captions",
+      "url": "github.com/jonyen/apple-watch-captions",
+      "text": "Live captions of nearby speech. Watch mic streams 16 kHz PCM to a Fly.io relay through Deepgram; Mac version runs Moonshine on Core ML fully on-device. Shared Swift caption engine."
+    },
+    {
+      "name": "lyric-video",
+      "url": "personal, source on request",
+      "text": "Song to 1080p lyric video. Whisper segment timing as an alignment map, hand-authored text, Pillow-rendered frames composited with ffmpeg."
+    },
+    {
+      "name": "Songsmith",
+      "url": "personal, source on request",
+      "text": "Lyrics plus style to a finished song via hosted music models (MiniMax, Mureka) on Replicate, with a pluggable model selector."
+    },
+    {
+      "name": "fh-community-bot",
+      "url": "github.com/jonyen/fh-community-bot",
+      "text": "Slack maintenance-reporting bot in daily use: in-thread forms, LLM duplicate detection, Lambda + SQS worker so Slack's 3 s deadline is never the bottleneck."
+    },
+    {
+      "name": "outlook-mcp / dvlt-platform-mcp",
+      "url": "github.com/jonyen/outlook-mcp",
+      "text": "MCP servers giving Claude access to Microsoft Graph (mail, calendar, Teams) and to an internal work platform; used daily for triage and ops."
+    }
+  ]
+}
