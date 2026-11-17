@@ -1,0 +1,100 @@
+{
+  "slug": "jonathan-yen-resume-microsoft",
+  "title": "Senior Software Engineer",
+  "extraContact": [],
+  "summary": "Senior engineer with 15+ years building and operating production services in Go, Python, and TypeScript on AWS. Owns backend systems end to end: design, data protection, releases, observability, and production incidents. Builds fault-tolerant async pipelines and monitors service health so failures surface before customers report them. Uses AI-assisted engineering daily (Claude Code, GitHub Copilot, MCP, agent PR review, CI autofix) behind tests and review gates. US citizen.",
+  "skills": [
+    {
+      "label": "Languages",
+      "value": "Go, Python, TypeScript/Node.js, Ruby, PHP, shell"
+    },
+    {
+      "label": "Distributed systems",
+      "value": "Async job pipelines with HMAC-verified callbacks, background connection-health monitoring, multi-tenant authorization, REST and GraphQL API design"
+    },
+    {
+      "label": "Cloud & storage",
+      "value": "AWS (EC2, S3, RDS, VPC, PrivateLink, CloudFront), Kubernetes, Argo CD, Docker, Cloudflare Workers + D1; Postgres, MySQL, MSSQL, MongoDB, Redis, SQLite, Elasticsearch, schema migrations"
+    },
+    {
+      "label": "Reliability & ops",
+      "value": "Production incident response, observability (Grafana/Loki, Splunk, SignalFx), metrics and alerting, release and migration management, AES-256-GCM encryption at rest, TLS verify-full"
+    },
+    {
+      "label": "AI-assisted engineering",
+      "value": "Claude Code, GitHub Copilot, Cursor, MCP server development, agent-assisted PR review, CI autofix"
+    }
+  ],
+  "experience": [
+    {
+      "company": "Datavault AI",
+      "role": "Software Engineer (Platform)",
+      "dates": "February 2026 – Present",
+      "subtitle": "Backend and platform engineer on a multi-tenant data exchange: Go/PostgreSQL/Redis core API, Python services, Next.js portal, AWS and Kubernetes",
+      "bullets": [
+        "Top-3 contributor to both core services with 300+ commits across the Go API and the Next.js/TypeScript portal",
+        "Owned Intelligent Data Analyst end to end: a Python multi-agent valuation engine, Go endpoints with HMAC-verified async callbacks, and a UI shipped behind a feature flag",
+        "Designed a pluggable data-connector framework (PostgreSQL, MySQL, MSSQL, MongoDB, SQLite) with a query-execution API and tiered background connection-health monitoring",
+        "Protected customer data at rest and in transit: AES-256-GCM credential encryption with a migration CLI, a cross-tenant authorization fix, presigned S3 uploads, and a rehearsed AWS PrivateLink path to customer databases with TLS verify-full",
+        "Ran the release train to production: release PRs, database migration ordering, and promotion to the prod cluster; shipped the hotfix for a production 500 on account verification",
+        "Diagnosed production data-pipeline failures across Go, Python, and IBM watsonx services, including a parser defect that dropped whole inference batches",
+        "Added business-event counters and alert rules for claim and email delivery so failures page on-call instead of waiting for a customer report",
+        "Built per-branch preview deploys (signed-cookie routing), a CI test-timing dashboard, agent-assisted PR review, and a CI autofix pipeline; authored ADRs on architecture and CI security scanning"
+      ]
+    },
+    {
+      "company": "Mercor (Contract)",
+      "role": "Senior Domain Expert (Software Developer)",
+      "dates": "November 2025 – February 2026",
+      "subtitle": "TypeScript/Node.js/Next.js/GraphQL/Postgres/Docker expert for a top AI lab",
+      "bullets": [
+        "Architected and built dozens of 0-to-1 projects used to train and evaluate frontier coding models",
+        "Built data-generation tooling used by hundreds of experts; worked with reviewers to raise training-data quality"
+      ]
+    },
+    {
+      "company": "Atlassian",
+      "role": "Software Engineer",
+      "dates": "August 2022 – June 2025",
+      "subtitle": "Node.js/GraphQL/React engineer on Central AI and Confluence",
+      "bullets": [
+        "Built core third-party data connectors for Rovo, Atlassian's flagship AI product, on a record launch timeline",
+        "Debugged production and staging issues at enterprise scale with Splunk and SignalFx",
+        "Cut Confluence package installation time 8.5x by modernizing its package management",
+        "Second most prolific code contributor in an org of 200+ engineers (2022); mentored 5 junior engineers"
+      ]
+    },
+    {
+      "company": "Medallia",
+      "role": "Software Engineer",
+      "dates": "January 2020 – August 2022",
+      "subtitle": "Node.js/PHP/GraphQL engineer on a crowdsourced-innovation platform",
+      "bullets": [
+        "Stood up observability with Grafana and Loki; ran Jenkins CI for testing and linting",
+        "Built REST and GraphQL APIs in Node.js and PHP; led the PHP runtime upgrade",
+        "Cut developer environment setup from hours to 3 minutes with Docker Compose",
+        "Security champion for the team: triaged vulnerabilities and enforced secure coding practices"
+      ]
+    },
+    {
+      "company": "Cvent",
+      "role": "Software Engineer II",
+      "dates": "January 2019 – January 2020",
+      "subtitle": "Full stack Ruby on Rails/JavaScript",
+      "bullets": [
+        "Built features for the event-management platform; wrote setup scripts that cut new-developer onboarding to 15 minutes"
+      ]
+    },
+    {
+      "company": "Aspera, an IBM Company",
+      "role": "Software Developer; Build & Release Engineer",
+      "dates": "July 2011 – January 2019",
+      "subtitle": "High-speed bulk data transfer software; Ruby on Rails, shell, PHP, AWS",
+      "bullets": [
+        "Built Aspera On Demand, the company's data-transfer offering on AWS, and cut its build from 3 hours to 12 minutes (15x)",
+        "Built a build-status dashboard covering dozens of Aspera products",
+        "Core Rails developer on enterprise workflow-automation software for media and government customers; migrated the codebase from Subversion to Git"
+      ]
+    }
+  ]
+}

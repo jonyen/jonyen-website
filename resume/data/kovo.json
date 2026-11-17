@@ -1,0 +1,98 @@
+{
+  "slug": "jonathan-yen-resume-kovo",
+  "title": "Senior Backend Engineer",
+  "extraContact": [],
+  "summary": "Backend-focused engineer with 15+ years building and operating production systems in TypeScript/Node.js, Go, and Python on AWS. Owns services end to end: API and data-model design, security, CI/CD, observability, releases, and production incidents. Orchestrates AI agents daily (Claude Code, MCP, custom skills) to ship more, behind tests, review gates, and ADRs that keep the code clean. Remote, US citizen.",
+  "skills": [
+    {
+      "label": "Backend",
+      "value": "TypeScript, Node.js, Go (Chi), Python (FastAPI), REST and GraphQL API design, webhooks with HMAC verification, multi-tenant authorization, OIDC (Microsoft Entra ID)"
+    },
+    {
+      "label": "Cloud & Infra",
+      "value": "AWS (EC2, S3, SSM, CloudFront, VPC, RDS), Cloudflare Workers + D1, Vercel, Docker, Kubernetes, Argo CD, Bitbucket Pipelines, Jenkins"
+    },
+    {
+      "label": "Data",
+      "value": "Postgres, MySQL, MSSQL, MongoDB, Redis, SQLite, Elasticsearch, vector stores, schema migrations"
+    },
+    {
+      "label": "Reliability",
+      "value": "Observability (Grafana/Loki, Splunk, SignalFx), metrics and alerting, preview environments, AES-256-GCM encryption at rest"
+    },
+    {
+      "label": "AI-assisted dev",
+      "value": "Claude Code, Claude API, MCP server development, agent-assisted PR review, CI autofix"
+    }
+  ],
+  "experience": [
+    {
+      "company": "Datavault AI (Nasdaq: DVLT)",
+      "role": "Software Engineer (Platform)",
+      "dates": "February 2026 – Present",
+      "subtitle": "Backend and platform engineer on a multi-tenant data exchange: Go/PostgreSQL/Redis core API, Python services, Next.js portal on AWS",
+      "bullets": [
+        "Top-3 contributor to both core services with 300+ commits across the Go API and the Next.js/TypeScript portal",
+        "Owned Intelligent Data Analyst, an AI data-valuation feature, end to end: Go endpoints with HMAC-verified async callbacks and a UI shipped behind a feature flag",
+        "Designed a pluggable data-connector framework (PostgreSQL, MySQL, MSSQL, MongoDB, SQLite) with a query-execution API and tiered background connection-health monitoring",
+        "Hardened a platform that holds customer data: AES-256-GCM credential encryption at rest with a migration CLI, a cross-tenant authorization fix, presigned S3 uploads, and a shared Entra ID OIDC library",
+        "Ran the release train to production: release PRs, database migration ordering, and promotion to the prod cluster; shipped the hotfix for a production 500 on account verification",
+        "Added business-event counters and alert rules for claim and email delivery so failures page instead of waiting for a customer report",
+        "Built per-branch preview deploys for frontend and backend (signed-cookie routing); introduced agent-assisted PR review and a CI autofix pipeline"
+      ]
+    },
+    {
+      "company": "Mercor",
+      "role": "Senior Domain Expert (Software Developer), Contract",
+      "dates": "November 2025 – February 2026",
+      "subtitle": "TypeScript/Node.js/Next.js/GraphQL/Postgres/Docker expert for a top AI lab",
+      "bullets": [
+        "Architected and built dozens of 0-to-1 projects used to train and evaluate frontier coding models",
+        "Built data-generation tooling used by hundreds of experts; worked with reviewers to raise training-data quality"
+      ]
+    },
+    {
+      "company": "Atlassian",
+      "role": "Software Engineer",
+      "dates": "August 2022 – June 2025",
+      "subtitle": "Node.js/GraphQL/React engineer on Central AI and Confluence",
+      "bullets": [
+        "Built core third-party connectors for Rovo, Atlassian's flagship AI product, on a record launch timeline",
+        "Cut Confluence package installation time 8.5x by modernizing its package management",
+        "Debugged production and staging issues at enterprise scale with Splunk and SignalFx",
+        "Second most prolific code contributor in an org of 200+ engineers (2022); mentored 5 junior engineers"
+      ]
+    },
+    {
+      "company": "Medallia",
+      "role": "Software Engineer",
+      "dates": "January 2020 – August 2022",
+      "subtitle": "Node.js/PHP/GraphQL engineer on a crowdsourced-innovation platform",
+      "bullets": [
+        "Built REST and GraphQL APIs in Node.js and PHP; led the PHP runtime upgrade",
+        "Stood up observability with Grafana and Loki; ran Jenkins CI for testing and linting",
+        "Cut developer environment setup from hours to 3 minutes with Docker Compose",
+        "Security champion for the team: triaged vulnerabilities and enforced secure coding practices"
+      ]
+    },
+    {
+      "company": "Cvent",
+      "role": "Software Engineer II",
+      "dates": "January 2019 – January 2020",
+      "subtitle": "Full stack Ruby on Rails/JavaScript",
+      "bullets": [
+        "Built features for the event-management platform; wrote setup scripts that cut new-developer onboarding to 15 minutes"
+      ]
+    },
+    {
+      "company": "Aspera, an IBM Company",
+      "role": "Software Developer; Build & Release Engineer",
+      "dates": "July 2011 – January 2019",
+      "subtitle": "Ruby on Rails, shell, PHP, AWS",
+      "bullets": [
+        "Built Aspera On Demand, the company's AWS cloud offering, and cut its build from 3 hours to 12 minutes (15x)",
+        "Core Rails developer on enterprise workflow-automation software for media and government customers; migrated the codebase from Subversion to Git"
+      ]
+    }
+  ]
+}

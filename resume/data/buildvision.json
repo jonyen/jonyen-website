@@ -1,0 +1,113 @@
+{
+  "slug": "jonathan-yen-resume-buildvision",
+  "title": "Senior Forward Deployed Engineer",
+  "extraContact": [],
+  "summary": "Senior full stack engineer with 15+ years building products in TypeScript, React, Node.js, and PostgreSQL, plus Go and Python. Recent work: connecting customer databases to a data platform, using LLMs to turn unstructured records into structured data, and building features on a shared core platform. Uses Claude and LangGraph in production work. DC area, open to onsite in McLean. US citizen (no sponsorship required).",
+  "skills": [
+    {
+      "label": "Core Stack",
+      "value": "TypeScript, React, Next.js, Node.js, PostgreSQL (schema design, migrations, query tuning), REST and GraphQL APIs; also Go and Python (FastAPI)"
+    },
+    {
+      "label": "AI & Data",
+      "value": "LLM extraction and classification (Claude, Gemini, watsonx), LangGraph multi-agent pipelines, Temporal workflows, vector search, CSV and document ingest, Playwright-based scraping"
+    },
+    {
+      "label": "Integrations",
+      "value": "Pluggable data connectors (PostgreSQL, MySQL, MSSQL, MongoDB, SQLite), third-party SaaS connectors, webhooks with HMAC-signed callbacks, OIDC / SSO (Entra ID), S3 uploads"
+    },
+    {
+      "label": "Delivery",
+      "value": "AWS, Docker, Kubernetes, CI/CD (Bitbucket Pipelines, GitHub Actions, Jenkins), feature flags, preview deploys, observability (Grafana, Splunk, SignalFx), Playwright and Cypress"
+    }
+  ],
+  "experience": [
+    {
+      "company": "Datavault AI",
+      "role": "Software Engineer (Platform)",
+      "dates": "February 2026 – Current",
+      "subtitle": "Full stack engineer on an AI data platform: Next.js/React/TypeScript portal, Go/PostgreSQL API, Python AI services",
+      "bullets": [
+        "Led the AI data-valuation feature across the stack: Python multi-agent engine (LangGraph on Temporal) that reads customer datasets and produces structured valuations, Go endpoints with HMAC-verified async callbacks, and a React UI shipped behind a feature flag",
+        "Built a marketplace scraper (FastAPI, Playwright, Claude classification) that turns unstructured listings into structured, priced comparables in a vector store, used to benchmark valuation accuracy against real prices",
+        "Designed a pluggable connector framework so customers could bring their own databases (PostgreSQL, MySQL, MSSQL, MongoDB, SQLite), with a query API and background connection-health monitoring",
+        "Built a valuation audit log and a PDF report showing how each result was produced",
+        "Shipped an LLM analysis chat over customer datasets, keeping the context bounded so very large records could not exceed the model's prompt limit",
+        "300+ commits across both core services; built per-branch preview deploys for review",
+        "Security work: fixed a cross-tenant credential exposure, encrypted stored credentials with AES-256-GCM, and built a reusable Entra ID SSO library"
+      ]
+    },
+    {
+      "company": "Mercor",
+      "role": "Senior Domain Expert (Software Developer) — Contract",
+      "dates": "November 2025 – February 2026",
+      "subtitle": "React/TypeScript/Node.js/Next.js/GraphQL/PHP/Docker/Postgres expert",
+      "bullets": [
+        "Contract software development work on AI training data for an AI lab",
+        "Built small projects from scratch as reference deliverables",
+        "Wrote data generation tooling used by other experts on the project",
+        "Worked with reviewers to improve training data quality"
+      ]
+    },
+    {
+      "company": "Atlassian",
+      "role": "Frontend Software Engineer",
+      "dates": "August 2022 – June 2025",
+      "subtitle": "React/Node.js/GraphQL Software Engineer in Central AI and Confluence teams",
+      "bullets": [
+        "Built third-party connectors for Rovo, Atlassian's AI product",
+        "Led a small team building a search autosuggestion component in Confluence",
+        "Migrated Confluence frontend package management from Bolt to Yarn v2, cutting install time from about 13 minutes to under 2",
+        "Mentored 5 junior engineers",
+        "Troubleshot production and staging issues with Splunk and SignalFx"
+      ]
+    },
+    {
+      "company": "Medallia",
+      "role": "Software Engineer",
+      "dates": "January 2020 – August 2022",
+      "subtitle": "React/Redux/Node.js/GraphQL, PHP Software engineer",
+      "bullets": [
+        "Developed web application for crowdsourcing innovation in React/Redux, Node.js and PHP",
+        "Upgraded code infrastructure to latest version of PHP, built out REST and GraphQL APIs",
+        "Set up observability infrastructure with Grafana and Loki",
+        "Simplified multistep developer environment setup from several hours to 3 minutes using Docker compose",
+        "Led workshop on debugging best practices in NodeJS and PHP",
+        "Created Jenkins agent to manage continuous integration environment for testing and linting PHP codebase",
+        "Served as security champion for project team: managed security vulnerabilities and enforced safe/secure code practices"
+      ]
+    },
+    {
+      "company": "Cvent",
+      "role": "Software Engineer II",
+      "dates": "January 2019 – January 2020",
+      "subtitle": "Full stack Ruby on Rails/JavaScript developer",
+      "bullets": [
+        "Developed new UI components and functionality for the event management platform and customer portal",
+        "Created development environment setup script to help new developers set up their machines within 15 minutes"
+      ]
+    },
+    {
+      "company": "Aspera, an IBM Company",
+      "role": "Technical Consultant/Software Developer",
+      "dates": "July 2015 – January 2019",
+      "subtitle": "Ruby on Rails development; Object-oriented JavaScript",
+      "bullets": [
+        "Core Ruby on Rails developer for workflow automation software; provided JavaScript expertise for the team",
+        "Worked on UI overhaul, improved usability of software through development of new features",
+        "Migrated codebase from Subversion to Git"
+      ]
+    },
+    {
+      "company": "Aspera, an IBM Company",
+      "role": "Build & Release Engineer",
+      "dates": "July 2011 – June 2015",
+      "subtitle": "Systems & build maintenance; shell scripting; PHP web programming; cloud solutions",
+      "bullets": [
+        "Created build dashboard tool to help monitor status of builds across dozens of Aspera products",
+        "Developed cloud-based product offering of Aspera on Amazon Web Services (known as Aspera on Demand)",
+        "Reduced the build process of Aspera On Demand offerings from 3 hours to 12 minutes (15x improvement)"
+      ]
+    }
+  ]
+}
