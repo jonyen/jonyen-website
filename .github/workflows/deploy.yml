@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy site and Workers
 
 on:
   push:
@@ -6,8 +6,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: "pages"
@@ -16,9 +14,6 @@ concurrency:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
 
@@ -41,14 +36,14 @@ jobs:
       - name: Fail if a phone number reached the published PDFs
         run: node resume/check-public.mjs
 
-      - uses: actions/configure-pages@v6
-
-      - uses: actions/upload-pages-artifact@v5
-        with:
-          path: build
-
-      - id: deployment
-        uses: actions/deploy-pages@v5
+      # The site is served by the jonyen-site Worker from static assets (see
+      # site/wrangler.toml), not by GitHub Pages.
+      - name: Deploy site Worker
+        working-directory: site
+        run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
   deploy-resume-links:
     runs-on: ubuntu-latest

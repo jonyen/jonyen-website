@@ -354,10 +354,15 @@ export function createHandler({ fetchImpl = fetch, now = Date.now, cache = null 
     return now() - Date.parse(JSON.parse(text).generatedAt) < STALE_MS ? text : null;
   }
 
+  // The static page comes from the jonyen-site Worker through the SITE service
+  // binding. A plain fetch would go to the zone's origin, which no longer
+  // serves the site.
+  const site = (request, env) => (env.SITE ? env.SITE.fetch(request) : fetchImpl(request));
+
   // Inlines the stored feed into the page. Without one, or if KV fails, the
   // page goes out as is and fetches busy.json itself.
   async function page(request, env) {
-    const [res, text] = await Promise.all([fetchImpl(request), stored(env).catch(() => null)]);
+    const [res, text] = await Promise.all([site(request, env), stored(env).catch(() => null)]);
     if (!text || !res.ok || !(res.headers.get('Content-Type') ?? '').startsWith('text/html')) return res;
     // "<" never appears in the feed, but escaping it keeps "</script>" out for good.
     const tag = `<script id="busy-data" type="application/json">${text.replace(/</g, '\\u003c')}</script>`;
@@ -375,7 +380,7 @@ export function createHandler({ fetchImpl = fetch, now = Date.now, cache = null 
   return {
     async fetch(request, env, ctx) {
       const url = new URL(request.url);
-      if (url.pathname === '/schedule/') return request.method === 'GET' ? page(request, env) : fetchImpl(request);
+      if (url.pathname === '/schedule/') return request.method === 'GET' ? page(request, env) : site(request, env);
       if (url.pathname !== '/schedule/busy.json') return new Response('Not found', { status: 404 });
       if (request.method !== 'GET') return new Response('Method not allowed', { status: 405 });
 
