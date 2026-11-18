@@ -1,0 +1,22 @@
+name = "jonyen-site"
+main = "src/index.js"
+compatibility_date = "2026-08-01"
+workers_dev = false
+
+# Serves the built site (../build) for jonyen.com. It replaced GitHub Pages as
+# the origin on 2026-11-17: Pages cannot renew its certificate for a domain
+# proxied through Cloudflare, so the origin certificate expired and every page
+# returned 526.
+#
+# The jonyen.com/* and www.jonyen.com/* routes are managed outside this file:
+# the deploy token intentionally has no Workers Routes permission. More
+# specific routes (schedule/, schedule/busy.json, quip*, resume/dl/*,
+# biblequiz*) still win over the catch-all.
+
+[assets]
+directory = "../build"
+binding = "ASSETS"
+# Unknown paths get the nearest 404.html with a 404 status, as on Pages.
+not_found_handling = "404-page"
+# The Worker runs first so it can redirect www to the apex.
+run_worker_first = true

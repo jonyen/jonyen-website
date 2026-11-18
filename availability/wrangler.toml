@@ -31,3 +31,8 @@ GOOGLE_SKIP_ALL_DAY = "c_af3b7f631adc7ad1b21f146dd993ff7644bd739a3c920ded3bcc790
 [[kv_namespaces]]
 binding = "BUSY"
 id = "2a1777c2342944b68bb1cf3738223537"
+
+# The static /schedule/ page, served by the jonyen-site Worker (site/).
+[[services]]
+binding = "SITE"
+service = "jonyen-site"
