@@ -36,3 +36,6 @@ yarn-error.log*
 /public/resume/*.pdf
 /dist/
 /worker/src/pdfs.generated.js
+
+# Local wrangler dev state
+.wrangler/

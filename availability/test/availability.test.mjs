@@ -239,3 +239,10 @@ test('/schedule/ goes out unchanged without a fresh stored feed or for non-HTML'
     assert.equal(res.headers.get('ETag'), '"abc"');
   }
 });
+
+test('/schedule/ reads the page from the SITE binding when it is bound', async () => {
+  const worker = createHandler({ fetchImpl: () => assert.fail('origin fetched'), now: () => NOW });
+  const SITE = { fetch: originFetch() };
+  const res = await worker.fetch(new Request('https://jonyen.com/schedule/'), { ...env, SITE, BUSY: fakeKv({ busy: feed(NOW) }) }, { waitUntil() {} });
+  assert.match(await res.text(), /<script id="busy-data"/);
+});

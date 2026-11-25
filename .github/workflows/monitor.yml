@@ -1,0 +1,32 @@
+name: Monitor jonyen.com
+
+# A failed run emails the repo owner (GitHub's default for scheduled workflow
+# failures). GitHub pauses scheduled workflows after 60 days with no repo
+# activity; re-enable it from the Actions tab if that happens.
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: monitor
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: scripts/monitor.mjs
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - run: node scripts/monitor.mjs
